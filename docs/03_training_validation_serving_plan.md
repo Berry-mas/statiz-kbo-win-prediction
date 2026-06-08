@@ -55,9 +55,11 @@
 | `lgbm_v002` | 0.6821 | 0.2446 | 0.6873 | 0.2471 |
 | `lgbm_v003` | 0.6817 | 0.2444 | 0.6813 | 0.2441 |
 | `lgbm_v005` | 0.6816 | 0.2443 | 0.6823 | 0.2446 |
+| `lgbm_v008` | 0.6783 | 0.2427 | 0.6753 | 0.2411 |
 
 `lgbm_v003`는 `home_minus_away_*`, 팀 승률 비율, 결측 flag를 추가한 버전이다. late-2025 holdout에서 단순 `team_win_rate_ratio` baseline LogLoss 0.6841을 처음으로 앞섰다.
-`lgbm_v005`는 같은 feature set을 사용하되 학습/검증/추론에서 일관된 고정 categorical mapping을 사용하도록 정리한 현재 기준 버전이다.
+`lgbm_v005`는 같은 feature set을 사용하되 학습/검증/추론에서 일관된 고정 categorical mapping을 사용하도록 정리한 버전이다.
+`lgbm_v008`은 선발 라인업 타자의 전년도 `playerSeason` 성적을 PA 가중 집계한 feature를 추가한 현재 기준 버전이다.
 
 ---
 

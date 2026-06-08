@@ -14,6 +14,7 @@ from .constants import (
     GAME_STATE_FINISHED,
     GAMES_CSV,
     LEAGUE_TYPE_REGULAR,
+    LINEUP_SNAPSHOT_CSV,
     RAW_DIR,
     feature_csv_path,
 )
@@ -102,10 +103,13 @@ class FeatureBuilder:
 
     def __init__(self) -> None:
         self.games_df: pd.DataFrame | None = None
+        self.lineups_df: pd.DataFrame | None = None
         self._pitcher_cache: dict[tuple[int, int], list[dict[str, Any]]] = {}
+        self._batter_season_cache: dict[tuple[int, int], dict[str, float] | None] = {}
+        self._lineup_cache: dict[tuple[int, int], list[dict[str, Any]]] = {}
 
     def load_clean_data(self) -> None:
-        """Load clean game rows."""
+        """Load clean game and lineup rows."""
         games_df = _read_csv_safe(GAMES_CSV)
         if not games_df.empty:
             games_df["game_date"] = pd.to_datetime(
@@ -117,6 +121,61 @@ class FeatureBuilder:
         self.games_df = games_df
         logger.info("Loaded games: {}", len(games_df))
 
+        lineups_df = _read_csv_safe(LINEUP_SNAPSHOT_CSV)
+        if not lineups_df.empty:
+            lineups_df["s_no"] = pd.to_numeric(lineups_df["s_no"], errors="coerce")
+            lineups_df["team_code"] = pd.to_numeric(
+                lineups_df["team_code"], errors="coerce"
+            )
+            lineups_df["p_no"] = pd.to_numeric(lineups_df["p_no"], errors="coerce")
+            lineups_df = lineups_df.dropna(
+                subset=["s_no", "team_code", "p_no"]
+            ).reset_index(drop=True)
+            lineups_df["s_no"] = lineups_df["s_no"].astype(int)
+            lineups_df["team_code"] = lineups_df["team_code"].astype(int)
+            lineups_df["p_no"] = lineups_df["p_no"].astype(int)
+        self.lineups_df = lineups_df
+        self._lineup_cache = self._build_lineup_cache(lineups_df)
+        logger.info("Loaded lineup rows: {}", len(lineups_df))
+
+    @staticmethod
+    def _build_lineup_cache(
+        lineups_df: pd.DataFrame,
+    ) -> dict[tuple[int, int], list[dict[str, Any]]]:
+        """Index starting batters by game and team."""
+        required_cols = {"s_no", "team_code", "p_no", "is_starter", "is_pitcher"}
+        if lineups_df.empty or not required_cols.issubset(lineups_df.columns):
+            return {}
+
+        batter_lineups = lineups_df[
+            lineups_df["is_starter"].fillna(False).astype(bool)
+            & ~lineups_df["is_pitcher"].fillna(False).astype(bool)
+        ].copy()
+        if batter_lineups.empty:
+            return {}
+
+        batter_lineups["batting_order_int"] = pd.to_numeric(
+            batter_lineups["batting_order"], errors="coerce"
+        )
+        batter_lineups = batter_lineups.sort_values(
+            ["s_no", "team_code", "batting_order_int"], na_position="last"
+        )
+
+        cache: dict[tuple[int, int], list[dict[str, Any]]] = {}
+        for (s_no, team_code), group in batter_lineups.groupby(
+            ["s_no", "team_code"], sort=False
+        ):
+            cache[(int(s_no), int(team_code))] = group.to_dict(orient="records")
+        return cache
+
+    def _lineup_rows_for_team(self, team_code: int, s_no: int) -> list[dict[str, Any]]:
+        """Return cached starting-batter lineup rows for a team game."""
+        if self.lineups_df is None or self.lineups_df.empty:
+            return []
+        if not self._lineup_cache:
+            self._lineup_cache = self._build_lineup_cache(self.lineups_df)
+        return self._lineup_cache.get((s_no, team_code), [])
+
     def _finished_games_before(
         self, team_code: int, game_date: date, year: int
     ) -> pd.DataFrame:
@@ -127,6 +186,7 @@ class FeatureBuilder:
         df = self.games_df
         mask = (
             (df["year"] == year)
+            & (df["league_type"] == LEAGUE_TYPE_REGULAR)
             & (df["game_state"] == GAME_STATE_FINISHED)
             & (pd.to_datetime(df["game_date"]).dt.date < game_date)
             & (~df["target_home_win"].isna())
@@ -330,6 +390,158 @@ class FeatureBuilder:
             "bullpen_era_last_3": self._pitcher_era(bullpen_games),
         }
 
+    def _load_batter_previous_season_stats(
+        self, p_no: int, year: int
+    ) -> dict[str, float] | None:
+        """Load a batter's previous-season aggregate stats."""
+        stats_year = year - 1
+        cache_key = (p_no, stats_year)
+        if cache_key in self._batter_season_cache:
+            return self._batter_season_cache[cache_key]
+
+        path = Path(RAW_DIR) / str(stats_year) / "player_season" / f"{p_no}.json"
+        if not path.exists():
+            self._batter_season_cache[cache_key] = None
+            return None
+
+        data = json.loads(path.read_text(encoding="utf-8"))
+        basic_rows = data.get("basic", {}).get("list", [])
+        deepen_rows = data.get("deepen", {}).get("list", [])
+        if not isinstance(basic_rows, list):
+            self._batter_season_cache[cache_key] = None
+            return None
+
+        for index, basic in enumerate(basic_rows):
+            if not isinstance(basic, dict):
+                continue
+            if _to_int(basic.get("year")) != stats_year:
+                continue
+
+            deepen = deepen_rows[index] if index < len(deepen_rows) else {}
+            if not isinstance(deepen, dict):
+                deepen = {}
+
+            stats = {
+                "pa": _to_float(basic.get("PA"), default=0.0),
+                "ops": _to_float(basic.get("OPS")),
+                "woba": _to_float(deepen.get("wOBA")),
+                "wrcplus": _to_float(basic.get("wRCplus")),
+                "war": _to_float(basic.get("WAR"), default=0.0),
+                "hr": _to_float(basic.get("HR"), default=0.0),
+                "sb": _to_float(basic.get("SB"), default=0.0),
+            }
+            self._batter_season_cache[cache_key] = stats
+            return stats
+
+        self._batter_season_cache[cache_key] = None
+        return None
+
+    def _lineup_features(
+        self, team_code: int, s_no: int, year: int
+    ) -> dict[str, float]:
+        """Aggregate starting-batter features from previous-season stats."""
+        lineup = self._lineup_rows_for_team(team_code, s_no)
+        if not lineup:
+            return self._empty_lineup_features()
+
+        player_rows: list[dict[str, float]] = []
+        top_order_rows: list[dict[str, float]] = []
+        for player in lineup:
+            stats = self._load_batter_previous_season_stats(
+                _to_int(player["p_no"]), year
+            )
+            if stats is None or stats["pa"] <= 0:
+                continue
+            player_rows.append(stats)
+            batting_order = _to_float(player.get("batting_order_int"))
+            if not pd.isna(batting_order) and batting_order <= 4:
+                top_order_rows.append(stats)
+
+        batter_count = float(len(lineup))
+        covered_count = float(len(player_rows))
+        bat_sides = [player.get("p_bat") for player in lineup]
+        left_count = float(sum(_to_int(value) == 2 for value in bat_sides))
+        switch_count = float(sum(_to_int(value) == 3 for value in bat_sides))
+
+        return {
+            "lineup_batter_count": batter_count,
+            "lineup_prev_stats_coverage": _safe_div(covered_count, batter_count),
+            "lineup_left_batter_count": left_count,
+            "lineup_left_batter_ratio": _safe_div(left_count, batter_count),
+            "lineup_switch_batter_count": switch_count,
+            "lineup_prev_pa_sum": self._sum_player_stat(player_rows, "pa"),
+            "lineup_prev_ops_pa_weighted": self._weighted_player_stat(
+                player_rows, "ops"
+            ),
+            "lineup_prev_woba_pa_weighted": self._weighted_player_stat(
+                player_rows, "woba"
+            ),
+            "lineup_prev_wrcplus_pa_weighted": self._weighted_player_stat(
+                player_rows, "wrcplus"
+            ),
+            "lineup_prev_war_sum": self._sum_player_stat(player_rows, "war"),
+            "lineup_prev_war_avg": self._mean_player_stat(player_rows, "war"),
+            "lineup_prev_hr_sum": self._sum_player_stat(player_rows, "hr"),
+            "lineup_prev_sb_sum": self._sum_player_stat(player_rows, "sb"),
+            "lineup_top4_prev_ops_pa_weighted": self._weighted_player_stat(
+                top_order_rows, "ops"
+            ),
+            "lineup_top4_prev_wrcplus_pa_weighted": self._weighted_player_stat(
+                top_order_rows, "wrcplus"
+            ),
+        }
+
+    @staticmethod
+    def _empty_lineup_features() -> dict[str, float]:
+        """Return empty lineup features."""
+        return {
+            "lineup_batter_count": 0.0,
+            "lineup_prev_stats_coverage": _NAN,
+            "lineup_left_batter_count": _NAN,
+            "lineup_left_batter_ratio": _NAN,
+            "lineup_switch_batter_count": _NAN,
+            "lineup_prev_pa_sum": _NAN,
+            "lineup_prev_ops_pa_weighted": _NAN,
+            "lineup_prev_woba_pa_weighted": _NAN,
+            "lineup_prev_wrcplus_pa_weighted": _NAN,
+            "lineup_prev_war_sum": _NAN,
+            "lineup_prev_war_avg": _NAN,
+            "lineup_prev_hr_sum": _NAN,
+            "lineup_prev_sb_sum": _NAN,
+            "lineup_top4_prev_ops_pa_weighted": _NAN,
+            "lineup_top4_prev_wrcplus_pa_weighted": _NAN,
+        }
+
+    @staticmethod
+    def _sum_player_stat(rows: list[dict[str, float]], key: str) -> float:
+        """Return a sum over player rows."""
+        values = [row[key] for row in rows if not pd.isna(row[key])]
+        if not values:
+            return _NAN
+        return float(sum(values))
+
+    @staticmethod
+    def _mean_player_stat(rows: list[dict[str, float]], key: str) -> float:
+        """Return an unweighted mean over player rows."""
+        values = [row[key] for row in rows if not pd.isna(row[key])]
+        if not values:
+            return _NAN
+        return float(sum(values) / len(values))
+
+    @staticmethod
+    def _weighted_player_stat(rows: list[dict[str, float]], key: str) -> float:
+        """Return a PA-weighted mean over player rows."""
+        numerator = 0.0
+        denominator = 0.0
+        for row in rows:
+            value = row[key]
+            weight = row["pa"]
+            if pd.isna(value) or pd.isna(weight) or weight <= 0:
+                continue
+            numerator += value * weight
+            denominator += weight
+        return _safe_div(numerator, denominator)
+
     def _prefixed(self, prefix: str, features: dict[str, float]) -> dict[str, float]:
         """Prefix a feature dictionary."""
         return {f"{prefix}_{key}": value for key, value in features.items()}
@@ -357,6 +569,21 @@ class FeatureBuilder:
             "starter_np_last_game",
             "bullpen_ip_last_3",
             "bullpen_era_last_3",
+            "lineup_batter_count",
+            "lineup_prev_stats_coverage",
+            "lineup_left_batter_count",
+            "lineup_left_batter_ratio",
+            "lineup_switch_batter_count",
+            "lineup_prev_pa_sum",
+            "lineup_prev_ops_pa_weighted",
+            "lineup_prev_woba_pa_weighted",
+            "lineup_prev_wrcplus_pa_weighted",
+            "lineup_prev_war_sum",
+            "lineup_prev_war_avg",
+            "lineup_prev_hr_sum",
+            "lineup_prev_sb_sum",
+            "lineup_top4_prev_ops_pa_weighted",
+            "lineup_top4_prev_wrcplus_pa_weighted",
         ]
 
         features = {
@@ -427,6 +654,12 @@ class FeatureBuilder:
         )
         row.update(
             self._prefixed("away", self._bullpen_features(away_code, game_date, year))
+        )
+        row.update(
+            self._prefixed("home", self._lineup_features(home_code, row["s_no"], year))
+        )
+        row.update(
+            self._prefixed("away", self._lineup_features(away_code, row["s_no"], year))
         )
         row.update(self._matchup_features(row))
         return row

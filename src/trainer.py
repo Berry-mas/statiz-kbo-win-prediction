@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 import lightgbm as lgb
 import numpy as np
@@ -19,7 +20,6 @@ from sklearn.metrics import brier_score_loss, log_loss
 from .constants import MODEL_REGISTRY_DIR, feature_csv_path
 from .feature_matrix import prepare_model_matrix
 
-# Feature columns that are NOT used as model inputs
 _NON_FEATURE_COLS = {
     "s_no",
     "game_date",
@@ -40,6 +40,7 @@ CATEGORICAL_FEATURES = [
 ]
 
 MIN_CV_VAL_SAMPLES = 20
+_NAN = float("nan")
 
 LGBM_BASE_PARAMS: dict = {
     "objective": "binary",
@@ -69,10 +70,6 @@ class ModelTrainer:
 
         logger.info("ModelTrainer initialized with version={}", self.model_version)
 
-    # ------------------------------------------------------------------
-    # Version management
-    # ------------------------------------------------------------------
-
     def _next_version(self) -> str:
         """Auto-increment version: lgbm_v001, lgbm_v002, ..."""
         existing = sorted(
@@ -91,10 +88,6 @@ class ModelTrainer:
         except ValueError:
             num = 0
         return f"{self.MODEL_VERSION_PREFIX}{num + 1:03d}"
-
-    # ------------------------------------------------------------------
-    # Data loading
-    # ------------------------------------------------------------------
 
     def load_features(self, years: list[int]) -> pd.DataFrame:
         """Load and concatenate feature CSVs for given years.
@@ -127,10 +120,6 @@ class ModelTrainer:
         logger.info("Total feature rows after merge & clean: {}", len(combined))
         return combined
 
-    # ------------------------------------------------------------------
-    # Feature column selection
-    # ------------------------------------------------------------------
-
     def _get_feature_columns(self, df: pd.DataFrame) -> list[str]:
         """Return numeric feature columns (excluding meta and target columns)."""
         return [c for c in df.columns if c not in _NON_FEATURE_COLS]
@@ -138,10 +127,6 @@ class ModelTrainer:
     def _get_categorical_features(self, feature_cols: list[str]) -> list[str]:
         """Return categorical feature columns present in feature_cols."""
         return [c for c in CATEGORICAL_FEATURES if c in feature_cols]
-
-    # ------------------------------------------------------------------
-    # Time-based cross-validation
-    # ------------------------------------------------------------------
 
     def time_based_cv(self, df: pd.DataFrame) -> list[tuple[np.ndarray, np.ndarray]]:
         """Create chronological monthly expanding-window folds."""
@@ -195,10 +180,6 @@ class ModelTrainer:
         logger.info("Created {} CV folds", len(folds))
         return folds
 
-    # ------------------------------------------------------------------
-    # Single-seed training
-    # ------------------------------------------------------------------
-
     def train_single_seed(
         self,
         X_train: pd.DataFrame,
@@ -241,10 +222,6 @@ class ModelTrainer:
         logger.debug("Trained seed={} best_iteration={}", seed, booster.best_iteration)
         return booster
 
-    # ------------------------------------------------------------------
-    # CV training
-    # ------------------------------------------------------------------
-
     def train_with_cv(self, df: pd.DataFrame) -> dict:
         """Run time-based CV and return fold metrics.
 
@@ -267,12 +244,14 @@ class ModelTrainer:
             y_val = val_df["target_home_win"].astype(float)
 
             seed_preds: list[np.ndarray] = []
+            seed_best_iterations: list[int] = []
             for seed in self.SEEDS:
                 booster = self.train_single_seed(
                     X_train, y_train, X_val, y_val, seed, categorical_features
                 )
                 preds = booster.predict(X_val.values)
                 seed_preds.append(preds)
+                seed_best_iterations.append(int(booster.best_iteration))
 
             avg_preds = np.mean(seed_preds, axis=0)
             fold_logloss = float(log_loss(y_val, avg_preds, labels=[0.0, 1.0]))
@@ -285,6 +264,9 @@ class ModelTrainer:
                     "val_size": len(val_idx),
                     "log_loss": fold_logloss,
                     "brier_score": fold_brier,
+                    "best_iterations": seed_best_iterations,
+                    "best_iteration_mean": float(np.mean(seed_best_iterations)),
+                    "best_iteration_median": float(np.median(seed_best_iterations)),
                 }
             )
             logger.info(
@@ -298,6 +280,9 @@ class ModelTrainer:
 
         mean_logloss = float(np.mean([m["log_loss"] for m in fold_metrics]))
         mean_brier = float(np.mean([m["brier_score"] for m in fold_metrics]))
+        weighted_mean_logloss = self._weighted_metric(fold_metrics, "log_loss")
+        weighted_mean_brier = self._weighted_metric(fold_metrics, "brier_score")
+        final_num_boost_round = self._recommended_num_boost_round(fold_metrics)
 
         logger.info(
             "CV complete: mean_logloss={:.4f} mean_brier={:.4f}",
@@ -309,7 +294,34 @@ class ModelTrainer:
             "fold_metrics": fold_metrics,
             "mean_logloss": mean_logloss,
             "mean_brier": mean_brier,
+            "weighted_mean_logloss": weighted_mean_logloss,
+            "weighted_mean_brier": weighted_mean_brier,
+            "recommended_num_boost_round": final_num_boost_round,
         }
+
+    @staticmethod
+    def _weighted_metric(fold_metrics: list[dict[str, Any]], metric: str) -> float:
+        """Return validation-size weighted mean for a fold metric."""
+        total_val_size = sum(int(row["val_size"]) for row in fold_metrics)
+        if total_val_size == 0:
+            return _NAN
+        weighted_sum = sum(
+            float(row[metric]) * int(row["val_size"]) for row in fold_metrics
+        )
+        return weighted_sum / total_val_size
+
+    @staticmethod
+    def _recommended_num_boost_round(fold_metrics: list[dict[str, Any]]) -> int:
+        """Return a robust final boosting round count from CV early stopping."""
+        best_iterations = [
+            int(value)
+            for row in fold_metrics
+            for value in row.get("best_iterations", [])
+            if int(value) > 0
+        ]
+        if not best_iterations:
+            return 500
+        return max(1, int(np.median(best_iterations)))
 
     def _predict_with_seed_ensemble(
         self,
@@ -383,11 +395,9 @@ class ModelTrainer:
         )
         return metrics
 
-    # ------------------------------------------------------------------
-    # Final model training (all data)
-    # ------------------------------------------------------------------
-
-    def train_final_model(self, df: pd.DataFrame) -> list[lgb.Booster]:
+    def train_final_model(
+        self, df: pd.DataFrame, num_boost_round: int = 500
+    ) -> list[lgb.Booster]:
         """Train on ALL data (no validation split). Returns 5 models (one per seed)."""
         feature_cols = self._get_feature_columns(df)
         categorical_features = self._get_categorical_features(feature_cols)
@@ -407,7 +417,7 @@ class ModelTrainer:
             booster = lgb.train(
                 params=params,
                 train_set=train_set,
-                num_boost_round=500,
+                num_boost_round=num_boost_round,
                 callbacks=[lgb.log_evaluation(period=-1)],
             )
             models.append(booster)
@@ -418,10 +428,6 @@ class ModelTrainer:
         logger.info("Final training complete: {} seed models", len(models))
         return models
 
-    # ------------------------------------------------------------------
-    # Artifact saving
-    # ------------------------------------------------------------------
-
     def save_model(
         self,
         models: list[lgb.Booster],
@@ -429,6 +435,7 @@ class ModelTrainer:
         categorical_features: list[str],
         cv_metrics: dict,
         train_years: list[int],
+        final_num_boost_round: int,
     ) -> Path:
         """Save model artifacts to artifacts/model_registry/{version}/.
 
@@ -442,34 +449,30 @@ class ModelTrainer:
         version_dir = self.registry_dir / self.model_version
         version_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save each seed model
         for i, booster in enumerate(models):
             model_path = version_dir / f"model_seed{i}.txt"
             booster.save_model(str(model_path))
             logger.info("Saved model_seed{}.txt", i)
 
-        # Save feature list
         (version_dir / "feature_list.json").write_text(
             json.dumps(feature_list, ensure_ascii=False, indent=2), encoding="utf-8"
         )
 
-        # Save categorical features
         (version_dir / "categorical_features.json").write_text(
             json.dumps(categorical_features, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
 
-        # Save CV metrics
         (version_dir / "metrics.json").write_text(
             json.dumps(cv_metrics, ensure_ascii=False, indent=2), encoding="utf-8"
         )
 
-        # Save training config
         train_config = {
             "model_version": self.model_version,
             "train_years": train_years,
             "seeds": self.SEEDS,
             "lgbm_params": LGBM_BASE_PARAMS,
+            "final_num_boost_round": final_num_boost_round,
         }
         (version_dir / "train_config.yaml").write_text(
             yaml.dump(train_config, allow_unicode=True, default_flow_style=False),
@@ -478,10 +481,6 @@ class ModelTrainer:
 
         logger.info("Artifacts saved to {}", version_dir)
         return version_dir
-
-    # ------------------------------------------------------------------
-    # Main pipeline
-    # ------------------------------------------------------------------
 
     def run(self, train_years: list[int], val_years: list[int] | None = None) -> Path:
         """Main training pipeline.
@@ -499,7 +498,6 @@ class ModelTrainer:
             val_years,
         )
 
-        # 1. Load features
         df = self.load_features(train_years)
         feature_cols = self._get_feature_columns(df)
         categorical_features = self._get_categorical_features(feature_cols)
@@ -510,29 +508,25 @@ class ModelTrainer:
             len(categorical_features),
         )
 
-        # 2. Run time-based CV
         cv_metrics = self.train_with_cv(df)
 
-        # 3. Late-2025 holdout evaluation
         cv_metrics["late_2025_holdout"] = self.evaluate_late_2025_holdout(df)
 
-        # 4. Optional val_years evaluation
         if val_years:
             val_df = self.load_features(val_years)
             logger.info("Val years {} loaded: {} rows", val_years, len(val_df))
-            # Add val-year metrics to cv_metrics if needed (logged only)
             cv_metrics["val_years"] = val_years
 
-        # 5. Train final models on all train data
-        final_models = self.train_final_model(df)
+        final_num_boost_round = int(cv_metrics.get("recommended_num_boost_round", 500))
+        final_models = self.train_final_model(df, num_boost_round=final_num_boost_round)
 
-        # 6. Save artifacts
         model_dir = self.save_model(
             models=final_models,
             feature_list=feature_cols,
             categorical_features=categorical_features,
             cv_metrics=cv_metrics,
             train_years=train_years,
+            final_num_boost_round=final_num_boost_round,
         )
 
         logger.info(

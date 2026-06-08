@@ -112,7 +112,7 @@ def evaluate_late_holdout_baselines(df: pd.DataFrame) -> pd.DataFrame:
 
 def summarize_baselines(baseline_rows: pd.DataFrame) -> pd.DataFrame:
     """Aggregate baseline scores by evaluation and baseline."""
-    return (
+    summary = (
         baseline_rows.groupby(["evaluation", "baseline"], as_index=False)
         .agg(
             mean_log_loss=("log_loss", "mean"),
@@ -121,6 +121,25 @@ def summarize_baselines(baseline_rows: pd.DataFrame) -> pd.DataFrame:
         )
         .sort_values(["evaluation", "mean_log_loss"])
     )
+    weighted_rows: list[dict[str, Any]] = []
+    for (evaluation, baseline), group in baseline_rows.groupby(
+        ["evaluation", "baseline"]
+    ):
+        total_val_size = int(group["val_size"].sum())
+        weighted_rows.append(
+            {
+                "evaluation": evaluation,
+                "baseline": baseline,
+                "weighted_mean_log_loss": float(
+                    (group["log_loss"] * group["val_size"]).sum() / total_val_size
+                ),
+                "weighted_mean_brier_score": float(
+                    (group["brier_score"] * group["val_size"]).sum() / total_val_size
+                ),
+            }
+        )
+    weighted = pd.DataFrame(weighted_rows)
+    return summary.merge(weighted, on=["evaluation", "baseline"], how="left")
 
 
 def load_metrics(model_dir: Path) -> dict[str, Any]:
@@ -136,6 +155,8 @@ def model_metric_rows(metrics: dict[str, Any]) -> pd.DataFrame:
             "model": "saved_cv_ensemble",
             "log_loss": metrics["mean_logloss"],
             "brier_score": metrics["mean_brier"],
+            "weighted_log_loss": metrics.get("weighted_mean_logloss"),
+            "weighted_brier_score": metrics.get("weighted_mean_brier"),
         }
     ]
     holdout = metrics.get("late_2025_holdout", {})
@@ -146,6 +167,8 @@ def model_metric_rows(metrics: dict[str, Any]) -> pd.DataFrame:
                 "model": "saved_holdout_ensemble",
                 "log_loss": holdout["log_loss"],
                 "brier_score": holdout["brier_score"],
+                "weighted_log_loss": holdout["log_loss"],
+                "weighted_brier_score": holdout["brier_score"],
             }
         )
     return pd.DataFrame(rows)

@@ -11,6 +11,7 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 프로젝�
 - Statiz API raw JSON 수집
 - 2023~2025 정규시즌 경기 단위 train/validation feature 생성
 - 경기 시작 전에 알 수 있는 정보만 사용하는 leakage-safe feature mart 생성
+- 선발 라인업의 전년도 타자 성적 기반 feature 생성
 - 월별 expanding CV
 - 2025 시즌 후반 holdout 검증
 - LightGBM baseline 학습 및 LogLoss/Brier Score 확인
@@ -19,8 +20,8 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 프로젝�
 
 - 예측 결과 제출 자동화
 - 경기 당일 라인업 공개 후 최종 제출 배치
-- 전체 타자 player-level feature 수집
-- 구장별 split, 좌우 상성, 라인업 평균 OPS 같은 2차 고도화 피처
+- 타자 `playerDay` 기반 최근 타격감 feature
+- 구장별 split, 좌우 상성 같은 2차 고도화 피처
 - 운영 모니터링/알림
 
 ## 현재 머신러닝 방법론
@@ -44,7 +45,7 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 프로젝�
   - 2024: 707
   - 2025: 693
 - 전체 학습 row: 1852
-- 현재 feature count: 72 total, 6 categorical
+- 현재 model input feature count: 117 total, 6 categorical
 
 ### 검증 전략
 
@@ -73,19 +74,19 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 프로젝�
 - `train_home_win_prior`: 학습 구간의 홈팀 승률 평균
 - `team_win_rate_ratio`: `home_win_rate / (home_win_rate + away_win_rate)`
 
-현재 기준 모델은 `artifacts/model_registry/lgbm_v005`입니다.
+현재 기준 모델은 `artifacts/model_registry/lgbm_v008`입니다.
 
 | 평가 | 모델 LogLoss | 모델 Brier | 비교 baseline LogLoss |
 | --- | ---: | ---: | ---: |
-| Monthly expanding CV | 0.6816 | 0.2443 | 0.6931 (`constant_0_5`) |
-| Late-2025 holdout | 0.6823 | 0.2446 | 0.6841 (`team_win_rate_ratio`) |
+| Monthly expanding CV | 0.6783 | 0.2427 | 0.6931 (`constant_0_5`) |
+| Late-2025 holdout | 0.6753 | 0.2411 | 0.6841 (`team_win_rate_ratio`) |
 
 평가 산출물:
 
-- `artifacts/model_registry/lgbm_v005/metrics.json`
-- `artifacts/model_registry/lgbm_v005/evaluation/model_metrics.csv`
-- `artifacts/model_registry/lgbm_v005/evaluation/baseline_summary.csv`
-- `artifacts/model_registry/lgbm_v005/evaluation/feature_importance.csv`
+- `artifacts/model_registry/lgbm_v008/metrics.json`
+- `artifacts/model_registry/lgbm_v008/evaluation/model_metrics.csv`
+- `artifacts/model_registry/lgbm_v008/evaluation/baseline_summary.csv`
+- `artifacts/model_registry/lgbm_v008/evaluation/feature_importance.csv`
 
 ## Data Strategy
 
@@ -98,17 +99,17 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 프로젝�
 - `gameLineup`: 선발 라인업과 선발투수 식별
 - `teamRecord`: 참고용 팀 기록
 - `playerDay`: 선발투수 경기별 기록
-- `playerSeason`: 선발투수 시즌 기록
+- `playerSeason`: 선발투수 및 선발 라인업 타자 시즌 기록
 
 ### 2차 확장 후보
 
 1차 baseline의 결측률, feature importance, validation score를 보고 필요할 때 확장합니다.
 
-- 선발 라인업 타자 전체 `playerDay/playerSeason`
+- 선발 라인업 타자 `playerDay`
 - `playerSituation` 기반 구장별 split
 - 홈/원정 split
 - 좌우 상성
-- 라인업 평균 OPS/wOBA
+- 라인업 최근 타격감
 - 전 시즌 가중 이동평균
 
 ## Leakage Policy
@@ -144,6 +145,12 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 프로젝�
 - 불펜
   - 최근 3일 불펜 이닝
   - 최근 3일 불펜 실점/ERA proxy
+- 선발 라인업 타자
+  - 전년도 PA 합계
+  - 전년도 OPS/wOBA/wRC+의 PA 가중 평균
+  - 전년도 WAR/HR/SB 합계
+  - 상위 4번 타순 전년도 OPS/wRC+의 PA 가중 평균
+  - 전년도 성적 커버리지와 좌/스위치 타자 구성
 - 홈/원정 상대 비교
   - 홈팀 피처 - 원정팀 피처 차이값
   - 팀 승률 비율 `home_win_rate / (home_win_rate + away_win_rate)`
@@ -187,8 +194,8 @@ raw JSON은 재사용 가능한 원천 데이터입니다. clean/features/model 
 
 현재 확인된 raw 상태:
 
-- 2025: schedule, boxscore, lineup, roster, team_stats, 일부 선발투수 `playerDay/playerSeason`
-- 2023~2024: 일부 `playerSeason`
+- 2025: schedule, boxscore, lineup, roster, team_stats, 선발투수 `playerDay/playerSeason`, 선발 라인업 타자 `playerSeason`
+- 2023~2024: 선발 라인업 타자 `playerSeason`
 - 2026: 일부 `playerSeason`
 
 기존 clean CSV는 수집 실행일 기준 집계가 섞여 있어 1차 baseline 기준으로 폐기하고 다시 생성합니다.
@@ -254,16 +261,16 @@ uv run python -m src.main train --years 2023,2024,2025
 baseline 비교 및 feature importance 생성:
 
 ```bash
-uv run python scripts/evaluate_model.py --model-version lgbm_v005 --years 2023,2024,2025
+uv run python scripts/evaluate_model.py --model-version lgbm_v008 --years 2023,2024,2025
 ```
 
 현재 기준 모델:
 
-- `artifacts/model_registry/lgbm_v005`
+- `artifacts/model_registry/lgbm_v008`
 - feature rows: 2023 452, 2024 707, 2025 693
-- feature count: 72 total, 6 categorical
-- monthly expanding CV: LogLoss `0.6816`, Brier `0.2443`
-- late-2025 holdout: LogLoss `0.6823`, Brier `0.2446`
+- model input feature count: 117 total, 6 categorical
+- monthly expanding CV: LogLoss `0.6783`, Brier `0.2427`
+- late-2025 holdout: LogLoss `0.6753`, Brier `0.2411`
 - late-2025 holdout 기준 단순 `team_win_rate_ratio` baseline LogLoss `0.6841`보다 개선됨
 
 품질 확인:
