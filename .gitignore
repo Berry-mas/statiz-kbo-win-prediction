@@ -1,0 +1,76 @@
+# Claude Code local settings
+.codex/
+.claude/
+.gemini/
+AGENTS.md
+CODEX.md
+CLAUDE.md
+memory/
+.claude/settings.local.json
+CLAUDE.local.md
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Local data and model artifacts
+data/
+artifacts/
+logs/
+
+# Competition/source files that may be large or redistributed externally
+statiz_files/
+excel_inspect.txt
+
+# Secrets
+*.pem
+*.key
+credentials*
+*secret*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# Test / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+.ruff_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+.claude/logs/
+
+# Checkpoints (session-specific, may contain sensitive info)
+.claude/checkpoints/
+
+# Jupyter
+.ipynb_checkpoints/

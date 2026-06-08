@@ -1,0 +1,18 @@
+# Statiz Y-wins 문서 세트
+
+이 폴더는 스탯티즈 승부예측 프로젝트를 실제 구현 가능한 수준으로 정리한 문서 세트입니다.
+
+## 포함 문서
+- `01_project_overview.md`
+- `02_data_pipeline_and_feature_spec.md`
+- `03_training_validation_serving_plan.md`
+- `04_api_contract_and_submission_rules.md`
+
+## 권장 사용법
+1. `04_api_contract_and_submission_rules.md`를 먼저 보고 대회 제약조건을 코드에 반영합니다.
+2. `02_data_pipeline_and_feature_spec.md`를 기준으로 DB/feature 스키마를 설계합니다.
+3. `03_training_validation_serving_plan.md`를 기준으로 학습/추론/제출 자동화를 구현합니다.
+4. 구현이 바뀔 때마다 문서를 먼저 수정한 뒤 코드를 맞춥니다.
+
+## 다음 단계
+- 이 문서를 바탕으로 바로 `tasks.md`, `ERD.md`, `FastAPI endpoints.md`, `cron schedule.md`까지 확장하면 됩니다.
