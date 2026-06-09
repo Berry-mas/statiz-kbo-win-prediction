@@ -3,7 +3,7 @@ import hmac
 import os
 import time
 from typing import Any
-from urllib.parse import urlencode
+from urllib.parse import quote
 
 import requests
 from dotenv import load_dotenv
@@ -47,11 +47,14 @@ class StatizAPIClient:
             time.sleep(remaining)
 
     def _normalize_query(self, params: dict[str, Any]) -> str:
-        """Normalize query parameters: sort keys and URL encode"""
+        """Normalize query parameters with official encodeURIComponent semantics."""
         if not params:
             return ""
-        sorted_params = sorted(params.items())
-        return urlencode(sorted_params)
+        safe = "-_.!~*'()"
+        return "&".join(
+            f"{quote(str(key), safe=safe)}={quote(str(params[key]), safe=safe)}"
+            for key in sorted(params.keys())
+        )
 
     def _generate_signature(
         self, method: str, path: str, query: str, timestamp: str

@@ -25,10 +25,13 @@ class TestStatizAPIClient:
 
     def test_normalize_query(self):
         """Test query parameter normalization"""
-        client = StatizAPIClient()
-        params = {"b": "2", "a": "1", "c": "3"}
-        normalized = client._normalize_query(params)
-        assert normalized == "a=1&b=2&c=3"
+        with patch.dict(
+            "os.environ", {"API_KEY": "test_key", "API_SECRET": "test_secret"}
+        ):
+            client = StatizAPIClient()
+            params = {"b": "2", "a": "1", "name": "a b"}
+            normalized = client._normalize_query(params)
+            assert normalized == "a=1&b=2&name=a%20b"
 
     def test_generate_signature(self):
         """Test HMAC signature generation"""

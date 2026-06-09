@@ -100,6 +100,8 @@ GAMES_CSV = f"{CLEAN_DIR}/games.csv"
 LINEUP_SNAPSHOT_CSV = f"{CLEAN_DIR}/lineup_snapshot.csv"
 PREDICTION_LOG_CSV = f"{LOGS_DIR}/prediction_log.csv"
 SUBMISSION_LOG_CSV = f"{LOGS_DIR}/submission_log.csv"
+SCHEDULER_RUN_LOG_CSV = f"{LOGS_DIR}/scheduler_run_log.csv"
+PUBLIC_RESULTS_JSON = "web/public/results.json"
 
 
 def feature_csv_path(year: int) -> str:

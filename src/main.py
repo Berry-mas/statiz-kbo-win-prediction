@@ -9,6 +9,7 @@ Commands:
   train    --years 2023,2024 [--val-years 2025]  Train LightGBM models
   predict  --date YYYY-MM-DD [--model-version lgbm_v001]  Generate predictions
   submit   --date YYYY-MM-DD [--model-version lgbm_v001] [--dry-run]  Predict + submit
+  auto-submit --date YYYY-MM-DD [--model-version lgbm_v001]  Dry-run automation MVP
   run-daily [--date YYYY-MM-DD] [--model-version lgbm_v001] [--dry-run]  Daily pipeline
 """
 
@@ -145,6 +146,35 @@ def cmd_run_daily(args: argparse.Namespace) -> None:
     cmd_submit(args)
 
 
+def cmd_auto_submit(args: argparse.Namespace) -> None:
+    from .automation import (
+        AutomationConfig,
+        parse_kst_datetime,
+        run_submission_automation,
+    )
+
+    target_date = args.date or date.today().strftime("%Y-%m-%d")
+    config = AutomationConfig(
+        collect_data=not args.skip_collect,
+        build_features=not args.skip_features,
+        execute_submit=args.execute_submit,
+        now=parse_kst_datetime(args.now) if args.now else None,
+    )
+    decisions = run_submission_automation(
+        game_date=target_date,
+        model_version=args.model_version,
+        config=config,
+    )
+    eligible = sum(1 for row in decisions if row["would_submit"])
+    logger.info(
+        "auto-submit finished for {}: eligible={} total={} execute_submit={}",
+        target_date,
+        eligible,
+        len(decisions),
+        args.execute_submit,
+    )
+
+
 # ------------------------------------------------------------------
 # Main
 # ------------------------------------------------------------------
@@ -195,6 +225,35 @@ def main() -> None:
     p.add_argument("--model-version", type=str, default=None)
     p.add_argument("--dry-run", action="store_true", help="Predict but do not submit")
 
+    # auto-submit
+    p = subparsers.add_parser(
+        "auto-submit",
+        help="Run date/time based dry-run automation for one date",
+    )
+    p.add_argument("--date", type=str, default=None, help="YYYY-MM-DD (default: today)")
+    p.add_argument("--model-version", type=str, default=None)
+    p.add_argument(
+        "--execute-submit",
+        action="store_true",
+        help="Actually call prediction/savePrediction for eligible games",
+    )
+    p.add_argument(
+        "--skip-collect",
+        action="store_true",
+        help="Use existing local data instead of calling collection APIs",
+    )
+    p.add_argument(
+        "--skip-features",
+        action="store_true",
+        help="Use existing feature CSV instead of rebuilding features",
+    )
+    p.add_argument(
+        "--now",
+        type=str,
+        default=None,
+        help="Override scheduler current time for dry-run tests, e.g. 2025-10-01T17:30:00+09:00",
+    )
+
     # run-daily
     p = subparsers.add_parser(
         "run-daily", help="Full daily pipeline: collect → predict → submit"
@@ -213,6 +272,7 @@ def main() -> None:
         "train": cmd_train,
         "predict": cmd_predict,
         "submit": cmd_submit,
+        "auto-submit": cmd_auto_submit,
         "run-daily": cmd_run_daily,
     }
     dispatch[args.command](args)

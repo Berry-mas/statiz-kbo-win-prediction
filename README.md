@@ -222,6 +222,12 @@ STATIZ_NETWORK_ERROR_COOLDOWN_SECONDS=60
 
 API 차단을 피하기 위해 기본 요청 간격은 5초, 429 응답 후 기본 쿨다운은 300초로 둡니다. 오래 걸려도 안전하게 수집하는 쪽을 우선합니다.
 
+Discord 알림을 사용하려면 `.env`에 웹훅 URL을 넣습니다.
+
+```bash
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+```
+
 연도별 raw 수집:
 
 ```bash
@@ -264,6 +270,32 @@ baseline 비교 및 feature importance 생성:
 uv run python scripts/evaluate_model.py --model-version lgbm_v008 --years 2023,2024,2025
 ```
 
+제출 자동화 dry-run MVP:
+
+```bash
+uv run python -m src.main auto-submit --date 2026-06-09 --model-version lgbm_v008
+```
+
+기본값은 dry-run입니다. 이 명령은 수집, 정제, feature 생성, 예측, 제출 예정 payload 기록,
+Discord 알림, 공개 대시보드용 JSON 생성을 실행하지만 실제 `prediction/savePrediction` 제출은 하지 않습니다.
+실제 제출은 운영 검증 후 아래처럼 명시적으로 켭니다.
+
+```bash
+uv run python -m src.main auto-submit --date 2026-06-09 --model-version lgbm_v008 --execute-submit
+```
+
+로컬 데이터를 재사용해서 API 수집 없이 흐름만 확인할 때:
+
+```bash
+uv run python -m src.main auto-submit --date 2026-06-09 --model-version lgbm_v008 --skip-collect --skip-features
+```
+
+과거 경기일로 deadline 정책을 리허설할 때는 `--now`로 스케줄러 기준 시각을 주입합니다.
+
+```bash
+uv run python -m src.main auto-submit --date 2025-10-01 --model-version lgbm_v008 --skip-collect --skip-features --now 2025-10-01T17:30:00+09:00
+```
+
 현재 기준 모델:
 
 - `artifacts/model_registry/lgbm_v008`
@@ -286,11 +318,14 @@ poe all
 ```text
 src/
 ├── api_client.py
+├── automation.py
 ├── collector.py
 ├── cleaner.py
 ├── feature_builder.py
+├── notifications.py
 ├── trainer.py
 ├── predictor.py
+├── public_results.py
 ├── submitter.py
 └── main.py
 
