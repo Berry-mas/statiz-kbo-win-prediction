@@ -74,10 +74,6 @@ class DataCollector:
     def __init__(self) -> None:
         self._client = StatizAPIClient()
 
-    # ------------------------------------------------------------------
-    # Schedule
-    # ------------------------------------------------------------------
-
     def collect_schedule(self, year: int, month: int, day: int) -> dict[str, Any]:
         """Fetch game schedule for *year/month/day* and save to disk.
 
@@ -111,10 +107,6 @@ class DataCollector:
         )
         return data
 
-    # ------------------------------------------------------------------
-    # Boxscore
-    # ------------------------------------------------------------------
-
     def collect_boxscore(self, s_no: int, year: int) -> dict[str, Any]:
         """Fetch boxscore for *s_no* and save to disk."""
         dest = _raw_path(year, "boxscore", f"{s_no}.json")
@@ -128,10 +120,6 @@ class DataCollector:
         logger.info("Collected boxscore s_no={}", s_no)
         return data
 
-    # ------------------------------------------------------------------
-    # Lineup
-    # ------------------------------------------------------------------
-
     def collect_lineup(self, s_no: int, year: int) -> dict[str, Any]:
         """Fetch lineup for *s_no* and save to disk."""
         dest = _raw_path(year, "lineup", f"{s_no}.json")
@@ -144,10 +132,6 @@ class DataCollector:
         _save_json(dest, data)
         logger.info("Collected lineup s_no={}", s_no)
         return data
-
-    # ------------------------------------------------------------------
-    # Team stats
-    # ------------------------------------------------------------------
 
     def collect_team_stats(self, year: int, pe: str = "") -> dict[str, Any]:
         """Fetch batting **and** pitching team stats for the given period.
@@ -179,10 +163,6 @@ class DataCollector:
 
         return results
 
-    # ------------------------------------------------------------------
-    # Player day
-    # ------------------------------------------------------------------
-
     def collect_player_day(self, p_no: int, year: int) -> dict[str, Any]:
         """Fetch per-game stats for *p_no* in *year* and save to disk."""
         dest = _raw_path(year, "player_day", f"{p_no}_{year}.json")
@@ -197,10 +177,6 @@ class DataCollector:
         _save_json(dest, data)
         logger.info("Collected player day p_no={} year={}", p_no, year)
         return data
-
-    # ------------------------------------------------------------------
-    # Player season
-    # ------------------------------------------------------------------
 
     def collect_player_season(self, p_no: int) -> dict[str, Any]:
         """Fetch multi-year season stats for *p_no* and save per-year files.
@@ -234,10 +210,6 @@ class DataCollector:
 
         return data
 
-    # ------------------------------------------------------------------
-    # Player situation
-    # ------------------------------------------------------------------
-
     def collect_player_situation(
         self, p_no: int, year: int, si: int = 2
     ) -> dict[str, Any]:
@@ -255,10 +227,6 @@ class DataCollector:
         _save_json(dest, data)
         logger.info("Collected player situation p_no={} year={} si={}", p_no, year, si)
         return data
-
-    # ------------------------------------------------------------------
-    # Roster
-    # ------------------------------------------------------------------
 
     def collect_roster(self, date_str: str, t_code: int) -> list[dict[str, Any]]:
         """Fetch 1-gun roster for *t_code* on *date_str* (YYYY-MM-DD).
@@ -287,10 +255,6 @@ class DataCollector:
         )
         return data.get("players") or []
 
-    # ------------------------------------------------------------------
-    # Daily bulk
-    # ------------------------------------------------------------------
-
     def collect_daily_all(self, year: int, month: int, day: int) -> None:
         """Collect all data for a single calendar date.
 
@@ -302,7 +266,6 @@ class DataCollector:
         date_str = f"{year:04d}-{month:02d}-{day:02d}"
         logger.info("collect_daily_all: {}", date_str)
 
-        # 1. Schedule
         try:
             schedule_data = self.collect_schedule(year, month, day)
         except Exception:
@@ -321,7 +284,6 @@ class DataCollector:
         if not regular_games:
             return
 
-        # 2. Boxscore + lineup per game
         for game in regular_games:
             s_no: int | None = game.get("s_no")
             if s_no is None:
@@ -338,7 +300,6 @@ class DataCollector:
             except Exception:
                 logger.exception("Failed to collect lineup s_no={}", s_no)
 
-        # 3. Player stats for starting pitchers (from lineup data)
         starter_pnos: set[int] = set()
         for game in regular_games:
             s_no = game.get("s_no")
@@ -371,10 +332,6 @@ class DataCollector:
                 self.collect_player_season(p_no)
             except Exception:
                 logger.exception("Failed to collect player_season p_no={}", p_no)
-
-    # ------------------------------------------------------------------
-    # Season bulk
-    # ------------------------------------------------------------------
 
     def collect_season_bulk(self, year: int) -> None:
         """Collect all daily data for an entire season (March 1 – November 30).
@@ -409,10 +366,6 @@ class DataCollector:
             current += timedelta(days=1)
 
         logger.info("collect_season_bulk complete for year={}", year)
-
-    # ------------------------------------------------------------------
-    # Team season stats bulk
-    # ------------------------------------------------------------------
 
     def collect_team_season_stats(self, year: int) -> None:
         """Collect team stats for the full season and each monthly period.

@@ -9,7 +9,7 @@ Commands:
   train    --years 2023,2024 [--val-years 2025]  Train LightGBM models
   predict  --date YYYY-MM-DD [--model-version lgbm_v001]  Generate predictions
   submit   --date YYYY-MM-DD [--model-version lgbm_v001] [--dry-run]  Predict + submit
-  auto-submit --date YYYY-MM-DD [--model-version lgbm_v001]  Dry-run automation MVP
+  auto-submit --date YYYY-MM-DD [--model-version lgbm_v001]  Scheduled automation
   run-daily [--date YYYY-MM-DD] [--model-version lgbm_v001] [--dry-run]  Daily pipeline
 """
 
@@ -31,11 +31,6 @@ def _setup_logging() -> None:
         level="INFO",
         encoding="utf-8",
     )
-
-
-# ------------------------------------------------------------------
-# Command handlers
-# ------------------------------------------------------------------
 
 
 def cmd_collect(args: argparse.Namespace) -> None:
@@ -129,19 +124,16 @@ def cmd_run_daily(args: argparse.Namespace) -> None:
     target_date = args.date or date.today().strftime("%Y-%m-%d")
     logger.info("run-daily for date={}", target_date)
 
-    # 1. Collect today's data
     from .collector import DataCollector
 
     d_parts = target_date.split("-")
     collector = DataCollector()
     collector.collect_daily_all(int(d_parts[0]), int(d_parts[1]), int(d_parts[2]))
 
-    # 2. Clean
     from .cleaner import DataCleaner
 
     DataCleaner().clean_all(int(d_parts[0]))
 
-    # 3. Predict + submit
     args.date = target_date
     cmd_submit(args)
 
@@ -176,11 +168,6 @@ def cmd_auto_submit(args: argparse.Namespace) -> None:
     )
 
 
-# ------------------------------------------------------------------
-# Main
-# ------------------------------------------------------------------
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Statiz KBO baseball win prediction system",
@@ -188,7 +175,6 @@ def main() -> None:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # collect
     p = subparsers.add_parser("collect", help="Collect raw data from API")
     p.add_argument("--year", type=int, required=True)
     p.add_argument(
@@ -200,36 +186,30 @@ def main() -> None:
         help="Also collect teamRecord API files after baseline raw data",
     )
 
-    # clean
     p = subparsers.add_parser("clean", help="Transform raw JSON → clean CSV")
     p.add_argument("--year", type=int, required=True)
 
-    # features
     p = subparsers.add_parser("features", help="Build feature CSV from clean data")
     p.add_argument("--year", type=int, required=True)
 
-    # train
     p = subparsers.add_parser("train", help="Train LightGBM model")
     p.add_argument(
         "--years", type=str, required=True, help="Comma-separated: 2023,2024"
     )
     p.add_argument("--val-years", type=str, help="Validation years: 2025")
 
-    # predict
     p = subparsers.add_parser("predict", help="Generate predictions for a date")
     p.add_argument("--date", type=str, required=True, help="YYYY-MM-DD")
     p.add_argument("--model-version", type=str, default=None)
 
-    # submit
     p = subparsers.add_parser("submit", help="Predict and submit to API")
     p.add_argument("--date", type=str, required=True, help="YYYY-MM-DD")
     p.add_argument("--model-version", type=str, default=None)
     p.add_argument("--dry-run", action="store_true", help="Predict but do not submit")
 
-    # auto-submit
     p = subparsers.add_parser(
         "auto-submit",
-        help="Run date/time based dry-run automation for one date",
+        help="Run date/time based automation for one date",
     )
     p.add_argument("--date", type=str, default=None, help="YYYY-MM-DD (default: today)")
     p.add_argument("--model-version", type=str, default=None)
@@ -261,7 +241,6 @@ def main() -> None:
         help="Skip games until they are within this many minutes before start time",
     )
 
-    # run-daily
     p = subparsers.add_parser(
         "run-daily", help="Full daily pipeline: collect → predict → submit"
     )

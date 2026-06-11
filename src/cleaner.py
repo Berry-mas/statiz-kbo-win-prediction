@@ -24,10 +24,6 @@ from .constants import (
     RAW_DIR,
 )
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
 
 def _load_json(path: Path) -> dict[str, Any] | None:
     """Load a JSON file and return its contents, or None on failure."""
@@ -75,17 +71,8 @@ def _s_no_to_date(s_no: int | str) -> str:
     return f"{s[:4]}-{s[4:6]}-{s[6:8]}"
 
 
-# ---------------------------------------------------------------------------
-# DataCleaner
-# ---------------------------------------------------------------------------
-
-
 class DataCleaner:
     """Transform raw JSON files into clean CSV files."""
-
-    # ------------------------------------------------------------------
-    # clean_games
-    # ------------------------------------------------------------------
 
     def clean_games(self, year: int) -> pd.DataFrame:
         """Read all schedule JSON files for *year* and update games.csv."""
@@ -120,7 +107,6 @@ class DataCleaner:
                     elif home_score < away_score:
                         target = 0.0
                     else:
-                        # draw
                         target = float("nan")
 
                     month_val = g.get("month")
@@ -167,10 +153,6 @@ class DataCleaner:
         )
         logger.info("clean_games: {} rows saved for year {}", len(result), year)
         return result
-
-    # ------------------------------------------------------------------
-    # clean_lineups
-    # ------------------------------------------------------------------
 
     def clean_lineups(self, year: int) -> pd.DataFrame:
         """Read all lineup JSON files for *year* and update lineup_snapshot.csv."""
@@ -221,10 +203,6 @@ class DataCleaner:
         )
         logger.info("clean_lineups: {} rows saved for year {}", len(result), year)
         return result
-
-    # ------------------------------------------------------------------
-    # clean_all
-    # ------------------------------------------------------------------
 
     def clean_all(self, year: int, biz_date: str | None = None) -> None:
         """Run leakage-safe cleaning steps for a given year.

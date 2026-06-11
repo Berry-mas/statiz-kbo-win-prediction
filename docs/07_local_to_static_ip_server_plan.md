@@ -11,7 +11,7 @@
 - SSH user: `ubuntu`
 - repo path: `/home/ubuntu/statiz_code`
 - static IP: `3.39.52.227`
-- 기준 코드: `95eee7f Add submission automation MVP`
+- 기준 코드: GitHub `origin/main` 최신 운영 커밋
 - `data/`, `artifacts/`, `.env` 배치 완료
 - 서버 dry-run 리허설 완료
 - 대회측 IP 등록 전이므로 `--execute-submit` 금지

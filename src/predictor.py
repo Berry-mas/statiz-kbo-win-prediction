@@ -51,10 +51,6 @@ class Predictor:
 
         self.load_model(self.model_version)
 
-    # ------------------------------------------------------------------
-    # Version discovery
-    # ------------------------------------------------------------------
-
     def _load_latest_model_version(self) -> str:
         """Find latest lgbm_v* directory by version number."""
         if not self.registry_dir.exists():
@@ -72,7 +68,6 @@ class Predictor:
         if not candidates:
             raise FileNotFoundError(f"No model versions found in {self.registry_dir}")
 
-        # Sort by version number (numeric suffix)
         def _version_num(name: str) -> int:
             try:
                 return int(name.replace(prefix, ""))
@@ -83,17 +78,12 @@ class Predictor:
         logger.info("Auto-detected latest model version: {}", latest)
         return latest
 
-    # ------------------------------------------------------------------
-    # Model loading
-    # ------------------------------------------------------------------
-
     def load_model(self, version: str) -> None:
         """Load all seed models from artifacts/model_registry/{version}/."""
         version_dir = self.registry_dir / version
         if not version_dir.exists():
             raise FileNotFoundError(f"Model version directory not found: {version_dir}")
 
-        # Load seed models
         model_files = sorted(version_dir.glob("model_seed*.txt"))
         if not model_files:
             raise FileNotFoundError(f"No model_seed*.txt files found in {version_dir}")
@@ -106,7 +96,6 @@ class Predictor:
 
         logger.info("Loaded {} seed models from version={}", len(self.models), version)
 
-        # Load feature list
         feature_list_path = version_dir / "feature_list.json"
         if feature_list_path.exists():
             self.feature_list = json.loads(
@@ -116,17 +105,12 @@ class Predictor:
             logger.warning("feature_list.json not found in {}", version_dir)
             self.feature_list = []
 
-        # Load categorical features
         cat_path = version_dir / "categorical_features.json"
         if cat_path.exists():
             self.categorical_features = json.loads(cat_path.read_text(encoding="utf-8"))
         else:
             logger.warning("categorical_features.json not found in {}", version_dir)
             self.categorical_features = []
-
-    # ------------------------------------------------------------------
-    # Inference
-    # ------------------------------------------------------------------
 
     def predict_from_features(self, features: pd.DataFrame) -> list[float]:
         """Average predictions across all seed models and apply normalize_prob.
@@ -155,7 +139,6 @@ class Predictor:
 
         avg_preds = np.mean(seed_preds, axis=0)
 
-        # Convert raw probability [0,1] to percentage [0,100] and normalize
         results = [normalize_prob(float(p) * 100.0) for p in avg_preds]
         return results
 
@@ -208,10 +191,6 @@ class Predictor:
 
         logger.info("Predictions generated for {} games", len(results))
         return results
-
-    # ------------------------------------------------------------------
-    # Logging
-    # ------------------------------------------------------------------
 
     def save_prediction_log(self, predictions: list[dict], game_date: str) -> None:
         """Append prediction results to logs/prediction_log.csv.

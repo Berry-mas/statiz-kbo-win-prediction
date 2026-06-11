@@ -37,10 +37,6 @@ class Submitter:
         self._client = StatizAPIClient()
         Path(LOGS_DIR).mkdir(parents=True, exist_ok=True)
 
-    # ------------------------------------------------------------------
-    # Time helpers
-    # ------------------------------------------------------------------
-
     def _parse_game_datetime(self, game_date: str, game_time: str) -> datetime | None:
         """Parse 'YYYY-MM-DD' + 'HH:MM' into a KST-aware datetime."""
         try:
@@ -60,10 +56,6 @@ class Submitter:
         deadline = game_dt - timedelta(minutes=DEADLINE_MINUTES)
         now = datetime.now(tz=KST)
         return now >= deadline
-
-    # ------------------------------------------------------------------
-    # Validation
-    # ------------------------------------------------------------------
 
     def validate_prediction(
         self,
@@ -87,10 +79,6 @@ class Submitter:
                 f"Past 15-minute deadline for game {s_no} at {game_date} {game_time}",
             )
         return True, "OK"
-
-    # ------------------------------------------------------------------
-    # Single submission
-    # ------------------------------------------------------------------
 
     def submit_single(
         self,
@@ -189,10 +177,6 @@ class Submitter:
             "reason": str(last_exc),
         }
 
-    # ------------------------------------------------------------------
-    # Bulk submission
-    # ------------------------------------------------------------------
-
     def submit_all(
         self,
         predictions: list[dict[str, Any]],
@@ -207,7 +191,6 @@ class Submitter:
         Returns:
             list of submission result dicts
         """
-        # Load game times from games.csv
         game_times: dict[int, str] = {}
         games_path = Path(GAMES_CSV)
         if games_path.exists():
@@ -234,10 +217,6 @@ class Submitter:
             game_date,
         )
         return results
-
-    # ------------------------------------------------------------------
-    # Logging
-    # ------------------------------------------------------------------
 
     def _log_submission(
         self,

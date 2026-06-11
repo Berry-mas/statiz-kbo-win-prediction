@@ -43,8 +43,10 @@ class TestStatizAPIClient:
         signature = client._generate_signature(
             "GET", "test/path", "a=1&b=2", "1234567890"
         )
-        # This is a mock expected value - in real test, calculate actual HMAC
-        assert len(signature) == 64  # SHA256 hex length
+        assert (
+            signature
+            == "b0306a00963e96d576947daa8c0eaabcae9235626b9625521ac7b53e242c1ea1"
+        )
 
     @patch("src.api_client.requests.get")
     def test_get_request(self, mock_get):

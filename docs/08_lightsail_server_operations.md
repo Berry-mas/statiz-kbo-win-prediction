@@ -6,7 +6,7 @@
 - SSH user: `ubuntu`
 - repo path: `/home/ubuntu/statiz_code`
 - static IP: `3.39.52.227`
-- 기준 코드: `95eee7f Add submission automation MVP`
+- 기준 코드: GitHub `origin/main` 최신 운영 커밋
 - `data/`, `artifacts/` 전송 완료
 - `.env` 설정 완료
 - 서버 dry-run 리허설 완료
@@ -104,7 +104,7 @@ tail -n 20 /home/ubuntu/statiz_code/logs/scheduler_run_log.csv
 
 ```bash
 cd /home/ubuntu/statiz_code
-STATIZ_EXPECTED_COMMIT=95eee7f ./scripts/server_update.sh
+STATIZ_EXPECTED_COMMIT=<expected-short-commit> ./scripts/server_update.sh
 ```
 
 최신 `main`을 그대로 받을 때는 `STATIZ_EXPECTED_COMMIT`을 생략한다.
