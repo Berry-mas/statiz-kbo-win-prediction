@@ -2,7 +2,7 @@
 Description=Run Statiz KBO auto-submit dry-run checks during KBO game window
 
 [Timer]
-OnCalendar=*-*-* 13..18:00/30:00
+OnCalendar=*-*-* 17..18:00/30:00
 Persistent=true
 RandomizedDelaySec=30s
 Unit=statiz-auto-submit.service
