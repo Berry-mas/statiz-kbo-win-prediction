@@ -35,7 +35,10 @@ class TestStatizAPIClient:
 
     def test_generate_signature(self):
         """Test HMAC signature generation"""
-        client = StatizAPIClient()
+        with patch.dict(
+            "os.environ", {"API_KEY": "test_key", "API_SECRET": "test_secret"}
+        ):
+            client = StatizAPIClient()
         client.api_secret = "secret"
         signature = client._generate_signature(
             "GET", "test/path", "a=1&b=2", "1234567890"

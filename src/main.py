@@ -155,6 +155,7 @@ def cmd_auto_submit(args: argparse.Namespace) -> None:
 
     target_date = args.date or date.today().strftime("%Y-%m-%d")
     config = AutomationConfig(
+        min_lead_minutes=args.min_lead_minutes,
         collect_data=not args.skip_collect,
         build_features=not args.skip_features,
         execute_submit=args.execute_submit,
@@ -252,6 +253,12 @@ def main() -> None:
         type=str,
         default=None,
         help="Override scheduler current time for dry-run tests, e.g. 2025-10-01T17:30:00+09:00",
+    )
+    p.add_argument(
+        "--min-lead-minutes",
+        type=int,
+        default=None,
+        help="Skip games until they are within this many minutes before start time",
     )
 
     # run-daily

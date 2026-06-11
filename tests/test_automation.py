@@ -7,20 +7,24 @@ import pandas as pd
 from src.automation import (
     KST,
     AutomationConfig,
+    _already_submitted_snos,
     _build_decisions,
     _deadline_status,
+    _mark_already_submitted,
     _parse_game_datetime,
     parse_kst_datetime,
 )
 
 
 def test_build_decisions_marks_lineup_missing_fallback() -> None:
-    now_game_time = (datetime.now(tz=KST) + timedelta(hours=2)).strftime("%H:%M")
+    now = datetime.now(tz=KST)
+    game_date = now.strftime("%Y-%m-%d")
+    now_game_time = (now + timedelta(hours=2)).strftime("%H:%M")
     games = pd.DataFrame(
         [
             {
                 "s_no": 20260001,
-                "game_date": "2026-06-09",
+                "game_date": game_date,
                 "game_time": now_game_time,
             }
         ]
@@ -34,12 +38,12 @@ def test_build_decisions_marks_lineup_missing_fallback() -> None:
     ]
 
     decisions = _build_decisions(
-        game_date="2026-06-09",
+        game_date=game_date,
         games=games,
         predictions=predictions,
         lineups=pd.DataFrame(),
         model_version="lgbm_test",
-        config=AutomationConfig(),
+        config=AutomationConfig(now=now),
     )
 
     assert decisions[0]["status"] == "lineup_missing_fallback"
@@ -55,6 +59,15 @@ def test_deadline_status_forbids_after_hard_deadline() -> None:
     status = _deadline_status(now, game_dt, AutomationConfig())
 
     assert status == "past_hard_deadline"
+
+
+def test_deadline_status_marks_too_early_when_min_lead_is_set() -> None:
+    now = datetime(2026, 6, 9, 17, 30, tzinfo=KST)
+    game_dt = datetime(2026, 6, 9, 18, 30, tzinfo=KST)
+
+    status = _deadline_status(now, game_dt, AutomationConfig(min_lead_minutes=35))
+
+    assert status == "too_early"
 
 
 def test_parse_game_datetime_accepts_seconds() -> None:
@@ -110,3 +123,36 @@ def test_parse_kst_datetime_converts_utc_z_suffix() -> None:
     parsed = parse_kst_datetime("2026-06-09T08:30:00Z")
 
     assert parsed.isoformat() == "2026-06-09T17:30:00+09:00"
+
+
+def test_mark_already_submitted_disables_duplicate_submission(
+    tmp_path, monkeypatch
+) -> None:
+    log_path = tmp_path / "submission_log.csv"
+    pd.DataFrame(
+        [
+            {
+                "s_no": 20260001,
+                "game_date": "2026-06-09",
+                "submitted": True,
+            }
+        ]
+    ).to_csv(log_path, index=False, encoding="utf-8-sig")
+    monkeypatch.setattr("src.automation.SUBMISSION_LOG_CSV", str(log_path))
+    decisions = [
+        {
+            "s_no": 20260001,
+            "status": "ready",
+            "reason": "Lineup available and before safe cutoff",
+            "would_submit": True,
+            "payload": {"s_no": 20260001, "percent": 51.0},
+        }
+    ]
+
+    assert _already_submitted_snos("2026-06-09") == {20260001}
+
+    _mark_already_submitted(decisions, "2026-06-09")
+
+    assert decisions[0]["status"] == "already_submitted"
+    assert decisions[0]["would_submit"] is False
+    assert decisions[0]["payload"] == {}

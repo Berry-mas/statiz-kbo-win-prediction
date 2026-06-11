@@ -5,6 +5,17 @@
 현재 단계에서는 로컬 Mac에서 dry-run 자동화, Discord 알림, 공개 대시보드를 검증한다.
 실제 시즌 운영 전에는 고정 공인 IP가 있는 서버로 이전한다.
 
+2026-06-10 기준 서버 이전은 Lightsail로 진행 중이다.
+
+- Ubuntu 24.04
+- SSH user: `ubuntu`
+- repo path: `/home/ubuntu/statiz_code`
+- static IP: `3.39.52.227`
+- 기준 코드: `95eee7f Add submission automation MVP`
+- `data/`, `artifacts/`, `.env` 배치 완료
+- 서버 dry-run 리허설 완료
+- 대회측 IP 등록 전이므로 `--execute-submit` 금지
+
 이유:
 
 - 로컬 Mac은 절전, 재부팅, 네트워크 변경, 외출 시 IP 변경 리스크가 있다.
@@ -124,7 +135,9 @@ uv run python -m src.main auto-submit \
 
 ## 다음 구현 후보
 
-- 서버용 `systemd` service/timer 작성
+- 서버용 `systemd` service/timer 설치 및 dry-run timer 운영
 - public JSON을 GitHub/Vercel로 자동 반영하는 배포 스크립트
 - 서버 health check와 Discord heartbeat
 - 라인업 폴링 반복 실행 모드
+
+서버 systemd 운영 절차는 `docs/08_lightsail_server_operations.md`에 정리한다.

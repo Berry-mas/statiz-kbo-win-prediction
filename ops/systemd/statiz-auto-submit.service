@@ -1,0 +1,23 @@
+[Unit]
+Description=Statiz KBO auto-submit dry-run pass
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/statiz_code
+Environment=STATIZ_REPO_DIR=/home/ubuntu/statiz_code
+Environment=STATIZ_DRY_RUN_ONLY=1
+Environment=STATIZ_EXECUTE_SUBMIT=0
+Environment=STATIZ_IP_REGISTERED=0
+Environment=STATIZ_MODEL_VERSION=lgbm_v008
+Environment=STATIZ_MIN_LEAD_MINUTES=35
+EnvironmentFile=-/etc/statiz-auto-submit.env
+ExecStart=/home/ubuntu/statiz_code/scripts/server_auto_submit.sh
+TimeoutStartSec=45min
+Nice=5
+
+[Install]
+WantedBy=multi-user.target

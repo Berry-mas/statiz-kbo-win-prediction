@@ -21,6 +21,7 @@ from .constants import (
     GAMES_CSV,
     LINEUP_SNAPSHOT_CSV,
     SCHEDULER_RUN_LOG_CSV,
+    SUBMISSION_LOG_CSV,
 )
 from .feature_builder import FeatureBuilder
 from .notifications import DiscordNotifier
@@ -37,6 +38,7 @@ class AutomationConfig:
 
     cutoff_minutes: int = 20
     hard_deadline_minutes: int = 15
+    min_lead_minutes: int | None = None
     collect_data: bool = True
     build_features: bool = True
     execute_submit: bool = False
@@ -81,6 +83,7 @@ def run_submission_automation(
     )
 
     if cfg.execute_submit:
+        _mark_already_submitted(decisions, game_date)
         _execute_real_submissions(decisions, game_date)
 
     _append_scheduler_log(decisions)
@@ -274,6 +277,10 @@ def _deadline_status(
         return "past_hard_deadline"
     if now >= safe_cutoff:
         return "past_safe_cutoff"
+    if config.min_lead_minutes is not None:
+        earliest_submit = game_dt - timedelta(minutes=config.min_lead_minutes)
+        if now < earliest_submit:
+            return "too_early"
     return None
 
 
@@ -293,10 +300,49 @@ def _decision_reason(status: str) -> str:
     reasons = {
         "ready": "Lineup available and before safe cutoff",
         "lineup_missing_fallback": "Lineup missing before safe cutoff; fallback prediction allowed",
+        "too_early": "Before configured submission window",
         "past_safe_cutoff": "Inside T-20 safety buffer; skip automated submission",
         "past_hard_deadline": "Inside official T-15 deadline; submission forbidden",
+        "already_submitted": "Successful submission already recorded for this game",
     }
     return reasons.get(status, status)
+
+
+def _mark_already_submitted(decisions: list[dict[str, Any]], game_date: str) -> None:
+    """Disable duplicate submissions for games already submitted successfully."""
+    already_submitted = _already_submitted_snos(game_date)
+    if not already_submitted:
+        return
+
+    for row in decisions:
+        if row["s_no"] in already_submitted and row["would_submit"]:
+            row["status"] = "already_submitted"
+            row["reason"] = _decision_reason("already_submitted")
+            row["would_submit"] = False
+            row["payload"] = {}
+
+
+def _already_submitted_snos(game_date: str) -> set[int]:
+    """Return game ids with successful submission rows for one date."""
+    log_path = Path(SUBMISSION_LOG_CSV)
+    if not log_path.exists():
+        return set()
+
+    try:
+        submitted = pd.read_csv(log_path, encoding="utf-8-sig")
+    except Exception as exc:
+        logger.warning("Could not read submission log for duplicate guard: {}", exc)
+        return set()
+
+    required_columns = {"s_no", "game_date", "submitted"}
+    if not required_columns.issubset(submitted.columns):
+        return set()
+
+    rows = submitted[
+        (submitted["game_date"].astype(str) == game_date)
+        & submitted["submitted"].astype(str).str.lower().isin({"true", "1"})
+    ]
+    return set(rows["s_no"].astype(int).tolist())
 
 
 def _execute_real_submissions(decisions: list[dict[str, Any]], game_date: str) -> None:

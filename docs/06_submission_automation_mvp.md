@@ -53,6 +53,18 @@ uv run python -m src.main auto-submit \
 
 `--now` 값이 timezone 없이 들어오면 KST로 해석한다. `Z` 또는 `+09:00`처럼 timezone이 있는 ISO timestamp는 KST로 변환해 deadline 판단에 사용한다.
 
+systemd처럼 반복 실행되는 운영 환경에서는 너무 이른 제출 후보를 막기 위해 `--min-lead-minutes`를 함께 쓴다.
+
+```bash
+uv run python -m src.main auto-submit \
+  --date YYYY-MM-DD \
+  --model-version lgbm_v008 \
+  --min-lead-minutes 35
+```
+
+이 설정에서는 경기 시작 35분 전보다 이른 실행은 status `too_early`로 기록되고 제출 후보에서 제외된다.
+경기 시작 T-35부터 T-20 안전 cutoff 전까지만 `ready` 또는 `lineup_missing_fallback`이 제출 후보가 된다.
+
 ## 로그
 
 | 파일 | 목적 |
@@ -63,6 +75,8 @@ uv run python -m src.main auto-submit \
 | `web/public/results.json` | 공개 웹 대시보드용 확정 결과 |
 
 `logs/`, `data/`, `artifacts/`, `.env`는 공개 repo에 올리지 않는다.
+
+실제 제출 모드에서는 `logs/submission_log.csv`에 이미 `submitted=True`로 기록된 동일 날짜/동일 `s_no` 경기를 다시 제출하지 않는다.
 
 ## 공개 JSON 제한
 
@@ -86,3 +100,4 @@ uv run python -m src.main auto-submit \
 로컬 Mac은 MVP 검증용으로 사용한다. 실제 시즌 운영 전에는 고정 공인 IP가 붙은 서버로 이전하고, 그 서버 IP를 대회측에 등록한다.
 
 상세 이전 계획은 `docs/07_local_to_static_ip_server_plan.md`를 따른다.
+Lightsail 운영 자동화 절차는 `docs/08_lightsail_server_operations.md`를 따른다.
