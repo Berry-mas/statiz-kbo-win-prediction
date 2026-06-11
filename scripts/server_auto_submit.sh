@@ -2,6 +2,7 @@
 set -euo pipefail
 
 REPO_DIR="${STATIZ_REPO_DIR:-/home/ubuntu/statiz_code}"
+UV_BIN="${STATIZ_UV_BIN:-/home/ubuntu/.local/bin/uv}"
 MODEL_VERSION="${STATIZ_MODEL_VERSION:-lgbm_v008}"
 GAME_DATE="${STATIZ_GAME_DATE:-$(TZ=Asia/Seoul date +%F)}"
 LOG_DIR="${STATIZ_LOG_DIR:-${REPO_DIR}/logs}"
@@ -14,7 +15,7 @@ mkdir -p "$LOG_DIR"
 cd "$REPO_DIR"
 
 cmd=(
-  uv run python -m src.main auto-submit
+  "$UV_BIN" run python -m src.main auto-submit
   --date "$GAME_DATE"
   --model-version "$MODEL_VERSION"
 )

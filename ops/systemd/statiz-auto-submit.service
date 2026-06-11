@@ -9,6 +9,7 @@ User=ubuntu
 Group=ubuntu
 WorkingDirectory=/home/ubuntu/statiz_code
 Environment=STATIZ_REPO_DIR=/home/ubuntu/statiz_code
+Environment=STATIZ_UV_BIN=/home/ubuntu/.local/bin/uv
 Environment=STATIZ_DRY_RUN_ONLY=1
 Environment=STATIZ_EXECUTE_SUBMIT=0
 Environment=STATIZ_IP_REGISTERED=0

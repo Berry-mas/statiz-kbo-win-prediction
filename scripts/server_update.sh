@@ -2,6 +2,7 @@
 set -euo pipefail
 
 REPO_DIR="${STATIZ_REPO_DIR:-/home/ubuntu/statiz_code}"
+UV_BIN="${STATIZ_UV_BIN:-/home/ubuntu/.local/bin/uv}"
 REMOTE="${STATIZ_GIT_REMOTE:-origin}"
 BRANCH="${STATIZ_GIT_BRANCH:-main}"
 EXPECTED_COMMIT="${STATIZ_EXPECTED_COMMIT:-}"
@@ -30,11 +31,11 @@ if [[ -n "$EXPECTED_COMMIT" ]]; then
   fi
 fi
 
-uv sync --frozen
-uv run python -m compileall -q src
+"$UV_BIN" sync --frozen
+"$UV_BIN" run python -m compileall -q src
 
 if [[ "$RUN_TESTS" == "1" ]]; then
-  uv run pytest
+  "$UV_BIN" run pytest
 fi
 
 echo "statiz_update: complete at $(git rev-parse --short=7 HEAD)"

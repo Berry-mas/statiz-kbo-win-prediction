@@ -39,6 +39,7 @@ STATIZ_IP_REGISTERED=0
 ```bash
 sudo tee /etc/statiz-auto-submit.env >/dev/null <<'EOF'
 STATIZ_REPO_DIR=/home/ubuntu/statiz_code
+STATIZ_UV_BIN=/home/ubuntu/.local/bin/uv
 STATIZ_MODEL_VERSION=lgbm_v008
 STATIZ_DRY_RUN_ONLY=1
 STATIZ_EXECUTE_SUBMIT=0
