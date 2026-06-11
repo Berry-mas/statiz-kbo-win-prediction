@@ -15,6 +15,7 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 from loguru import logger
+from pandas.errors import EmptyDataError
 
 from .constants import MODEL_REGISTRY_DIR, PREDICTION_LOG_CSV, feature_csv_path
 from .feature_matrix import prepare_model_matrix
@@ -174,7 +175,12 @@ class Predictor:
             logger.warning("Feature CSV not found: {}", feature_csv)
             return []
 
-        df = pd.read_csv(feature_csv, encoding="utf-8-sig")
+        try:
+            df = pd.read_csv(feature_csv, encoding="utf-8-sig")
+        except EmptyDataError:
+            logger.warning("Feature CSV is empty: {}", feature_csv)
+            return []
+
         day_df = df[df["game_date"] == game_date].copy()
 
         if day_df.empty:
