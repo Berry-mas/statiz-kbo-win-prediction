@@ -85,7 +85,7 @@ tail -n 20 /home/ubuntu/statiz_code/logs/scheduler_run_log.csv
 
 ## 타이머 정책
 
-`ops/systemd/statiz-auto-submit.timer`는 KST 기준 13:00~18:55 사이 5분마다 실행한다.
+`ops/systemd/statiz-auto-submit.timer`는 KST 기준 13:00~18:30 사이 30분마다 실행한다.
 
 반복 실행을 허용하는 이유:
 
