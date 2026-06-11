@@ -45,11 +45,14 @@ STATIZ_DRY_RUN_ONLY=1
 STATIZ_EXECUTE_SUBMIT=0
 STATIZ_IP_REGISTERED=0
 STATIZ_MIN_LEAD_MINUTES=35
+STATIZ_SKIP_COLLECT=1
+STATIZ_SKIP_FEATURES=1
 EOF
 ```
 
 `STATIZ_MIN_LEAD_MINUTES=35`이면 경기 시작 35분 전부터 T-20 안전 cutoff 전까지만 제출 후보가 된다.
 등록 전 dry-run에서는 `too_early`, `ready`, `lineup_missing_fallback`, `past_safe_cutoff` 상태를 확인하는 용도다.
+`STATIZ_SKIP_COLLECT=1`, `STATIZ_SKIP_FEATURES=1`은 IP 등록 전 반복 timer가 API 수집과 feature rebuild를 과하게 반복하지 않도록 하는 리허설 설정이다.
 
 ## systemd 설치
 
