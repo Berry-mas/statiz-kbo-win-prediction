@@ -9,6 +9,7 @@ from typing import Any
 
 import pandas as pd
 from loguru import logger
+from pandas.errors import EmptyDataError
 
 from .constants import (
     GAME_STATE_FINISHED,
@@ -28,7 +29,10 @@ def _read_csv_safe(path: str) -> pd.DataFrame:
     if not csv_path.exists():
         logger.warning("CSV not found: {}", path)
         return pd.DataFrame()
-    return pd.read_csv(csv_path, encoding="utf-8-sig")
+    try:
+        return pd.read_csv(csv_path, encoding="utf-8-sig")
+    except EmptyDataError:
+        return pd.DataFrame()
 
 
 def _to_float(value: Any, default: float = _NAN) -> float:
@@ -691,6 +695,55 @@ class FeatureBuilder:
         out_path.parent.mkdir(parents=True, exist_ok=True)
         features.to_csv(out_path, index=False, encoding="utf-8-sig")
         logger.info("Saved {} feature rows to {}", len(features), out_path)
+        return features
+
+    def build_features_for_date(self, game_date: str) -> pd.DataFrame:
+        """Build and upsert feature rows for regular-season games on one date."""
+        if self.games_df is None:
+            self.load_clean_data()
+
+        if self.games_df is None or self.games_df.empty:
+            logger.warning("No clean games loaded")
+            return pd.DataFrame()
+
+        target_date = pd.to_datetime(game_date).date()
+        year = target_date.year
+        dates = pd.to_datetime(self.games_df["game_date"], errors="coerce").dt.date
+        mask = (
+            (self.games_df["year"] == year)
+            & (self.games_df["league_type"] == LEAGUE_TYPE_REGULAR)
+            & (dates == target_date)
+        )
+        games = (
+            self.games_df[mask]
+            .sort_values(["game_date", "s_no"])
+            .reset_index(drop=True)
+        )
+        rows = [self._build_row(game_row) for _, game_row in games.iterrows()]
+        features = pd.DataFrame(rows)
+
+        out_path = Path(feature_csv_path(year))
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        existing = _read_csv_safe(str(out_path))
+        if features.empty:
+            combined = existing
+        elif existing.empty:
+            combined = features
+        else:
+            existing = existing[~existing["s_no"].isin(features["s_no"])]
+            combined = pd.concat([existing, features], ignore_index=True)
+
+        if not combined.empty:
+            combined = combined.sort_values(["game_date", "s_no"]).reset_index(
+                drop=True
+            )
+        combined.to_csv(out_path, index=False, encoding="utf-8-sig")
+        logger.info(
+            "Upserted {} feature rows for date={} into {}",
+            len(features),
+            game_date,
+            out_path,
+        )
         return features
 
     def build_features_for_game(self, s_no: int) -> pd.Series:

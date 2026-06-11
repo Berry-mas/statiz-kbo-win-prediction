@@ -121,6 +121,7 @@ def _prepare_data(game_date: str, config: AutomationConfig) -> None:
         builder = FeatureBuilder()
         builder.load_clean_data()
         builder.build_features_for_year(year)
+        builder.build_features_for_date(game_date)
 
 
 def _load_games_for_date(game_date: str) -> pd.DataFrame:

@@ -9,6 +9,156 @@ import pytest
 from src.feature_builder import FeatureBuilder
 
 
+def test_build_features_for_date_upserts_unfinished_prediction_game(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Date-scoped prediction features should include pre-game rows."""
+    games_path = tmp_path / "clean" / "games.csv"
+    lineup_path = tmp_path / "clean" / "lineup_snapshot.csv"
+    features_dir = tmp_path / "features"
+    raw_dir = tmp_path / "raw"
+    games_path.parent.mkdir(parents=True)
+    lineup_path.parent.mkdir(parents=True)
+    raw_dir.mkdir()
+
+    pd.DataFrame(
+        [
+            {
+                "s_no": 20260001,
+                "game_date": "2026-06-10",
+                "year": 2026,
+                "league_type": 10100,
+                "game_state": 3,
+                "target_home_win": 1.0,
+                "home_team_code": 1001,
+                "away_team_code": 2002,
+                "home_score": 5,
+                "away_score": 3,
+                "stadium_code": 7003,
+                "game_time": "18:30",
+                "game_type": 1,
+                "home_sp_no": None,
+                "away_sp_no": None,
+            },
+            {
+                "s_no": 20260002,
+                "game_date": "2026-06-11",
+                "year": 2026,
+                "league_type": 10100,
+                "game_state": 1,
+                "target_home_win": None,
+                "home_team_code": 5002,
+                "away_team_code": 7002,
+                "home_score": None,
+                "away_score": None,
+                "stadium_code": 1001,
+                "game_time": "18:30",
+                "game_type": 1,
+                "home_sp_no": None,
+                "away_sp_no": None,
+            },
+        ]
+    ).to_csv(games_path, index=False, encoding="utf-8-sig")
+    pd.DataFrame(
+        columns=[
+            "s_no",
+            "team_code",
+            "p_no",
+            "batting_order",
+            "is_starter",
+            "is_pitcher",
+            "p_bat",
+        ]
+    ).to_csv(lineup_path, index=False, encoding="utf-8-sig")
+
+    monkeypatch.setattr("src.feature_builder.GAMES_CSV", str(games_path))
+    monkeypatch.setattr("src.feature_builder.LINEUP_SNAPSHOT_CSV", str(lineup_path))
+    monkeypatch.setattr("src.feature_builder.RAW_DIR", str(raw_dir))
+    monkeypatch.setattr(
+        "src.feature_builder.feature_csv_path",
+        lambda year: str(features_dir / f"feature_game_pre_match_{year}.csv"),
+    )
+
+    builder = FeatureBuilder()
+    builder.load_clean_data()
+
+    year_features = builder.build_features_for_year(2026)
+    date_features = builder.build_features_for_date("2026-06-11")
+    saved = pd.read_csv(
+        features_dir / "feature_game_pre_match_2026.csv", encoding="utf-8-sig"
+    )
+
+    assert year_features["s_no"].tolist() == [20260001]
+    assert date_features["s_no"].tolist() == [20260002]
+    assert saved["s_no"].tolist() == [20260001, 20260002]
+    assert saved.loc[saved["s_no"] == 20260002, "game_date"].item() == "2026-06-11"
+
+
+def test_build_features_for_date_handles_empty_year_feature_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Prediction feature upsert should work when the yearly CSV has no rows."""
+    games_path = tmp_path / "clean" / "games.csv"
+    lineup_path = tmp_path / "clean" / "lineup_snapshot.csv"
+    features_dir = tmp_path / "features"
+    raw_dir = tmp_path / "raw"
+    games_path.parent.mkdir(parents=True)
+    raw_dir.mkdir()
+
+    pd.DataFrame(
+        [
+            {
+                "s_no": 20260002,
+                "game_date": "2026-06-11",
+                "year": 2026,
+                "league_type": 10100,
+                "game_state": 1,
+                "target_home_win": None,
+                "home_team_code": 5002,
+                "away_team_code": 7002,
+                "home_score": None,
+                "away_score": None,
+                "stadium_code": 1001,
+                "game_time": "18:30",
+                "game_type": 1,
+                "home_sp_no": None,
+                "away_sp_no": None,
+            }
+        ]
+    ).to_csv(games_path, index=False, encoding="utf-8-sig")
+    pd.DataFrame(
+        columns=[
+            "s_no",
+            "team_code",
+            "p_no",
+            "batting_order",
+            "is_starter",
+            "is_pitcher",
+            "p_bat",
+        ]
+    ).to_csv(lineup_path, index=False, encoding="utf-8-sig")
+
+    monkeypatch.setattr("src.feature_builder.GAMES_CSV", str(games_path))
+    monkeypatch.setattr("src.feature_builder.LINEUP_SNAPSHOT_CSV", str(lineup_path))
+    monkeypatch.setattr("src.feature_builder.RAW_DIR", str(raw_dir))
+    monkeypatch.setattr(
+        "src.feature_builder.feature_csv_path",
+        lambda year: str(features_dir / f"feature_game_pre_match_{year}.csv"),
+    )
+
+    builder = FeatureBuilder()
+    builder.load_clean_data()
+
+    assert builder.build_features_for_year(2026).empty
+    date_features = builder.build_features_for_date("2026-06-11")
+    saved = pd.read_csv(
+        features_dir / "feature_game_pre_match_2026.csv", encoding="utf-8-sig"
+    )
+
+    assert date_features["s_no"].tolist() == [20260002]
+    assert saved["s_no"].tolist() == [20260002]
+
+
 def test_lineup_features_use_previous_season_batter_stats(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
