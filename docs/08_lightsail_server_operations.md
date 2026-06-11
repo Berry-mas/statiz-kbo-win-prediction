@@ -54,9 +54,11 @@ EOF
 ## systemd 설치
 
 repo의 unit 파일을 systemd 경로에 복사한다.
+서버 timezone은 `Asia/Seoul`이어야 한다.
 
 ```bash
 cd /home/ubuntu/statiz_code
+timedatectl show -p Timezone --value
 sudo cp ops/systemd/statiz-auto-submit.service /etc/systemd/system/
 sudo cp ops/systemd/statiz-auto-submit.timer /etc/systemd/system/
 sudo systemctl daemon-reload
