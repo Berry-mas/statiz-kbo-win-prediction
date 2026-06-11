@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pandas as pd
 
@@ -11,15 +11,17 @@ from src.automation import (
     _build_decisions,
     _deadline_status,
     _mark_already_submitted,
+    _notify_successful_submissions,
     _parse_game_datetime,
+    _submission_message,
     parse_kst_datetime,
 )
 
 
 def test_build_decisions_marks_lineup_missing_fallback() -> None:
-    now = datetime.now(tz=KST)
-    game_date = now.strftime("%Y-%m-%d")
-    now_game_time = (now + timedelta(hours=2)).strftime("%H:%M")
+    now = datetime(2026, 6, 9, 16, 0, tzinfo=KST)
+    game_date = "2026-06-09"
+    now_game_time = "18:30"
     games = pd.DataFrame(
         [
             {
@@ -156,3 +158,79 @@ def test_mark_already_submitted_disables_duplicate_submission(
     assert decisions[0]["status"] == "already_submitted"
     assert decisions[0]["would_submit"] is False
     assert decisions[0]["payload"] == {}
+
+
+class FakeNotifier:
+    def __init__(self) -> None:
+        self.sent: list[dict] = []
+
+    def send(self, title, message, fields=None):
+        self.sent.append({"title": title, "message": message, "fields": fields or {}})
+        return True
+
+
+def test_notify_successful_submissions_skips_when_no_success() -> None:
+    notifier = FakeNotifier()
+    decisions = [
+        {
+            "s_no": 20260001,
+            "game_time": "18:30",
+            "home_team_code": 5002,
+            "away_team_code": 2002,
+            "home_win_probability": 57.12,
+        }
+    ]
+
+    _notify_successful_submissions(
+        notifier,
+        decisions,
+        submission_results=[{"s_no": 20260001, "submitted": False}],
+        public_count=0,
+    )
+
+    assert notifier.sent == []
+
+
+def test_notify_successful_submissions_includes_matchup_and_prediction() -> None:
+    notifier = FakeNotifier()
+    decisions = [
+        {
+            "s_no": 20260001,
+            "game_time": "18:30",
+            "home_team_code": 5002,
+            "away_team_code": 2002,
+            "home_win_probability": 57.12,
+        },
+        {
+            "s_no": 20260002,
+            "game_time": "18:30",
+            "home_team_code": 1001,
+            "away_team_code": 7002,
+            "home_win_probability": 44.4,
+        },
+    ]
+
+    _notify_successful_submissions(
+        notifier,
+        decisions,
+        submission_results=[{"s_no": 20260001, "submitted": True}],
+        public_count=0,
+    )
+
+    assert len(notifier.sent) == 1
+    assert notifier.sent[0]["title"] == "Statiz submission succeeded"
+    assert "18:30 KIA vs LG: LG 승률 57.12%" in notifier.sent[0]["message"]
+    assert "한화" not in notifier.sent[0]["message"]
+
+
+def test_submission_message_uses_away_team_when_home_probability_below_half() -> None:
+    message = _submission_message(
+        {
+            "game_time": "17:00",
+            "home_team_code": 1001,
+            "away_team_code": 7002,
+            "home_win_probability": 44.4,
+        }
+    )
+
+    assert message == "- 17:00 한화 vs 삼성: 한화 승률 55.60% (제출 홈팀 승률 44.40%)"

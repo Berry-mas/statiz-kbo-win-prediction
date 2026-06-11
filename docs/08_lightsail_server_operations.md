@@ -85,10 +85,10 @@ tail -n 20 /home/ubuntu/statiz_code/logs/scheduler_run_log.csv
 
 ## 타이머 정책
 
-`ops/systemd/statiz-auto-submit.timer`는 등록 전 dry-run 리허설 기준으로 KST 17:00~18:30 사이 30분마다 실행한다.
+`ops/systemd/statiz-auto-submit.timer`는 KST 기준 12:30~18:30 사이 10분 단위로 polling한다.
 
 현재 static timer는 경기 시작 시간을 직접 알지 못하고 정해진 시각에 polling한다.
-실제 제출 운영에서는 주말/공휴일 14:00 경기, 17:00 경기, 18:30 경기, 경기장별 다른 시작 시간을 모두 커버하도록 timer window를 다시 넓히거나 경기 일정 기반 동적 실행으로 바꿔야 한다.
+주말/공휴일 14:00 경기, 17:00 경기, 18:30 경기, 경기장별 다른 시작 시간을 모두 커버하기 위해 timer window를 넓게 둔다.
 `auto-submit` 내부 판단은 각 경기 row의 `game_time`을 기준으로 `STATIZ_MIN_LEAD_MINUTES`와 T-20/T-15 cutoff를 경기별로 따로 계산한다.
 
 반복 실행을 허용하는 이유:
@@ -96,6 +96,7 @@ tail -n 20 /home/ubuntu/statiz_code/logs/scheduler_run_log.csv
 - 등록 전에는 dry-run only라 실제 저장 API를 호출하지 않는다.
 - `--min-lead-minutes 35`로 각 경기의 시작 시간 기준 너무 이른 제출 후보를 막는다.
 - IP 등록 후 실제 제출 모드에서도 `logs/submission_log.csv`의 성공 제출 이력을 보고 같은 경기 중복 제출을 건너뛴다.
+- Discord 알림은 실제 제출 성공 건이 있을 때만 보낸다.
 
 ## 서버 업데이트
 

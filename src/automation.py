@@ -22,6 +22,7 @@ from .constants import (
     LINEUP_SNAPSHOT_CSV,
     SCHEDULER_RUN_LOG_CSV,
     SUBMISSION_LOG_CSV,
+    TEAM_CODES,
 )
 from .feature_builder import FeatureBuilder
 from .notifications import DiscordNotifier
@@ -82,14 +83,30 @@ def run_submission_automation(
         config=cfg,
     )
 
+    submission_results: list[dict[str, Any]] = []
     if cfg.execute_submit:
         _mark_already_submitted(decisions, game_date)
-        _execute_real_submissions(decisions, game_date)
+        submission_results = _execute_real_submissions(decisions, game_date)
 
     _append_scheduler_log(decisions)
     public_payload = export_public_results()
-    _notify_summary(events, decisions, public_count=len(public_payload["results"]))
+    _notify_successful_submissions(
+        events,
+        decisions,
+        submission_results,
+        public_count=len(public_payload["results"]),
+    )
     return decisions
+
+
+def _optional_int(value: Any) -> int | None:
+    """Return int(value), or None when value is empty/invalid."""
+    try:
+        if pd.isna(value):
+            return None
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _prepare_data(game_date: str, config: AutomationConfig) -> None:
@@ -150,6 +167,9 @@ def _build_decisions(
                     model_version,
                     status="no_prediction",
                     reason="Feature row or model prediction not available",
+                    game_time=str(game.get("game_time", "")),
+                    home_team_code=_optional_int(game.get("home_team_code")),
+                    away_team_code=_optional_int(game.get("away_team_code")),
                 )
             )
             continue
@@ -174,6 +194,8 @@ def _build_decisions(
                 reason=_decision_reason(status),
                 probability=probability,
                 game_time=str(game.get("game_time", "")),
+                home_team_code=_optional_int(game.get("home_team_code")),
+                away_team_code=_optional_int(game.get("away_team_code")),
                 lineup_missing=lineup_missing,
                 would_submit=would_submit,
                 execute_submit=config.execute_submit,
@@ -206,6 +228,8 @@ def _decision_row(
     reason: str,
     probability: float | None = None,
     game_time: str = "",
+    home_team_code: int | None = None,
+    away_team_code: int | None = None,
     lineup_missing: bool = False,
     would_submit: bool = False,
     execute_submit: bool = False,
@@ -218,6 +242,8 @@ def _decision_row(
         "game_date": game_date,
         "s_no": s_no,
         "game_time": game_time,
+        "home_team_code": home_team_code,
+        "away_team_code": away_team_code,
         "model_version": model_version,
         "home_win_probability": probability,
         "lineup_missing": lineup_missing,
@@ -345,7 +371,9 @@ def _already_submitted_snos(game_date: str) -> set[int]:
     return set(rows["s_no"].astype(int).tolist())
 
 
-def _execute_real_submissions(decisions: list[dict[str, Any]], game_date: str) -> None:
+def _execute_real_submissions(
+    decisions: list[dict[str, Any]], game_date: str
+) -> list[dict[str, Any]]:
     """Submit eligible decisions to the Statiz API."""
     submitter = Submitter()
     predictions = [
@@ -356,7 +384,9 @@ def _execute_real_submissions(decisions: list[dict[str, Any]], game_date: str) -
         for row in decisions
         if row["would_submit"]
     ]
-    submitter.submit_all(predictions, game_date)
+    if not predictions:
+        return []
+    return submitter.submit_all(predictions, game_date)
 
 
 def _append_scheduler_log(decisions: list[dict[str, Any]]) -> None:
@@ -381,26 +411,62 @@ def _append_scheduler_log(decisions: list[dict[str, Any]]) -> None:
     )
 
 
-def _notify_summary(
+def _notify_successful_submissions(
     notifier: DiscordNotifier,
     decisions: list[dict[str, Any]],
+    submission_results: list[dict[str, Any]],
     public_count: int,
 ) -> None:
-    """Send a compact Discord summary for one automation pass."""
-    eligible = sum(1 for row in decisions if row["would_submit"])
-    lineup_missing = sum(1 for row in decisions if row["lineup_missing"])
-    skipped = len(decisions) - eligible
+    """Send Discord only when real submissions succeeded."""
+    submitted_snos = {
+        int(row["s_no"]) for row in submission_results if row.get("submitted")
+    }
+    if not submitted_snos:
+        return
+
+    submitted_decisions = [
+        row for row in decisions if int(row["s_no"]) in submitted_snos
+    ]
+    details = [_submission_message(row) for row in submitted_decisions]
     try:
         notifier.send(
-            title="Statiz dry-run automation complete",
-            message="Submission automation pass finished.",
+            title="Statiz submission succeeded",
+            message="\n".join(details),
             fields={
-                "eligible": eligible,
-                "skipped": skipped,
-                "lineup_missing": lineup_missing,
+                "submitted": len(submitted_decisions),
                 "public_results": public_count,
-                "execute_submit": any(row["execute_submit"] for row in decisions),
             },
         )
     except Exception as exc:
         logger.warning("Discord notification failed: {}", exc)
+
+
+def _submission_message(row: dict[str, Any]) -> str:
+    """Return one reader-friendly submitted prediction summary."""
+    home_team = _team_name(row.get("home_team_code"))
+    away_team = _team_name(row.get("away_team_code"))
+    home_probability = normalize_prob(float(row["home_win_probability"]))
+    if home_probability >= 50.0:
+        predicted_team = home_team
+        predicted_probability = home_probability
+    else:
+        predicted_team = away_team
+        predicted_probability = normalize_prob(100.0 - home_probability)
+
+    game_time = str(row.get("game_time") or "").strip()
+    time_prefix = f"{game_time} " if game_time else ""
+    return (
+        f"- {time_prefix}{away_team} vs {home_team}: "
+        f"{predicted_team} 승률 {predicted_probability:.2f}% "
+        f"(제출 홈팀 승률 {home_probability:.2f}%)"
+    )
+
+
+def _team_name(team_code: Any) -> str:
+    """Return KBO team name for a Statiz team code."""
+    try:
+        if pd.isna(team_code):
+            return "Unknown"
+        return TEAM_CODES.get(int(team_code), "Unknown")
+    except (TypeError, ValueError):
+        return "Unknown"
