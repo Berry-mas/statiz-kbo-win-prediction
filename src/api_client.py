@@ -12,6 +12,19 @@ from loguru import logger
 load_dotenv()
 
 
+class StatizAPIError(RuntimeError):
+    """HTTP error from the Statiz API with response content preserved."""
+
+    def __init__(self, method: str, endpoint: str, status_code: int, body: str) -> None:
+        self.method = method
+        self.endpoint = endpoint
+        self.status_code = status_code
+        self.body = body
+        super().__init__(
+            f"{method} {endpoint} failed with status={status_code} body={body}"
+        )
+
+
 class StatizAPIClient:
     """Statiz Baseball API Client with HMAC-SHA256 authentication"""
 
@@ -169,7 +182,15 @@ class StatizAPIClient:
             params=params,
             timeout=self.request_timeout_seconds,
         )
-        response.raise_for_status()
+        if response.status_code >= 400:
+            body = _response_body(response)
+            logger.warning(
+                "POST {} failed status={} body={}",
+                endpoint,
+                response.status_code,
+                body,
+            )
+            raise StatizAPIError("POST", endpoint, response.status_code, body)
 
         return dict(response.json())
 
@@ -177,3 +198,14 @@ class StatizAPIClient:
         """Submit prediction result to Statiz API"""
         payload = {"s_no": s_no, "percent": round(percent, 2)}
         return self.post("prediction/savePrediction", data=payload)
+
+
+def _response_body(response: requests.Response) -> str:
+    """Return a compact response body for failure logging."""
+    try:
+        parsed = response.json()
+    except ValueError:
+        text = response.text.strip()
+    else:
+        text = str(parsed)
+    return text[:1000]

@@ -1,8 +1,9 @@
 from unittest.mock import Mock, patch
 
 import pytest
+import requests
 
-from src.api_client import StatizAPIClient
+from src.api_client import StatizAPIClient, StatizAPIError
 
 
 class TestStatizAPIClient:
@@ -72,6 +73,7 @@ class TestStatizAPIClient:
     def test_save_prediction(self, mock_post):
         """Test save_prediction POST call"""
         mock_response = Mock()
+        mock_response.status_code = 200
         mock_response.json.return_value = {"result_cd": 0, "result_msg": "ok"}
         mock_post.return_value = mock_response
 
@@ -87,3 +89,22 @@ class TestStatizAPIClient:
             assert kwargs["json"] == {"s_no": 1234, "percent": 0.74}
             assert kwargs["headers"]["X-API-KEY"] == "test_key"
             assert "X-SIGNATURE" in kwargs["headers"]
+
+    @patch("src.api_client.requests.post")
+    def test_save_prediction_error_preserves_response_body(self, mock_post):
+        """Failed POST responses should keep the API response body."""
+        mock_response = requests.Response()
+        mock_response.status_code = 400
+        mock_response._content = b'{"result_msg":"invalid payload"}'
+        mock_response.headers["Content-Type"] = "application/json"
+        mock_post.return_value = mock_response
+
+        with patch.dict(
+            "os.environ", {"API_KEY": "test_key", "API_SECRET": "test_secret"}
+        ):
+            client = StatizAPIClient()
+            with pytest.raises(StatizAPIError) as exc_info:
+                client.save_prediction(1234, 55.12)
+
+        assert exc_info.value.status_code == 400
+        assert "invalid payload" in exc_info.value.body

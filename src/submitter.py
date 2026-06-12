@@ -18,7 +18,7 @@ from typing import Any
 import pandas as pd
 from loguru import logger
 
-from .api_client import StatizAPIClient
+from .api_client import StatizAPIClient, StatizAPIError
 from .constants import GAMES_CSV, LOGS_DIR, SUBMISSION_LOG_CSV
 from .predictor import normalize_prob
 
@@ -38,14 +38,16 @@ class Submitter:
         Path(LOGS_DIR).mkdir(parents=True, exist_ok=True)
 
     def _parse_game_datetime(self, game_date: str, game_time: str) -> datetime | None:
-        """Parse 'YYYY-MM-DD' + 'HH:MM' into a KST-aware datetime."""
-        try:
-            dt_str = f"{game_date} {game_time}"
-            dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M")
-            return dt.replace(tzinfo=KST)
-        except ValueError:
-            logger.warning("Cannot parse game datetime: {} {}", game_date, game_time)
-            return None
+        """Parse 'YYYY-MM-DD' + a game time into a KST-aware datetime."""
+        dt_str = f"{game_date} {game_time}"
+        for fmt in ("%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M:%S"):
+            try:
+                dt = datetime.strptime(dt_str, fmt)
+                return dt.replace(tzinfo=KST)
+            except ValueError:
+                continue
+        logger.warning("Cannot parse game datetime: {} {}", game_date, game_time)
+        return None
 
     def _is_past_deadline(self, game_date: str, game_time: str) -> bool:
         """Return True if it is too late to submit (within 15 min of game start)."""
@@ -118,6 +120,7 @@ class Submitter:
             }
 
         last_exc: Exception | None = None
+        last_response: dict[str, Any] = {}
         for attempt, delay in enumerate(RETRY_DELAYS[:MAX_RETRIES], start=1):
             if delay > 0:
                 logger.info(
@@ -152,6 +155,7 @@ class Submitter:
                 }
             except Exception as exc:
                 last_exc = exc
+                last_response = _failure_response(exc)
                 logger.warning(
                     "Submission attempt {} failed for s_no={}: {}", attempt, s_no, exc
                 )
@@ -165,7 +169,7 @@ class Submitter:
             probability,
             submitted=False,
             attempts=MAX_RETRIES,
-            response={},
+            response=last_response,
             reason=str(last_exc),
         )
         return {
@@ -238,7 +242,9 @@ class Submitter:
                     "submitted": submitted,
                     "attempts": attempts,
                     "submitted_at": datetime.now(tz=KST).isoformat(),
-                    "response_status": response.get("cdoe", ""),
+                    "response_status": response.get(
+                        "result_cd", response.get("status_code", "")
+                    ),
                     "response_message": response.get("result_msg", reason),
                 }
             ]
@@ -253,3 +259,13 @@ class Submitter:
             index=False,
             encoding="utf-8-sig",
         )
+
+
+def _failure_response(exc: Exception) -> dict[str, Any]:
+    """Return a loggable response payload for an exception."""
+    if isinstance(exc, StatizAPIError):
+        return {
+            "status_code": exc.status_code,
+            "result_msg": exc.body,
+        }
+    return {"result_msg": str(exc)}
