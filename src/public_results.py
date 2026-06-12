@@ -45,19 +45,38 @@ def export_public_results(
     if not games.empty and not predictions.empty and not submissions.empty:
         rows = _build_public_rows(games, predictions, submissions, limit)
 
+    dest = Path(output_path)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    existing_payload = _read_existing_payload(dest)
+    if existing_payload is not None and existing_payload.get("results") == rows:
+        logger.info(
+            "Public result rows unchanged; leaving {} untouched with {} rows",
+            dest,
+            len(rows),
+        )
+        return existing_payload
+
     payload: dict[str, Any] = {
         "generated_at": datetime.now(tz=UTC).isoformat(),
         "results": rows,
     }
-
-    dest = Path(output_path)
-    dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     logger.info("Exported {} public result rows to {}", len(rows), dest)
     return payload
+
+
+def _read_existing_payload(path: Path) -> dict[str, Any] | None:
+    """Read an existing public payload, returning None when invalid/missing."""
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return payload if isinstance(payload, dict) else None
 
 
 def _read_csv(path: str) -> pd.DataFrame:

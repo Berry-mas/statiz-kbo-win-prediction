@@ -44,4 +44,13 @@ else
   echo "statiz_auto_submit: set STATIZ_DRY_RUN_ONLY=0, STATIZ_EXECUTE_SUBMIT=1, and STATIZ_IP_REGISTERED=1 to allow real submission"
 fi
 
-exec "${cmd[@]}"
+set +e
+"${cmd[@]}"
+status=$?
+set -e
+
+if [[ "$status" -eq 0 && "${STATIZ_PUBLISH_PUBLIC_RESULTS:-0}" == "1" ]]; then
+  ./scripts/publish_public_results.sh
+fi
+
+exit "$status"
