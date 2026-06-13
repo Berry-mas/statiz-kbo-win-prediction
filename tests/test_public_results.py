@@ -154,3 +154,22 @@ def test_submission_log_reader_accepts_mixed_legacy_and_source_rows(
 
     assert parsed["source"].tolist() == ["auto", "manual"]
     assert parsed["attempts"].tolist() == [3, 3]
+
+
+def test_scheduler_log_reader_skips_malformed_optional_rows(
+    tmp_path: Path, monkeypatch
+) -> None:
+    scheduler_log = tmp_path / "scheduler_run_log.csv"
+    scheduler_log.write_text(
+        "s_no,checked_at,status\n"
+        "2026061301,2026-06-13T18:00:00+09:00,lineup_missing_fallback\n"
+        "2026061302,2026-06-13T18:10:00+09:00,submitted,extra,fields\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(public_results, "SCHEDULER_RUN_LOG_CSV", str(scheduler_log))
+
+    parsed = public_results._read_csv(str(scheduler_log))
+
+    assert parsed["s_no"].tolist() == [2026061301]
+    assert parsed["status"].tolist() == ["lineup_missing_fallback"]

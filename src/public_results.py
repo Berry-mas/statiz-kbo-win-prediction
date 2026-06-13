@@ -168,7 +168,31 @@ def _read_csv(path: str) -> pd.DataFrame:
         return pd.DataFrame()
     if str(csv_path) == SUBMISSION_LOG_CSV:
         return read_submission_log(csv_path)
+    if str(csv_path) == SCHEDULER_RUN_LOG_CSV:
+        return _read_optional_log_csv(csv_path)
     return pd.read_csv(csv_path, encoding="utf-8-sig")
+
+
+def _read_optional_log_csv(csv_path: Path) -> pd.DataFrame:
+    """Read non-critical operational logs without blocking public export."""
+    try:
+        return pd.read_csv(csv_path, encoding="utf-8-sig")
+    except pd.errors.ParserError as exc:
+        logger.warning(
+            "Skipping malformed rows while reading optional public log {}: {}",
+            csv_path,
+            exc,
+        )
+        try:
+            return pd.read_csv(
+                csv_path,
+                encoding="utf-8-sig",
+                engine="python",
+                on_bad_lines="skip",
+            )
+        except pd.errors.ParserError:
+            logger.warning("Optional public log {} could not be parsed", csv_path)
+            return pd.DataFrame()
 
 
 def _build_public_rows(
