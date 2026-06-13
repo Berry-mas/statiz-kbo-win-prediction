@@ -160,6 +160,55 @@ def test_mark_already_submitted_disables_duplicate_submission(
     assert decisions[0]["payload"] == {}
 
 
+def test_manual_submission_does_not_block_later_auto_submission(
+    tmp_path, monkeypatch
+) -> None:
+    log_path = tmp_path / "submission_log.csv"
+    pd.DataFrame(
+        [
+            {
+                "s_no": 20260001,
+                "game_date": "2026-06-09",
+                "submitted": True,
+                "source": "manual",
+            },
+            {
+                "s_no": 20260002,
+                "game_date": "2026-06-09",
+                "submitted": True,
+                "source": "auto",
+            },
+        ]
+    ).to_csv(log_path, index=False, encoding="utf-8-sig")
+    monkeypatch.setattr("src.automation.SUBMISSION_LOG_CSV", str(log_path))
+    decisions = [
+        {
+            "s_no": 20260001,
+            "status": "ready",
+            "reason": "Lineup available and before safe cutoff",
+            "would_submit": True,
+            "payload": {"s_no": 20260001, "percent": 51.0},
+        },
+        {
+            "s_no": 20260002,
+            "status": "ready",
+            "reason": "Lineup available and before safe cutoff",
+            "would_submit": True,
+            "payload": {"s_no": 20260002, "percent": 52.0},
+        },
+    ]
+
+    assert _already_submitted_snos("2026-06-09", source="auto") == {20260002}
+    assert _already_submitted_snos("2026-06-09", source="manual") == {20260001}
+
+    _mark_already_submitted(decisions, "2026-06-09", source="auto")
+
+    assert decisions[0]["status"] == "ready"
+    assert decisions[0]["would_submit"] is True
+    assert decisions[1]["status"] == "already_submitted"
+    assert decisions[1]["would_submit"] is False
+
+
 class FakeNotifier:
     def __init__(self) -> None:
         self.sent: list[dict] = []

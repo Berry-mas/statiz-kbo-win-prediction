@@ -88,6 +88,7 @@ class Submitter:
         probability: float,
         game_date: str,
         game_time: str,
+        source: str = "auto",
     ) -> dict[str, Any]:
         """Submit a single prediction with retry on failure.
 
@@ -109,6 +110,7 @@ class Submitter:
                 attempts=0,
                 response={},
                 reason=reason,
+                source=source,
             )
             return {
                 "s_no": s_no,
@@ -144,6 +146,7 @@ class Submitter:
                     submitted=True,
                     attempts=attempt,
                     response=response,
+                    source=source,
                 )
                 return {
                     "s_no": s_no,
@@ -171,6 +174,7 @@ class Submitter:
             attempts=MAX_RETRIES,
             response=last_response,
             reason=str(last_exc),
+            source=source,
         )
         return {
             "s_no": s_no,
@@ -185,6 +189,7 @@ class Submitter:
         self,
         predictions: list[dict[str, Any]],
         game_date: str,
+        source: str = "auto",
     ) -> list[dict[str, Any]]:
         """Submit predictions for all games on *game_date*.
 
@@ -210,7 +215,7 @@ class Submitter:
             s_no = int(pred["s_no"])
             prob = float(pred["home_win_probability"])
             game_time = game_times.get(s_no, "")
-            result = self.submit_single(s_no, prob, game_date, game_time)
+            result = self.submit_single(s_no, prob, game_date, game_time, source=source)
             results.append(result)
 
         submitted = sum(1 for r in results if r["submitted"])
@@ -231,6 +236,7 @@ class Submitter:
         attempts: int,
         response: dict[str, Any],
         reason: str = "",
+        source: str = "auto",
     ) -> None:
         """Append a row to submission_log.csv."""
         row = pd.DataFrame(
@@ -240,6 +246,7 @@ class Submitter:
                     "game_date": game_date,
                     "submitted_prob": probability,
                     "submitted": submitted,
+                    "source": source,
                     "attempts": attempts,
                     "submitted_at": datetime.now(tz=KST).isoformat(),
                     "response_status": response.get(

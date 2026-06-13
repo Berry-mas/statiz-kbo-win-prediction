@@ -17,8 +17,8 @@ def test_build_features_for_date_upserts_unfinished_prediction_game(
     lineup_path = tmp_path / "clean" / "lineup_snapshot.csv"
     features_dir = tmp_path / "features"
     raw_dir = tmp_path / "raw"
-    games_path.parent.mkdir(parents=True)
-    lineup_path.parent.mkdir(parents=True)
+    games_path.parent.mkdir(parents=True, exist_ok=True)
+    lineup_path.parent.mkdir(parents=True, exist_ok=True)
     raw_dir.mkdir()
 
     pd.DataFrame(

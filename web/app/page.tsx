@@ -1,6 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
+import { ManualSubmitPanel } from "./manual-submit-panel";
+
 type PublicResult = {
   s_no: number;
   game_date: string;
@@ -126,7 +128,8 @@ export default async function DashboardPage() {
         </article>
 
         <aside className="panel operations-panel">
-          <h2>Publish Guardrails</h2>
+          <h2>Operations</h2>
+          <ManualSubmitPanel />
           <dl>
             <div>
               <dt>Source file</dt>

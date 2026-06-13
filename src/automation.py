@@ -43,6 +43,7 @@ class AutomationConfig:
     collect_data: bool = True
     build_features: bool = True
     execute_submit: bool = False
+    submission_source: str = "auto"
     now: datetime | None = None
 
 
@@ -85,8 +86,12 @@ def run_submission_automation(
 
     submission_results: list[dict[str, Any]] = []
     if cfg.execute_submit:
-        _mark_already_submitted(decisions, game_date)
-        submission_results = _execute_real_submissions(decisions, game_date)
+        _mark_already_submitted(decisions, game_date, source=cfg.submission_source)
+        submission_results = _execute_real_submissions(
+            decisions,
+            game_date,
+            source=cfg.submission_source,
+        )
 
     _append_scheduler_log(decisions)
     public_payload = export_public_results()
@@ -335,9 +340,11 @@ def _decision_reason(status: str) -> str:
     return reasons.get(status, status)
 
 
-def _mark_already_submitted(decisions: list[dict[str, Any]], game_date: str) -> None:
+def _mark_already_submitted(
+    decisions: list[dict[str, Any]], game_date: str, source: str = "auto"
+) -> None:
     """Disable duplicate submissions for games already submitted successfully."""
-    already_submitted = _already_submitted_snos(game_date)
+    already_submitted = _already_submitted_snos(game_date, source=source)
     if not already_submitted:
         return
 
@@ -349,7 +356,7 @@ def _mark_already_submitted(decisions: list[dict[str, Any]], game_date: str) -> 
             row["payload"] = {}
 
 
-def _already_submitted_snos(game_date: str) -> set[int]:
+def _already_submitted_snos(game_date: str, source: str = "auto") -> set[int]:
     """Return game ids with successful submission rows for one date."""
     log_path = Path(SUBMISSION_LOG_CSV)
     if not log_path.exists():
@@ -369,11 +376,13 @@ def _already_submitted_snos(game_date: str) -> set[int]:
         (submitted["game_date"].astype(str) == game_date)
         & submitted["submitted"].astype(str).str.lower().isin({"true", "1"})
     ]
+    if "source" in submitted.columns:
+        rows = rows[rows["source"].fillna("auto").astype(str) == source]
     return set(rows["s_no"].astype(int).tolist())
 
 
 def _execute_real_submissions(
-    decisions: list[dict[str, Any]], game_date: str
+    decisions: list[dict[str, Any]], game_date: str, source: str = "auto"
 ) -> list[dict[str, Any]]:
     """Submit eligible decisions to the Statiz API."""
     submitter = Submitter()
@@ -387,7 +396,7 @@ def _execute_real_submissions(
     ]
     if not predictions:
         return []
-    return submitter.submit_all(predictions, game_date)
+    return submitter.submit_all(predictions, game_date, source=source)
 
 
 def _append_scheduler_log(decisions: list[dict[str, Any]]) -> None:

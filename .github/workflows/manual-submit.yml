@@ -1,0 +1,44 @@
+name: Manual Statiz submit
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Game date in YYYY-MM-DD. Empty uses today's KST date on the server."
+        required: false
+        type: string
+
+concurrency:
+  group: manual-statiz-submit
+  cancel-in-progress: false
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate secrets
+        run: |
+          test -n "${{ secrets.LIGHTSAIL_HOST }}"
+          test -n "${{ secrets.LIGHTSAIL_USER }}"
+          test -n "${{ secrets.LIGHTSAIL_SSH_KEY }}"
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/lightsail_key
+          chmod 600 ~/.ssh/lightsail_key
+          ssh-keyscan -H "${{ secrets.LIGHTSAIL_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Trigger manual submit on Lightsail
+        env:
+          GAME_DATE: ${{ inputs.date }}
+        run: |
+          if [[ -n "$GAME_DATE" && ! "$GAME_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "date must be empty or YYYY-MM-DD" >&2
+            exit 2
+          fi
+          remote_cmd='set -euo pipefail; cd /home/ubuntu/statiz_code; git checkout main; git pull --ff-only origin main; STATIZ_GAME_DATE="'"$GAME_DATE"'" ./scripts/server_manual_submit.sh'
+          ssh -i ~/.ssh/lightsail_key \
+            -o IdentitiesOnly=yes \
+            "${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }}" \
+            "$remote_cmd"

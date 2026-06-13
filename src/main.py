@@ -151,6 +151,7 @@ def cmd_auto_submit(args: argparse.Namespace) -> None:
         collect_data=not args.skip_collect,
         build_features=not args.skip_features,
         execute_submit=args.execute_submit,
+        submission_source=args.submission_source,
         now=parse_kst_datetime(args.now) if args.now else None,
     )
     decisions = run_submission_automation(
@@ -239,6 +240,13 @@ def main() -> None:
         type=int,
         default=None,
         help="Skip games until they are within this many minutes before start time",
+    )
+    p.add_argument(
+        "--submission-source",
+        type=str,
+        choices=("auto", "manual"),
+        default="auto",
+        help="Label successful submission logs so manual submits do not block a later auto pass",
     )
 
     p = subparsers.add_parser(
