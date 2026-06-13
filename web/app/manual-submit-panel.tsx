@@ -69,7 +69,7 @@ export function ManualSubmitPanel() {
         <input
           onChange={(event) => setDate(event.target.value)}
           pattern="\d{4}-\d{2}-\d{2}"
-          placeholder="server today"
+          placeholder="YYYY-MM-DD"
           type="text"
           value={date}
         />
