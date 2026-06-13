@@ -68,6 +68,18 @@ def export_public_results(
         rows = _build_public_rows(games, predictions, submissions, limit)
 
     latest_predictions = _latest_by_s_no(predictions, "predicted_at")
+    latest_predictions = latest_predictions[
+        [
+            column
+            for column in (
+                "s_no",
+                "home_win_probability",
+                "model_version",
+                "predicted_at",
+            )
+            if column in latest_predictions.columns
+        ]
+    ]
     latest_submissions = _latest_by_s_no(
         _successful_submissions(submissions), "submitted_at"
     )
@@ -216,6 +228,18 @@ def _build_public_rows(
         return []
 
     latest_predictions = _latest_by_s_no(predictions, "predicted_at")
+    latest_predictions = latest_predictions[
+        [
+            column
+            for column in (
+                "s_no",
+                "home_win_probability",
+                "model_version",
+                "predicted_at",
+            )
+            if column in latest_predictions.columns
+        ]
+    ]
     latest_submissions = _latest_by_s_no(submitted, "submitted_at").drop(
         columns=["game_date"],
         errors="ignore",

@@ -45,12 +45,14 @@ def test_export_public_results_includes_only_finalized_submitted_games(
         [
             {
                 "s_no": 20260001,
+                "game_date": "2026-06-09",
                 "home_win_probability": 57.12,
                 "model_version": "lgbm_test",
                 "predicted_at": "2026-06-09T09:00:00+00:00",
             },
             {
                 "s_no": 20260002,
+                "game_date": "2026-06-09",
                 "home_win_probability": 41.2,
                 "model_version": "lgbm_test",
                 "predicted_at": "2026-06-09T09:00:00+00:00",
