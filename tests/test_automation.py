@@ -248,6 +248,8 @@ def test_notify_successful_submissions_includes_matchup_and_prediction() -> None
             "game_time": "18:30",
             "home_team_code": 5002,
             "away_team_code": 2002,
+            "home_sp_name": "임찬규",
+            "away_sp_name": "네일",
             "home_win_probability": 57.12,
         },
         {
@@ -255,6 +257,8 @@ def test_notify_successful_submissions_includes_matchup_and_prediction() -> None
             "game_time": "18:30",
             "home_team_code": 1001,
             "away_team_code": 7002,
+            "home_sp_name": "후라도",
+            "away_sp_name": "류현진",
             "home_win_probability": 44.4,
         },
     ]
@@ -269,6 +273,7 @@ def test_notify_successful_submissions_includes_matchup_and_prediction() -> None
     assert len(notifier.sent) == 1
     assert notifier.sent[0]["title"] == "Statiz submission succeeded"
     assert "18:30 KIA vs LG: LG 승률 57.12%" in notifier.sent[0]["message"]
+    assert "선발 네일 vs 임찬규" in notifier.sent[0]["message"]
     assert "한화" not in notifier.sent[0]["message"]
 
 
@@ -278,8 +283,26 @@ def test_submission_message_uses_away_team_when_home_probability_below_half() ->
             "game_time": "17:00",
             "home_team_code": 1001,
             "away_team_code": 7002,
+            "home_sp_name": "후라도",
+            "away_sp_name": "류현진",
             "home_win_probability": 44.4,
         }
     )
 
-    assert message == "- 17:00 한화 vs 삼성: 한화 승률 55.60% (제출 홈팀 승률 44.40%)"
+    assert (
+        message
+        == "- 17:00 한화 vs 삼성: 한화 승률 55.60% (제출 홈팀 승률 44.40%) / 선발 류현진 vs 후라도"
+    )
+
+
+def test_submission_message_marks_missing_starters_as_unknown() -> None:
+    message = _submission_message(
+        {
+            "game_time": "17:00",
+            "home_team_code": 1001,
+            "away_team_code": 7002,
+            "home_win_probability": 44.4,
+        }
+    )
+
+    assert message.endswith("/ 선발 미정 vs 미정")

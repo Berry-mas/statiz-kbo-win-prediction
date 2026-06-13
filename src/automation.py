@@ -176,6 +176,8 @@ def _build_decisions(
                     game_time=str(game.get("game_time", "")),
                     home_team_code=_optional_int(game.get("home_team_code")),
                     away_team_code=_optional_int(game.get("away_team_code")),
+                    home_sp_name=_optional_text(game.get("home_sp_name")),
+                    away_sp_name=_optional_text(game.get("away_sp_name")),
                 )
             )
             continue
@@ -202,6 +204,8 @@ def _build_decisions(
                 game_time=str(game.get("game_time", "")),
                 home_team_code=_optional_int(game.get("home_team_code")),
                 away_team_code=_optional_int(game.get("away_team_code")),
+                home_sp_name=_optional_text(game.get("home_sp_name")),
+                away_sp_name=_optional_text(game.get("away_sp_name")),
                 lineup_missing=lineup_missing,
                 would_submit=would_submit,
                 execute_submit=config.execute_submit,
@@ -236,6 +240,8 @@ def _decision_row(
     game_time: str = "",
     home_team_code: int | None = None,
     away_team_code: int | None = None,
+    home_sp_name: str | None = None,
+    away_sp_name: str | None = None,
     lineup_missing: bool = False,
     would_submit: bool = False,
     execute_submit: bool = False,
@@ -250,6 +256,8 @@ def _decision_row(
         "game_time": game_time,
         "home_team_code": home_team_code,
         "away_team_code": away_team_code,
+        "home_sp_name": home_sp_name,
+        "away_sp_name": away_sp_name,
         "model_version": model_version,
         "home_win_probability": probability,
         "lineup_missing": lineup_missing,
@@ -293,6 +301,19 @@ def _parse_game_datetime(game_date: str, game_time: str) -> datetime | None:
         except ValueError:
             continue
     return None
+
+
+def _optional_text(value: Any) -> str | None:
+    """Return stripped text, or None when value is empty/NaN."""
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except TypeError:
+        pass
+    text = str(value).strip()
+    return text or None
 
 
 def _deadline_status(
@@ -465,11 +486,20 @@ def _submission_message(row: dict[str, Any]) -> str:
 
     game_time = str(row.get("game_time") or "").strip()
     time_prefix = f"{game_time} " if game_time else ""
+    starter_suffix = _starter_suffix(row)
     return (
         f"- {time_prefix}{away_team} vs {home_team}: "
         f"{predicted_team} 승률 {predicted_probability:.2f}% "
         f"(제출 홈팀 승률 {home_probability:.2f}%)"
+        f"{starter_suffix}"
     )
+
+
+def _starter_suffix(row: dict[str, Any]) -> str:
+    """Return a compact starter-pitcher suffix for Discord messages."""
+    away_sp = _optional_text(row.get("away_sp_name")) or "미정"
+    home_sp = _optional_text(row.get("home_sp_name")) or "미정"
+    return f" / 선발 {away_sp} vs {home_sp}"
 
 
 def _team_name(team_code: Any) -> str:
