@@ -115,6 +115,7 @@ type Metric = {
 const DATA_FILE = path.join(process.cwd(), "public", "results.json");
 const PUBLIC_DIR = path.join(process.cwd(), "public");
 const EPSILON = 1e-15;
+const LG_TWINS_LOGO_KEY = "lg";
 
 export const dynamic = "force-static";
 
@@ -126,17 +127,17 @@ export default async function DashboardPage() {
   const metricCards = buildMetricCards(results, recentGames, metrics);
   const latestSubmission = data.latest_submission ?? null;
   const modelVersion = data.model_version ?? results[0]?.model_version ?? "n/a";
-  const heroGame = recentGames[0];
+  const heroGame = recentGames.find(isLgTwinsGame) ?? null;
 
   return (
     <main className="dashboard-shell">
       <section className="hero-panel">
         <div className="hero-copy">
           <p className="eyebrow">Y-wins KBO Forecast</p>
-          <h1>Y-wins kbo 승률 예측</h1>
-          <div className="hero-meta" aria-label="Dashboard status">
-            <span>model_version {modelVersion}</span>
-            <span>{formatTimestamp(data.generated_at)} publish</span>
+          <h1>Y-wins KBO Prediction</h1>
+          <div className="model-line" aria-label="Model version">
+            <span>model</span>
+            <strong>{modelVersion}</strong>
           </div>
         </div>
         <div className="hero-board">
@@ -144,8 +145,8 @@ export default async function DashboardPage() {
             <GameCard game={heroGame} featured />
           ) : (
             <div className="hero-empty">
-              <strong>No submissions yet</strong>
-              <span>Waiting for the first public batch</span>
+              <strong>No LG Twins game yet</strong>
+              <span>Waiting for the latest submitted LG Twins matchup</span>
             </div>
           )}
         </div>
@@ -413,6 +414,10 @@ function clampProbability(value: number): number {
   return Math.min(Math.max(value, EPSILON), 1 - EPSILON);
 }
 
+function isLgTwinsGame(game: RecentGame): boolean {
+  return game.home_team.logo_key === LG_TWINS_LOGO_KEY || game.away_team.logo_key === LG_TWINS_LOGO_KEY;
+}
+
 function GameCard({ game, featured = false }: { game: RecentGame; featured?: boolean }) {
   const homeTeam = game.home_team;
   const awayTeam = game.away_team;
@@ -426,13 +431,19 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
         <StatusPill status={game.game_status} />
       </div>
       <div className="teams">
-        <TeamLogo team={awayTeam} />
+        <div className="team-side team-side-away">
+          <span>Away</span>
+          <TeamLogo team={awayTeam} />
+        </div>
         <div className="versus">
           <strong>{awayTeam.name}</strong>
           <span>at</span>
           <strong>{homeTeam.name}</strong>
         </div>
-        <TeamLogo team={homeTeam} />
+        <div className="team-side team-side-home">
+          <span>Home</span>
+          <TeamLogo team={homeTeam} />
+        </div>
       </div>
       <div className="game-card-bottom">
         <div>
