@@ -1,12 +1,7 @@
 name: Deploy web dashboard
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "web/**"
-      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch:
 
 concurrency:
   group: deploy-web
@@ -15,9 +10,6 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -33,9 +25,11 @@ jobs:
           cache-dependency-path: web/package-lock.json
 
       - name: Install dependencies
+        working-directory: web
         run: npm ci
 
       - name: Typecheck
+        working-directory: web
         run: npm run typecheck
 
       - name: Pull Vercel environment
