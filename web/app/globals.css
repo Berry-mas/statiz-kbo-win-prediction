@@ -360,14 +360,76 @@ h3 {
 }
 
 .game-card-bottom {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(124px, 0.8fr);
+  display: block;
 }
 
-.game-card-bottom > div {
+.probability-panel {
   display: grid;
-  gap: 5px;
+  gap: 8px;
   min-width: 0;
+}
+
+.probability-panel > span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.matchup-probability {
+  display: grid;
+  gap: 8px;
+}
+
+.matchup-probability-bar {
+  display: flex;
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e2e7e2;
+}
+
+.matchup-probability-bar i {
+  display: block;
+  height: 100%;
+}
+
+.away-probability {
+  background: linear-gradient(90deg, var(--green), #6f862e);
+}
+
+.home-probability {
+  background: linear-gradient(90deg, #987719, var(--gold));
+}
+
+.matchup-probability-values {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.matchup-probability-values strong {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.matchup-probability-values strong:last-child {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.matchup-probability-values span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .game-card-bottom strong,
@@ -390,8 +452,8 @@ h3 {
 
 .probability {
   display: grid;
-  grid-template-columns: 42px minmax(70px, 1fr);
-  gap: 8px;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
   font-variant-numeric: tabular-nums;
 }
@@ -753,6 +815,6 @@ tbody tr:last-child td {
   }
 
   .game-card-bottom {
-    grid-template-columns: 1fr;
+    display: block;
   }
 }

@@ -215,7 +215,7 @@ export default async function DashboardPage() {
                           <td>{formatDate(game.game_date)}</td>
                           <td>
                             <span className="matchup">
-                              {game.away_team.name} <span>at</span> {game.home_team.name}
+                              {game.away_team.name} <span>vs</span> {game.home_team.name}
                             </span>
                             <span className="venue">{game.submission_source ?? "auto"}</span>
                           </td>
@@ -432,41 +432,41 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
       </div>
       <div className="teams">
         <div className="team-side team-side-away">
-          <span>Away</span>
+          <span>원정</span>
           <TeamLogo team={awayTeam} />
         </div>
         <div className="versus">
           <strong>{awayTeam.name}</strong>
-          <span>at</span>
+          <span>vs</span>
           <strong>{homeTeam.name}</strong>
         </div>
         <div className="team-side team-side-home">
-          <span>Home</span>
+          <span>홈</span>
           <TeamLogo team={homeTeam} />
         </div>
       </div>
       <div className="game-card-bottom">
-        <div>
-          <span>Submitted</span>
-          <strong>{formatTimestamp(game.submitted_at)}</strong>
-        </div>
-        <div>
-          <span>Home win</span>
+        <div className="probability-panel">
+          <span>
+            {awayTeam.name} 승률 vs {homeTeam.name} 승률
+          </span>
           {game.probability_published && game.home_win_probability !== null ? (
-            <ProbabilityBar value={game.home_win_probability / 100} />
+            <MatchupProbabilityBar homeValue={game.home_win_probability / 100} homeTeam={homeTeam} awayTeam={awayTeam} />
           ) : (
-            <strong>Sealed</strong>
+            <strong>비공개</strong>
           )}
         </div>
       </div>
       <div className="game-footer">
-        <span>{game.model_version}</span>
+        <span>
+          {game.model_version} · 제출 {formatTimestamp(game.submitted_at)}
+        </span>
         {game.game_status === "final" && game.away_score !== null && game.home_score !== null ? (
           <strong>
-            {game.away_score}-{game.home_score} · {game.correct ? "hit" : "miss"}
+            {game.away_score}-{game.home_score} · {game.correct ? "적중" : "미스"}
           </strong>
         ) : (
-          <strong>{predictedTeam ? predictedTeam.name : "pending final"}</strong>
+          <strong>{predictedTeam ? predictedTeam.name : "결과 대기"}</strong>
         )}
       </div>
       {game.scheduler ? (
@@ -508,6 +508,41 @@ function ProbabilityBar({ value }: { value: number }) {
       <span>{percentage}%</span>
       <div>
         <i style={{ width: `${percentage}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function MatchupProbabilityBar({
+  homeValue,
+  homeTeam,
+  awayTeam,
+}: {
+  homeValue: number;
+  homeTeam: TeamInfo;
+  awayTeam: TeamInfo;
+}) {
+  const homePercentage = Math.round(homeValue * 100);
+  const awayPercentage = 100 - homePercentage;
+
+  return (
+    <div
+      className="matchup-probability"
+      aria-label={`${awayTeam.name} ${awayPercentage} percent, ${homeTeam.name} ${homePercentage} percent`}
+    >
+      <div className="matchup-probability-bar">
+        <i className="away-probability" style={{ width: `${awayPercentage}%` }} />
+        <i className="home-probability" style={{ width: `${homePercentage}%` }} />
+      </div>
+      <div className="matchup-probability-values">
+        <strong>
+          <span>{awayTeam.name}</span>
+          {awayPercentage}%
+        </strong>
+        <strong>
+          <span>{homeTeam.name}</span>
+          {homePercentage}%
+        </strong>
       </div>
     </div>
   );
@@ -559,7 +594,7 @@ function SubmissionSummary({ batch }: { batch: SubmissionBatch }) {
       <div className="mini-matchups">
         {batch.games.slice(0, 5).map((game) => (
           <span key={`${game.s_no}-${game.home_team.logo_key}`}>
-            {game.away_team.name} at {game.home_team.name}
+            {game.away_team.name} vs {game.home_team.name}
           </span>
         ))}
       </div>
@@ -585,19 +620,19 @@ function teamInitials(name: string): string {
 
 function statusLabel(status: string): string {
   const labels: Record<string, string> = {
-    success: "success",
-    failed: "failed",
-    unknown: "unknown",
-    final: "final",
-    scheduled: "scheduled",
-    in_progress: "live",
-    cancelled: "cancelled",
-    ready: "ready",
-    lineup_missing_fallback: "fallback",
-    already_submitted: "submitted",
-    too_early: "early",
-    past_safe_cutoff: "cutoff",
-    past_hard_deadline: "closed",
+    success: "성공",
+    failed: "실패",
+    unknown: "미확인",
+    final: "경기 종료",
+    scheduled: "예정",
+    in_progress: "진행 중",
+    cancelled: "취소",
+    ready: "준비 완료",
+    lineup_missing_fallback: "라인업 대기",
+    already_submitted: "제출 완료",
+    too_early: "대기 중",
+    past_safe_cutoff: "안전 마감",
+    past_hard_deadline: "제출 마감",
   };
   return labels[status] ?? status;
 }
@@ -610,11 +645,13 @@ function formatDate(value: string): string {
 }
 
 function formatTimestamp(value: string): string {
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat("ko-KR", {
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Seoul",
   }).format(new Date(value));
 }
 
