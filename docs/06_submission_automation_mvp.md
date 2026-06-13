@@ -13,8 +13,9 @@ MVP 기본값은 dry-run이며, 실제 대회 제출 API는 호출하지 않는�
 - 알림: Discord webhook
 - 제출 안전 cutoff: 경기 공식 시작 20분 전
 - 공식 hard deadline: 경기 공식 시작 15분 전
-- T-20까지 라인업 없음: fallback 예측 제출 대상으로 처리
-- 라인업 누락 기록: `lineup_missing=True`, status `lineup_missing_fallback`
+- T-20까지 선발타자 라인업 없음: fallback 예측 제출 대상으로 처리
+- 선발투수 2명만 있어도 예측과 제출은 가능함
+- 선발타자 라인업 누락 기록: `lineup_missing=True`, `batting_lineup_missing=True`, status `lineup_missing_fallback`
 
 ## dry-run 동작
 
@@ -71,7 +72,7 @@ uv run python -m src.main auto-submit \
 | --- | --- |
 | `logs/prediction_log.csv` | 모델 예측 결과 |
 | `logs/submission_log.csv` | 실제 제출 결과 |
-| `logs/scheduler_run_log.csv` | 스케줄러 판단, dry-run payload, 라인업 누락 여부 |
+| `logs/scheduler_run_log.csv` | 스케줄러 판단, dry-run payload, 선발투수/선발타자 라인업 상태 |
 | `web/public/results.json` | 공개 웹 대시보드용 확정 결과 |
 
 `logs/`, `data/`, `artifacts/`, `.env`는 공개 repo에 올리지 않는다.

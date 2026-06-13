@@ -185,7 +185,8 @@ def _build_decisions(
 
         game_dt = _parse_game_datetime(game_date, str(game.get("game_time", "")))
         deadline_status = _deadline_status(checked_at, game_dt, config)
-        lineup_missing = not _has_starting_lineup(lineups, s_no)
+        lineup_availability = _lineup_availability(lineups, s_no)
+        lineup_missing = lineup_availability["batting_lineup_missing"]
         status = deadline_status or (
             "lineup_missing_fallback" if lineup_missing else "ready"
         )
@@ -208,6 +209,10 @@ def _build_decisions(
                 home_sp_name=_optional_text(game.get("home_sp_name")),
                 away_sp_name=_optional_text(game.get("away_sp_name")),
                 lineup_missing=lineup_missing,
+                starter_confirmed=lineup_availability["starter_confirmed"],
+                starting_pitcher_count=lineup_availability["starting_pitcher_count"],
+                starting_batter_count=lineup_availability["starting_batter_count"],
+                batting_lineup_missing=lineup_availability["batting_lineup_missing"],
                 would_submit=would_submit,
                 execute_submit=config.execute_submit,
                 payload={"s_no": s_no, "percent": probability},
@@ -244,6 +249,10 @@ def _decision_row(
     home_sp_name: str | None = None,
     away_sp_name: str | None = None,
     lineup_missing: bool = False,
+    starter_confirmed: bool = False,
+    starting_pitcher_count: int = 0,
+    starting_batter_count: int = 0,
+    batting_lineup_missing: bool = False,
     would_submit: bool = False,
     execute_submit: bool = False,
     payload: dict[str, Any] | None = None,
@@ -262,6 +271,10 @@ def _decision_row(
         "model_version": model_version,
         "home_win_probability": probability,
         "lineup_missing": lineup_missing,
+        "starter_confirmed": starter_confirmed,
+        "starting_pitcher_count": starting_pitcher_count,
+        "starting_batter_count": starting_batter_count,
+        "batting_lineup_missing": batting_lineup_missing,
         "status": status,
         "reason": reason,
         "would_submit": would_submit,
@@ -338,22 +351,63 @@ def _deadline_status(
     return None
 
 
-def _has_starting_lineup(lineups: pd.DataFrame, s_no: int) -> bool:
-    """Return True when at least one starting lineup row exists for a game."""
+def _lineup_availability(lineups: pd.DataFrame, s_no: int) -> dict[str, Any]:
+    """Return pitcher and batting-lineup availability for one game.
+
+    Statiz lineup responses can contain only the two starting pitchers before
+    the full batting orders are posted. Those games remain submittable as a
+    fallback, but logs should not label them as full-lineup ready.
+    """
     if lineups.empty or "s_no" not in lineups.columns:
-        return False
+        return _empty_lineup_availability()
+
     game_lineups = lineups[lineups["s_no"].astype(int) == s_no]
     if game_lineups.empty or "is_starter" not in game_lineups.columns:
-        return False
-    starters = game_lineups["is_starter"].astype(str).str.lower().isin({"true", "1"})
-    return bool(starters.any())
+        return _empty_lineup_availability()
+
+    starters = game_lineups[
+        game_lineups["is_starter"].astype(str).str.lower().isin({"true", "1"})
+    ].copy()
+    if starters.empty:
+        return _empty_lineup_availability()
+
+    if "is_pitcher" in starters.columns:
+        pitcher_mask = starters["is_pitcher"].astype(str).str.lower().isin(
+            {"true", "1"}
+        )
+    elif "position_code" in starters.columns:
+        pitcher_mask = pd.to_numeric(
+            starters["position_code"], errors="coerce"
+        ).eq(1)
+    else:
+        pitcher_mask = pd.Series(False, index=starters.index)
+
+    starting_pitcher_count = int(pitcher_mask.sum())
+    starting_batter_count = int((~pitcher_mask).sum())
+
+    return {
+        "starter_confirmed": starting_pitcher_count >= 2,
+        "starting_pitcher_count": starting_pitcher_count,
+        "starting_batter_count": starting_batter_count,
+        "batting_lineup_missing": starting_batter_count < 18,
+    }
+
+
+def _empty_lineup_availability() -> dict[str, Any]:
+    """Return the default availability state when no lineup rows exist."""
+    return {
+        "starter_confirmed": False,
+        "starting_pitcher_count": 0,
+        "starting_batter_count": 0,
+        "batting_lineup_missing": True,
+    }
 
 
 def _decision_reason(status: str) -> str:
     """Map a scheduler status to a human-readable reason."""
     reasons = {
-        "ready": "Lineup available and before safe cutoff",
-        "lineup_missing_fallback": "Lineup missing before safe cutoff; fallback prediction allowed",
+        "ready": "Full batting lineup available and before safe cutoff",
+        "lineup_missing_fallback": "Batting lineup missing before safe cutoff; fallback prediction allowed",
         "too_early": "Before configured submission window",
         "past_safe_cutoff": "Inside T-20 safety buffer; skip automated submission",
         "past_hard_deadline": "Inside official T-15 deadline; submission forbidden",

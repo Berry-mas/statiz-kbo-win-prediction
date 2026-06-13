@@ -50,8 +50,63 @@ def test_build_decisions_marks_lineup_missing_fallback() -> None:
 
     assert decisions[0]["status"] == "lineup_missing_fallback"
     assert decisions[0]["lineup_missing"] is True
+    assert decisions[0]["batting_lineup_missing"] is True
+    assert decisions[0]["starter_confirmed"] is False
     assert decisions[0]["would_submit"] is True
     assert decisions[0]["payload"] == {"s_no": 20260001, "percent": 52.35}
+
+
+def test_build_decisions_allows_pitcher_only_lineup_fallback() -> None:
+    now = datetime(2026, 6, 9, 16, 0, tzinfo=KST)
+    game_date = "2026-06-09"
+    games = pd.DataFrame(
+        [
+            {
+                "s_no": 20260001,
+                "game_date": game_date,
+                "game_time": "18:30",
+            }
+        ]
+    )
+    predictions = [
+        {
+            "s_no": 20260001,
+            "home_win_probability": 52.346,
+            "model_version": "lgbm_test",
+        }
+    ]
+    lineups = pd.DataFrame(
+        [
+            {
+                "s_no": 20260001,
+                "is_starter": True,
+                "is_pitcher": True,
+                "team_code": 1001,
+            },
+            {
+                "s_no": 20260001,
+                "is_starter": True,
+                "is_pitcher": True,
+                "team_code": 7002,
+            },
+        ]
+    )
+
+    decisions = _build_decisions(
+        game_date=game_date,
+        games=games,
+        predictions=predictions,
+        lineups=lineups,
+        model_version="lgbm_test",
+        config=AutomationConfig(now=now),
+    )
+
+    assert decisions[0]["status"] == "lineup_missing_fallback"
+    assert decisions[0]["starter_confirmed"] is True
+    assert decisions[0]["starting_pitcher_count"] == 2
+    assert decisions[0]["starting_batter_count"] == 0
+    assert decisions[0]["batting_lineup_missing"] is True
+    assert decisions[0]["would_submit"] is True
 
 
 def test_deadline_status_forbids_after_hard_deadline() -> None:
@@ -103,7 +158,10 @@ def test_build_decisions_uses_injected_now_for_deadline() -> None:
             {
                 "s_no": 20260001,
                 "is_starter": True,
+                "is_pitcher": order in {0, 10},
+                "team_code": 1001 if order < 10 else 7002,
             }
+            for order in range(20)
         ]
     )
 
@@ -118,6 +176,10 @@ def test_build_decisions_uses_injected_now_for_deadline() -> None:
 
     assert decisions[0]["checked_at"] == "2026-06-09T17:30:00+09:00"
     assert decisions[0]["status"] == "ready"
+    assert decisions[0]["starter_confirmed"] is True
+    assert decisions[0]["starting_pitcher_count"] == 2
+    assert decisions[0]["starting_batter_count"] == 18
+    assert decisions[0]["batting_lineup_missing"] is False
     assert decisions[0]["would_submit"] is True
 
 
