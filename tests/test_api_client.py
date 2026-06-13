@@ -86,9 +86,13 @@ class TestStatizAPIClient:
             assert result == {"result_cd": 0, "result_msg": "ok"}
             mock_post.assert_called_once()
             _, kwargs = mock_post.call_args
-            assert kwargs["json"] == {"s_no": 1234, "percent": 0.74}
+            assert kwargs["files"] == {
+                "s_no": (None, "1234"),
+                "percent": (None, "0.74"),
+            }
             assert kwargs["headers"]["X-API-KEY"] == "test_key"
             assert "X-SIGNATURE" in kwargs["headers"]
+            assert "Content-Type" not in kwargs["headers"]
 
     @patch("src.api_client.requests.post")
     def test_save_prediction_error_preserves_response_body(self, mock_post):

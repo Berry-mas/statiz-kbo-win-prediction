@@ -22,6 +22,7 @@ from .constants import (
     SUBMISSION_LOG_CSV,
     TEAM_CODES,
 )
+from .submission_log import read_submission_log
 
 
 def export_public_results(
@@ -84,6 +85,8 @@ def _read_csv(path: str) -> pd.DataFrame:
     csv_path = Path(path)
     if not csv_path.exists():
         return pd.DataFrame()
+    if str(csv_path) == SUBMISSION_LOG_CSV:
+        return read_submission_log(csv_path)
     return pd.read_csv(csv_path, encoding="utf-8-sig")
 
 
@@ -108,7 +111,10 @@ def _build_public_rows(
         return []
 
     latest_predictions = _latest_by_s_no(predictions, "predicted_at")
-    latest_submissions = _latest_by_s_no(submitted, "submitted_at")
+    latest_submissions = _latest_by_s_no(submitted, "submitted_at").drop(
+        columns=["game_date"],
+        errors="ignore",
+    )
 
     merged = finalized.merge(latest_predictions, on="s_no", how="inner")
     merged = merged.merge(

@@ -21,6 +21,7 @@ from loguru import logger
 from .api_client import StatizAPIClient, StatizAPIError
 from .constants import GAMES_CSV, LOGS_DIR, SUBMISSION_LOG_CSV
 from .predictor import normalize_prob
+from .submission_log import SUBMISSION_LOG_COLUMNS, ensure_submission_log_schema
 
 # KST = UTC+9
 KST = timezone(timedelta(hours=9))
@@ -256,8 +257,10 @@ class Submitter:
                 }
             ]
         )
+        row = row[SUBMISSION_LOG_COLUMNS]
 
         log_path = Path(SUBMISSION_LOG_CSV)
+        ensure_submission_log_schema(log_path)
         header = not log_path.exists()
         row.to_csv(
             log_path,

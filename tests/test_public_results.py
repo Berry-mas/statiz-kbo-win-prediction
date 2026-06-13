@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 from src import public_results
+from src.submission_log import read_submission_log
 
 
 def test_export_public_results_includes_only_finalized_submitted_games(
@@ -59,13 +60,25 @@ def test_export_public_results_includes_only_finalized_submitted_games(
         [
             {
                 "s_no": 20260001,
+                "game_date": "2026-06-09",
+                "submitted_prob": 57.12,
                 "submitted": True,
+                "source": "auto",
+                "attempts": 1,
                 "submitted_at": "2026-06-09T17:30:00+09:00",
+                "response_status": 0,
+                "response_message": "ok",
             },
             {
                 "s_no": 20260002,
+                "game_date": "2026-06-09",
+                "submitted_prob": 41.2,
                 "submitted": True,
+                "source": "auto",
+                "attempts": 1,
                 "submitted_at": "2026-06-09T17:30:00+09:00",
+                "response_status": 0,
+                "response_message": "ok",
             },
         ]
     ).to_csv(submission_log, index=False, encoding="utf-8-sig")
@@ -80,3 +93,22 @@ def test_export_public_results_includes_only_finalized_submitted_games(
     assert payload["results"][0]["s_no"] == 20260001
     assert payload["results"][0]["home_team"] == "삼성"
     assert output_json.exists()
+
+
+def test_submission_log_reader_accepts_mixed_legacy_and_source_rows(
+    tmp_path: Path,
+) -> None:
+    submission_log = tmp_path / "submission_log.csv"
+    submission_log.write_text(
+        "\ufeff"
+        "s_no,game_date,submitted_prob,submitted,attempts,submitted_at,response_status,response_message\n"
+        "20260330,2026-06-12,52.73,False,3,2026-06-12T18:03:50+09:00,,old failure\n"
+        "20260331,2026-06-13,59.28,False,manual,3,2026-06-13T14:45:14+09:00,400,"
+        "\"{'result_cd': 400, 'result_msg': '필수 값이 누락되었습니다.', 'update_time': None}\"\n",
+        encoding="utf-8",
+    )
+
+    parsed = read_submission_log(submission_log)
+
+    assert parsed["source"].tolist() == ["auto", "manual"]
+    assert parsed["attempts"].tolist() == [3, 3]

@@ -194,10 +194,43 @@ class StatizAPIClient:
 
         return dict(response.json())
 
+    def post_form_data(
+        self,
+        endpoint: str,
+        data: dict[str, Any],
+        params: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Make POST request with multipart/form-data text fields."""
+        url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        headers = self._get_headers("POST", endpoint, params)
+        headers.pop("Content-Type", None)
+        files = {key: (None, str(value)) for key, value in data.items()}
+
+        self._wait_for_rate_limit()
+        self._last_request_at = time.monotonic()
+        response = requests.post(
+            url,
+            headers=headers,
+            files=files,
+            params=params,
+            timeout=self.request_timeout_seconds,
+        )
+        if response.status_code >= 400:
+            body = _response_body(response)
+            logger.warning(
+                "POST {} failed status={} body={}",
+                endpoint,
+                response.status_code,
+                body,
+            )
+            raise StatizAPIError("POST", endpoint, response.status_code, body)
+
+        return dict(response.json())
+
     def save_prediction(self, s_no: int, percent: float) -> dict[str, Any]:
         """Submit prediction result to Statiz API"""
         payload = {"s_no": s_no, "percent": round(percent, 2)}
-        return self.post("prediction/savePrediction", data=payload)
+        return self.post_form_data("prediction/savePrediction", data=payload)
 
 
 def _response_body(response: requests.Response) -> str:
