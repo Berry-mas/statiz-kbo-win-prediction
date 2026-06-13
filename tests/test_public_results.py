@@ -86,7 +86,7 @@ def test_export_public_results_includes_only_finalized_submitted_games(
     pd.DataFrame(
         [
             {
-                "run_id": "run-secret-ish",
+                "run_id": "run-public-test",
                 "checked_at": "2026-06-09T17:20:00+09:00",
                 "game_date": "2026-06-09",
                 "s_no": 20260001,
@@ -103,7 +103,7 @@ def test_export_public_results_includes_only_finalized_submitted_games(
                 "reason": "Batting lineup missing before safe cutoff; fallback prediction allowed",
                 "would_submit": True,
                 "execute_submit": True,
-                "payload": "{'secret_strategy': 'do-not-publish'}",
+                "payload": "{'internal_payload': 'private-row-detail'}",
             },
         ]
     ).to_csv(scheduler_log, index=False, encoding="utf-8-sig")
@@ -129,9 +129,11 @@ def test_export_public_results_includes_only_finalized_submitted_games(
     assert payload["model_metrics"]["window"]["sample_size"] == 1
     assert payload["model_metrics"]["accuracy"] == 1.0
     assert payload["recent_games"][0]["probability_published"] is True
-    assert payload["recent_games"][0]["scheduler"]["status"] == "lineup_missing_fallback"
+    assert (
+        payload["recent_games"][0]["scheduler"]["status"] == "lineup_missing_fallback"
+    )
     assert "payload" not in payload["recent_games"][0]["scheduler"]
-    assert "secret_strategy" not in output_json.read_text(encoding="utf-8")
+    assert "internal_payload" not in output_json.read_text(encoding="utf-8")
     assert output_json.exists()
 
 

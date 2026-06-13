@@ -1,76 +1,51 @@
-# Statiz 승부예측 프로젝트 문서 개요
+# Statiz Y-wins 프로젝트 개요
 
-## 왜 문서를 나눠야 하는가
-이 프로젝트는 단순히 모델 성능만 내는 것이 아니라, 다음을 동시에 만족해야 합니다.
+## 목표
 
-- 계획서에 적은 방식과 실제 구현이 크게 어긋나지 않아야 함
-- 대회 운영 규정에 맞게 API 수집/예측 제출 자동화가 되어 있어야 함
-- 추후 검증 시 원천 데이터, 분석 방법, 코드 흐름을 재현할 수 있어야 함
-- Codex와 Claude가 역할을 나눠 작업하더라도 파일만 보면 바로 이어서 개발할 수 있어야 함
-- Codex는 
+Statiz KBO 승부예측 대회용 수집, feature 생성, 학습, 예측 제출, 공개
+대시보드를 하나의 재현 가능한 파이프라인으로 운영함.
 
-따라서 문서는 다음 4개를 기본 세트로 두는 것이 좋습니다.
+## 현재 구성
 
-1. `01_project_overview.md`
-   - 프로젝트 목적, 전체 구조, 역할 분담, 문서 인덱스
-2. `02_data_pipeline_and_feature_spec.md`
-   - 어떤 API를 어떻게 호출하고, 어떤 테이블/피처를 만들지 정의
-3. `03_training_validation_serving_plan.md`
-   - 학습, 검증, 추론, 배치 실행, 제출 로직 정의
-4. `04_api_contract_and_submission_rules.md`
-   - 대회 운영 규정, 제출 규칙, 실패 케이스, 체크리스트 정리
-
-## 추천 폴더 구조
 ```text
 project-root/
-├─ README.md
-├─ docs/
-│  ├─ 01_project_overview.md
-│  ├─ 02_data_pipeline_and_feature_spec.md
-│  ├─ 03_training_validation_serving_plan.md
-│  └─ 04_api_contract_and_submission_rules.md
-├─ configs/
-│  ├─ base.yaml
-│  ├─ train.yaml
-│  └─ inference.yaml
-├─ data_contract/
-│  ├─ raw_schema.md
-│  └─ feature_schema.md
-├─ apps/
-│  ├─ trainer/
-│  ├─ inference_worker/
-│  └─ submitter/
-└─ notebooks/
+├─ src/                  # 수집, 정제, feature, 학습, 예측, 제출, 공개 JSON 생성
+├─ tests/                # API, 자동화, feature, 예측, 알림, 공개 결과 테스트
+├─ scripts/              # 서버 실행, 수동/자동 제출, 공개 결과 publish 스크립트
+├─ ops/systemd/          # 자동 제출 systemd service/timer
+├─ docs/                 # 데이터, 모델, 제출, 운영 문서
+└─ web/                  # Vercel 공개 대시보드
 ```
 
-## 협업 기준
-- Claude: 구조 설계, 문서 정리, 리팩터링 방향, 실험 설계, 예외처리 정리
-- Codex: 실제 코드 작성, 반복 수정, 파일 단위 구현, 테스트 추가
-- 공통 원칙:
-  - 문서 먼저 갱신 후 구현
-  - 새로운 API를 붙이면 먼저 `docs/04_api_contract_and_submission_rules.md`에 반영
-  - feature 추가 시 `docs/02_data_pipeline_and_feature_spec.md` 업데이트
-  - 모델/검증 전략 변경 시 `docs/03_training_validation_serving_plan.md` 업데이트
+로컬/서버에서 생성되는 `data/`, `logs/`, `artifacts/`, `.env`는 Git에 올리지
+않음.
 
-## 지금 단계에서 가장 중요한 것
-현재 단계에서는 아래 순서가 가장 현실적입니다.
+## 주요 흐름
 
-1. API로 받을 원천 데이터 목록 확정
-2. raw 저장용 MySQL 스키마 설계
-3. feature mart 설계
-4. 학습 파이프라인 구축
-5. 추론 파이프라인 구축
-6. 대회 제출 API 연동
-7. 라인업 공개 직후부터 경기 15분 전까지 자동 제출 배치 완성
-8. 제출 로그/재시도/모니터링 체계 완성
+1. `collector.py`가 Statiz API raw 데이터를 저장함.
+2. `cleaner.py`가 raw JSON을 clean CSV로 변환함.
+3. `feature_builder.py`가 경기 전 feature matrix를 생성함.
+4. `trainer.py`가 LightGBM 모델 artifact를 생성함.
+5. `predictor.py`가 모델을 로드해 홈팀 승률을 예측함.
+6. `automation.py`가 제출 가능 여부를 판단하고 `submitter.py`를 호출함.
+7. `public_results.py`가 공개 가능한 요약만 `web/public/results.json`으로 내보냄.
+8. `web/` 대시보드가 sanitized JSON과 팀 로고를 표시함.
 
-## 바로 실행할 체크리스트
-- [ ] API 키, 인증 방식, 허용 IP 확인
-- [ ] 개발/운영 서버의 고정 IP 확보
-- [ ] 수집 API와 제출 API 명세 분리 정리
-- [ ] raw DB 테이블 설계
-- [ ] feature 생성 SQL 또는 배치 코드 설계
-- [ ] baseline LightGBM 학습 코드 작성
-- [ ] time-based CV 구현
-- [ ] 예측 확률 보정 및 반올림 규칙 적용
-- [ ] 제출 응답 저장 및 개인 페이지 대조 자동화
+## 운영 원칙
+
+- 제출 API 호출은 등록 IP 서버 환경에서만 수행함.
+- 공개 웹에는 finalized 결과, 제출 요약, 모델 운영 지표처럼 사용자에게 보여도 되는
+  값만 노출함.
+- raw API 응답, feature matrix, credential, 서버 주소, private path, gate 실제 값은
+  공개 JSON과 문서에 넣지 않음.
+- 수동 제출과 자동 제출은 같은 모델 버전을 기준으로 동작하되, 제출 로그의 `source`
+  값으로 서로의 중복 제출 판단을 분리함.
+
+## 문서 사용법
+
+- API/제출 제약: `04_api_contract_and_submission_rules.md`
+- 데이터와 feature: `02_data_pipeline_and_feature_spec.md`,
+  `05_data_to_model_pipeline.md`
+- 학습/검증/서빙: `03_training_validation_serving_plan.md`
+- 자동화와 운영: `06_submission_automation_mvp.md`,
+  `08_lightsail_server_operations.md`

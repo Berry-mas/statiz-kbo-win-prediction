@@ -8,6 +8,7 @@ are excluded so the public dashboard cannot reveal active prediction strategy.
 from __future__ import annotations
 
 import json
+import math
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -207,33 +208,29 @@ def _build_public_rows(
         return []
 
     merged = merged.sort_values(["game_date", "s_no"], ascending=False).head(limit)
-    rows: list[dict[str, Any]] = []
-    for _, row in merged.iterrows():
-        probability = float(row["home_win_probability"])
-        target = float(row["target_home_win"])
-        predicted_home_win = probability > 50.0
-        actual_home_win = target == 1.0
-        home_team_code = int(row["home_team_code"])
-        away_team_code = int(row["away_team_code"])
-        rows.append(
-            {
-                "s_no": int(row["s_no"]),
-                "game_date": str(row["game_date"]),
-                "game_time": _optional_string(row.get("game_time")),
-                "home_team": _team_public(home_team_code),
-                "away_team": _team_public(away_team_code),
-                "home_score": int(row["home_score"]),
-                "away_score": int(row["away_score"]),
-                "home_win_probability": round(probability, 2),
-                "predicted_winner": "home" if predicted_home_win else "away",
-                "actual_winner": "home" if actual_home_win else "away",
-                "correct": predicted_home_win == actual_home_win,
-                "model_version": str(row["model_version"]),
-                "submitted_at": str(row["submitted_at"]),
-                "submission_source": _optional_string(row.get("source")) or "auto",
-            }
-        )
-    return rows
+    return [_public_result_row(row) for _, row in merged.iterrows()]
+
+
+def _public_result_row(row: pd.Series) -> dict[str, Any]:
+    probability = float(row["home_win_probability"])
+    predicted_home_win = probability > 50.0
+    actual_home_win = float(row["target_home_win"]) == 1.0
+    return {
+        "s_no": int(row["s_no"]),
+        "game_date": str(row["game_date"]),
+        "game_time": _optional_string(row.get("game_time")),
+        "home_team": _team_public(int(row["home_team_code"])),
+        "away_team": _team_public(int(row["away_team_code"])),
+        "home_score": int(row["home_score"]),
+        "away_score": int(row["away_score"]),
+        "home_win_probability": round(probability, 2),
+        "predicted_winner": _winner_from_probability(probability),
+        "actual_winner": "home" if actual_home_win else "away",
+        "correct": predicted_home_win == actual_home_win,
+        "model_version": str(row["model_version"]),
+        "submitted_at": str(row["submitted_at"]),
+        "submission_source": _optional_string(row.get("source")) or "auto",
+    }
 
 
 def _latest_by_s_no(df: pd.DataFrame, timestamp_col: str) -> pd.DataFrame:
@@ -284,64 +281,63 @@ def _build_recent_games(
             suffixes=("", "_scheduler"),
         )
 
-    sort_columns = [column for column in ("submitted_at", "game_date") if column in merged]
+    sort_columns = [
+        column for column in ("submitted_at", "game_date") if column in merged
+    ]
     if sort_columns:
         merged = merged.sort_values(sort_columns, ascending=False)
     merged = merged.head(limit)
 
-    rows: list[dict[str, Any]] = []
-    for _, row in merged.iterrows():
-        home_code = _optional_int(row.get("home_team_code"))
-        away_code = _optional_int(row.get("away_team_code"))
-        home_probability = _optional_float(row.get("home_win_probability"))
-        is_final = _is_final_game(row)
-        submitted_at = _optional_string(row.get("submitted_at")) or ""
+    return [_recent_game_row(row) for _, row in merged.iterrows()]
 
-        public_row: dict[str, Any] = {
-            "s_no": _optional_int(row.get("s_no")),
-            "game_date": _optional_string(
-                row.get("game_date_game", row.get("game_date"))
-            ),
-            "game_time": _optional_string(row.get("game_time")),
-            "home_team": _team_public(home_code),
-            "away_team": _team_public(away_code),
-            "game_status": _public_game_status(row),
-            "submitted_at": submitted_at,
-            "submission_source": _optional_string(row.get("source")) or "auto",
-            "model_version": _optional_string(row.get("model_version")) or "unknown",
-            "probability_published": is_final,
-            "home_win_probability": round(home_probability, 2)
-            if is_final and home_probability is not None
-            else None,
-            "predicted_winner": _winner_from_probability(home_probability)
+
+def _recent_game_row(row: pd.Series) -> dict[str, Any]:
+    home_probability = _optional_float(row.get("home_win_probability"))
+    is_final = _is_final_game(row)
+    return {
+        "s_no": _optional_int(row.get("s_no")),
+        "game_date": _optional_string(row.get("game_date_game", row.get("game_date"))),
+        "game_time": _optional_string(row.get("game_time")),
+        "home_team": _team_public(_optional_int(row.get("home_team_code"))),
+        "away_team": _team_public(_optional_int(row.get("away_team_code"))),
+        "game_status": _public_game_status(row),
+        "submitted_at": _optional_string(row.get("submitted_at")) or "",
+        "submission_source": _optional_string(row.get("source")) or "auto",
+        "model_version": _optional_string(row.get("model_version")) or "unknown",
+        "probability_published": is_final,
+        "home_win_probability": round(home_probability, 2)
+        if is_final and home_probability is not None
+        else None,
+        "predicted_winner": _winner_from_probability(home_probability)
+        if is_final
+        else None,
+        "scheduler": _scheduler_summary(row),
+        **(
+            _result_fields(row, home_probability)
             if is_final
-            else None,
-            "scheduler": _scheduler_summary(row),
-        }
-        if is_final:
-            actual_home_win = float(row["target_home_win"]) == 1.0
-            predicted_home_win = bool(
-                home_probability is not None and home_probability > 50.0
-            )
-            public_row.update(
-                {
-                    "home_score": _optional_int(row.get("home_score")),
-                    "away_score": _optional_int(row.get("away_score")),
-                    "actual_winner": "home" if actual_home_win else "away",
-                    "correct": predicted_home_win == actual_home_win,
-                }
-            )
-        else:
-            public_row.update(
-                {
-                    "home_score": None,
-                    "away_score": None,
-                    "actual_winner": None,
-                    "correct": None,
-                }
-            )
-        rows.append(public_row)
-    return rows
+            else _empty_result_fields()
+        ),
+    }
+
+
+def _result_fields(row: pd.Series, probability: float | None) -> dict[str, Any]:
+    actual_home_win = float(row["target_home_win"]) == 1.0
+    predicted_home_win = bool(probability is not None and probability > 50.0)
+    return {
+        "home_score": _optional_int(row.get("home_score")),
+        "away_score": _optional_int(row.get("away_score")),
+        "actual_winner": "home" if actual_home_win else "away",
+        "correct": predicted_home_win == actual_home_win,
+    }
+
+
+def _empty_result_fields() -> dict[str, Any]:
+    return {
+        "home_score": None,
+        "away_score": None,
+        "actual_winner": None,
+        "correct": None,
+    }
 
 
 def _build_recent_submissions(
@@ -423,7 +419,9 @@ def _build_manual_workflow_summary(submissions: pd.DataFrame) -> dict[str, Any]:
     if submissions.empty or "source" not in submissions.columns:
         return base
 
-    manual_rows = submissions[submissions["source"].fillna("auto").astype(str) == "manual"]
+    manual_rows = submissions[
+        submissions["source"].fillna("auto").astype(str) == "manual"
+    ]
     if manual_rows.empty:
         return base
 
@@ -445,25 +443,21 @@ def _build_model_metrics(
     rows = finalized_rows[:window_size]
     sample_size = len(rows)
     if sample_size == 0:
-        return {
-            "window": {
-                "type": "recent_finalized_submitted_games",
-                "requested": window_size,
-                "sample_size": 0,
-            },
-            "accuracy": None,
-            "log_loss": None,
-            "brier": None,
-        }
+        return _empty_model_metrics(window_size)
 
     correct = sum(1 for row in rows if row["correct"])
     losses: list[float] = []
     briers: list[float] = []
     for row in rows:
-        probability = max(min(float(row["home_win_probability"]) / 100, 1 - 1e-15), 1e-15)
+        probability = max(
+            min(float(row["home_win_probability"]) / 100, 1 - 1e-15), 1e-15
+        )
         outcome = 1.0 if row["actual_winner"] == "home" else 0.0
         losses.append(
-            -(outcome * _safe_log(probability) + (1 - outcome) * _safe_log(1 - probability))
+            -(
+                outcome * math.log(probability)
+                + (1 - outcome) * math.log(1 - probability)
+            )
         )
         briers.append((probability - outcome) ** 2)
 
@@ -479,10 +473,17 @@ def _build_model_metrics(
     }
 
 
-def _safe_log(value: float) -> float:
-    import math
-
-    return math.log(value)
+def _empty_model_metrics(window_size: int) -> dict[str, Any]:
+    return {
+        "window": {
+            "type": "recent_finalized_submitted_games",
+            "requested": window_size,
+            "sample_size": 0,
+        },
+        "accuracy": None,
+        "log_loss": None,
+        "brier": None,
+    }
 
 
 def _latest_model_version(

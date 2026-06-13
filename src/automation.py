@@ -372,13 +372,11 @@ def _lineup_availability(lineups: pd.DataFrame, s_no: int) -> dict[str, Any]:
         return _empty_lineup_availability()
 
     if "is_pitcher" in starters.columns:
-        pitcher_mask = starters["is_pitcher"].astype(str).str.lower().isin(
-            {"true", "1"}
+        pitcher_mask = (
+            starters["is_pitcher"].astype(str).str.lower().isin({"true", "1"})
         )
     elif "position_code" in starters.columns:
-        pitcher_mask = pd.to_numeric(
-            starters["position_code"], errors="coerce"
-        ).eq(1)
+        pitcher_mask = pd.to_numeric(starters["position_code"], errors="coerce").eq(1)
     else:
         pitcher_mask = pd.Series(False, index=starters.index)
 

@@ -13,8 +13,8 @@ type PublicResult = {
   s_no: number;
   game_date: string;
   game_time?: string | null;
-  home_team: TeamInfo | string;
-  away_team: TeamInfo | string;
+  home_team: TeamInfo;
+  away_team: TeamInfo;
   home_score: number;
   away_score: number;
   home_win_probability: number;
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
   const metricCards = buildMetricCards(results, recentGames, metrics);
   const latestSubmission = data.latest_submission ?? null;
   const modelVersion = data.model_version ?? results[0]?.model_version ?? "n/a";
-  const heroGame = recentGames[0] ?? resultToRecentGame(results[0]);
+  const heroGame = recentGames[0];
 
   return (
     <main className="dashboard-shell">
@@ -209,14 +209,12 @@ export default async function DashboardPage() {
                   </thead>
                   <tbody>
                     {results.map((game) => {
-                      const homeTeam = teamInfo(game.home_team);
-                      const awayTeam = teamInfo(game.away_team);
                       return (
                         <tr key={game.s_no}>
                           <td>{formatDate(game.game_date)}</td>
                           <td>
                             <span className="matchup">
-                              {awayTeam.name} <span>at</span> {homeTeam.name}
+                              {game.away_team.name} <span>at</span> {game.home_team.name}
                             </span>
                             <span className="venue">{game.submission_source ?? "auto"}</span>
                           </td>
@@ -226,7 +224,7 @@ export default async function DashboardPage() {
                           <td>
                             <ProbabilityBar value={game.home_win_probability / 100} />
                           </td>
-                          <td>{game.predicted_winner === "home" ? homeTeam.name : awayTeam.name}</td>
+                          <td>{game.predicted_winner === "home" ? game.home_team.name : game.away_team.name}</td>
                           <td>
                             <OutcomeBadge correct={game.correct} />
                           </td>
@@ -319,7 +317,7 @@ function normalizeDashboardData(data: DashboardData): DashboardData {
   return {
     ...data,
     results: sortResults(data.results),
-    recent_games: data.recent_games ?? data.results.map(resultToRecentGame).filter(isRecentGame),
+    recent_games: data.recent_games ?? [],
     model_metrics: data.model_metrics ?? buildModelMetrics(data.results, 20),
   };
 }
@@ -339,7 +337,7 @@ function buildMetricCards(results: PublicResult[], recentGames: RecentGame[], me
   const latestGame = recentGames[0];
   const openSubmitted = recentGames.filter((game) => game.game_status !== "final").length;
   const latestDetail = latestGame
-    ? `${teamInfo(latestGame.away_team).name} at ${teamInfo(latestGame.home_team).name}`
+    ? `${latestGame.away_team.name} at ${latestGame.home_team.name}`
     : "No submitted game";
 
   return [
@@ -404,35 +402,6 @@ function buildModelMetrics(results: PublicResult[], requested: number): ModelMet
   };
 }
 
-function resultToRecentGame(result: PublicResult | undefined): RecentGame | null {
-  if (!result) {
-    return null;
-  }
-  return {
-    s_no: result.s_no,
-    game_date: result.game_date,
-    game_time: result.game_time ?? null,
-    home_team: teamInfo(result.home_team),
-    away_team: teamInfo(result.away_team),
-    game_status: "final",
-    submitted_at: result.submitted_at,
-    submission_source: result.submission_source ?? "auto",
-    model_version: result.model_version,
-    probability_published: true,
-    home_win_probability: result.home_win_probability,
-    predicted_winner: result.predicted_winner,
-    home_score: result.home_score,
-    away_score: result.away_score,
-    actual_winner: result.actual_winner,
-    correct: result.correct,
-    scheduler: null,
-  };
-}
-
-function isRecentGame(value: RecentGame | null): value is RecentGame {
-  return value !== null;
-}
-
 function average(values: number[]): number {
   if (values.length === 0) {
     return Number.NaN;
@@ -445,8 +414,8 @@ function clampProbability(value: number): number {
 }
 
 function GameCard({ game, featured = false }: { game: RecentGame; featured?: boolean }) {
-  const homeTeam = teamInfo(game.home_team);
-  const awayTeam = teamInfo(game.away_team);
+  const homeTeam = game.home_team;
+  const awayTeam = game.away_team;
   const predictedTeam =
     game.predicted_winner === "home" ? homeTeam : game.predicted_winner === "away" ? awayTeam : null;
 
@@ -594,13 +563,6 @@ function EmptyState({ title, body }: { title: string; body: string }) {
       <p>{body}</p>
     </div>
   );
-}
-
-function teamInfo(value: TeamInfo | string): TeamInfo {
-  if (typeof value === "string") {
-    return { name: value, logo_key: value.toLowerCase().replaceAll(" ", "-") };
-  }
-  return value;
 }
 
 function teamInitials(name: string): string {

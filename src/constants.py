@@ -3,7 +3,7 @@ Constants for Statiz KBO prediction system.
 Team codes, stadium codes, and API parameter values from the official API_CODE sheet.
 """
 
-# ─── Team codes (t_code) ────────────────────────────────────────────────────
+# Team codes (t_code)
 TEAM_CODES: dict[int, str] = {
     1001: "삼성",
     2002: "KIA",
@@ -17,7 +17,7 @@ TEAM_CODES: dict[int, str] = {
     12001: "KT",
 }
 
-# ─── Stadium codes (s_code) ─────────────────────────────────────────────────
+# Stadium codes (s_code)
 STADIUM_CODES: dict[int, str] = {
     1001: "잠실",
     1002: "목동",
@@ -38,7 +38,7 @@ STADIUM_CODES: dict[int, str] = {
     8005: "창원",
 }
 
-# ─── League types (leagueType) ───────────────────────────────────────────────
+# League types (leagueType)
 LEAGUE_TYPE_REGULAR = 10100
 LEAGUE_TYPE_POSTSEASON = 10200
 LEAGUE_TYPE_KOREAN_SERIES = 10201
@@ -47,14 +47,14 @@ LEAGUE_TYPE_SEMI_PLAYOFF = 10203
 LEAGUE_TYPE_WILDCARD = 10204
 LEAGUE_TYPE_PRESEASON = 10400
 
-# ─── Game states (s_state) ──────────────────────────────────────────────────
+# Game states (s_state)
 GAME_STATE_BEFORE = 1  # 경기 전
 GAME_STATE_IN_PROGRESS = 2  # 경기 중
 GAME_STATE_FINISHED = 3  # 경기 종료
 GAME_STATE_CANCELLED = 4  # 경기 취소
 GAME_STATE_RAINOUT_COLD = 5  # 강우 콜드
 
-# ─── teamRecord API parameter values ────────────────────────────────────────
+# teamRecord API parameter values
 TEAM_RECORD_BATTING = "batting"
 TEAM_RECORD_PITCHING = "pitching"
 
@@ -80,14 +80,14 @@ HA_ALL = ""
 HA_HOME = "H"
 HA_AWAY = "N"
 
-# ─── Roster code parameter ───────────────────────────────────────────────────
+# Roster code parameter
 ROSTER_CODE_1ST_TEAM = 1  # 1군
 ROSTER_CODE_2ND_TEAM = 2  # 2군
 
-# ─── Supported seasons ───────────────────────────────────────────────────────
+# Supported seasons
 SUPPORTED_YEARS = [2023, 2024, 2025]
 
-# ─── File paths ──────────────────────────────────────────────────────────────
+# File paths
 DATA_DIR = "data"
 RAW_DIR = f"{DATA_DIR}/raw"
 CLEAN_DIR = f"{DATA_DIR}/clean"
