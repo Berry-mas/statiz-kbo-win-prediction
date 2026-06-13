@@ -2,7 +2,7 @@
 CLI entry point for the Statiz KBO prediction system.
 
 Commands:
-  collect  --year YEAR [--date YYYY-MM-DD] [--include-team-stats]
+  collect  --year YEAR [--date YYYY-MM-DD] [--include-team-stats] [--force-refresh]
                                                Collect raw data
   clean    --year YEAR                        Transform raw JSON → clean CSV
   features --year YEAR                        Build feature_game_pre_match CSV
@@ -43,7 +43,7 @@ def cmd_collect(args: argparse.Namespace) -> None:
 
         d = datetime.strptime(args.date, "%Y-%m-%d").date()
         logger.info("Collecting single day: {}", args.date)
-        collector.collect_daily_all(d.year, d.month, d.day)
+        collector.collect_daily_all(d.year, d.month, d.day, force=args.force_refresh)
         if args.include_team_stats:
             collector.collect_team_season_stats(d.year)
     else:
@@ -185,6 +185,11 @@ def main() -> None:
         "--include-team-stats",
         action="store_true",
         help="Also collect teamRecord API files after baseline raw data",
+    )
+    p.add_argument(
+        "--force-refresh",
+        action="store_true",
+        help="For --date collection, refetch schedule, boxscore, and lineup files",
     )
 
     p = subparsers.add_parser("clean", help="Transform raw JSON → clean CSV")

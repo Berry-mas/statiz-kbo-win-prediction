@@ -1,7 +1,7 @@
 """
 DataCollector: Fetches raw data from Statiz API and persists each response as
-a JSON file under data/raw/{year}/{type}/.  All methods are idempotent – if the
-target file already exists the API is NOT called again.
+a JSON file under data/raw/{year}/{type}/.  Collection is idempotent by default;
+target files are reused unless a method is called with force=True.
 """
 
 from __future__ import annotations
@@ -74,7 +74,9 @@ class DataCollector:
     def __init__(self) -> None:
         self._client = StatizAPIClient()
 
-    def collect_schedule(self, year: int, month: int, day: int) -> dict[str, Any]:
+    def collect_schedule(
+        self, year: int, month: int, day: int, force: bool = False
+    ) -> dict[str, Any]:
         """Fetch game schedule for *year/month/day* and save to disk.
 
         The file is only written when at least one regular-season game exists
@@ -83,7 +85,7 @@ class DataCollector:
         date_str = f"{year:04d}-{month:02d}-{day:02d}"
         dest = _raw_path(year, "schedule", f"{date_str}.json")
 
-        if dest.exists():
+        if dest.exists() and not force:
             logger.debug("Schedule already exists, skipping: {}", dest)
             return json.loads(dest.read_text(encoding="utf-8"))
 
@@ -107,11 +109,13 @@ class DataCollector:
         )
         return data
 
-    def collect_boxscore(self, s_no: int, year: int) -> dict[str, Any]:
+    def collect_boxscore(
+        self, s_no: int, year: int, force: bool = False
+    ) -> dict[str, Any]:
         """Fetch boxscore for *s_no* and save to disk."""
         dest = _raw_path(year, "boxscore", f"{s_no}.json")
 
-        if dest.exists():
+        if dest.exists() and not force:
             logger.debug("Boxscore already exists, skipping: {}", dest)
             return json.loads(dest.read_text(encoding="utf-8"))
 
@@ -120,11 +124,13 @@ class DataCollector:
         logger.info("Collected boxscore s_no={}", s_no)
         return data
 
-    def collect_lineup(self, s_no: int, year: int) -> dict[str, Any]:
+    def collect_lineup(
+        self, s_no: int, year: int, force: bool = False
+    ) -> dict[str, Any]:
         """Fetch lineup for *s_no* and save to disk."""
         dest = _raw_path(year, "lineup", f"{s_no}.json")
 
-        if dest.exists():
+        if dest.exists() and not force:
             logger.debug("Lineup already exists, skipping: {}", dest)
             return json.loads(dest.read_text(encoding="utf-8"))
 
@@ -255,7 +261,9 @@ class DataCollector:
         )
         return data.get("players") or []
 
-    def collect_daily_all(self, year: int, month: int, day: int) -> None:
+    def collect_daily_all(
+        self, year: int, month: int, day: int, force: bool = False
+    ) -> None:
         """Collect all data for a single calendar date.
 
         Steps:
@@ -267,7 +275,7 @@ class DataCollector:
         logger.info("collect_daily_all: {}", date_str)
 
         try:
-            schedule_data = self.collect_schedule(year, month, day)
+            schedule_data = self.collect_schedule(year, month, day, force=force)
         except Exception:
             logger.exception("Failed to collect schedule for {}", date_str)
             return
@@ -291,12 +299,12 @@ class DataCollector:
                 continue
 
             try:
-                self.collect_boxscore(s_no, year)
+                self.collect_boxscore(s_no, year, force=force)
             except Exception:
                 logger.exception("Failed to collect boxscore s_no={}", s_no)
 
             try:
-                self.collect_lineup(s_no, year)
+                self.collect_lineup(s_no, year, force=force)
             except Exception:
                 logger.exception("Failed to collect lineup s_no={}", s_no)
 

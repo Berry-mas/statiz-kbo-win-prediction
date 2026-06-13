@@ -9,7 +9,7 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 및 제출 
 - 기준 모델: `artifacts/model_registry/lgbm_v008`
 - 추론 대상: 정규시즌 경기의 홈팀 승리 확률
 - 운영 서버: 고정 IP Linux 서버
-- 서버 자동화: `systemd` service/timer 기반 `auto-submit` 실행
+- 서버 자동화: `systemd` service/timer 기반 `auto-submit` 및 공개 결과 publish 실행
 - 실제 제출 gate: 서버 환경파일의 명시적 flag로 제어함
 - 수동 제출: Vercel 대시보드 버튼이 GitHub Actions를 거쳐 등록 IP 서버에서 실행함
 - Discord 알림: 실제 제출 성공 건이 있을 때만 발송하며 양팀 선발투수를 포함함
@@ -140,11 +140,14 @@ systemd unit:
 
 - `ops/systemd/statiz-auto-submit.service`
 - `ops/systemd/statiz-auto-submit.timer`
+- `ops/systemd/statiz-public-results.service`
+- `ops/systemd/statiz-public-results.timer`
 
 서버 wrapper:
 
 - `scripts/server_auto_submit.sh`
 - `scripts/server_manual_submit.sh`
+- `scripts/server_publish_public_results.sh`
 - `scripts/server_update.sh`
 
 서버 환경파일은 배포 환경별 private runbook에서 관리함.
@@ -188,6 +191,12 @@ DISCORD_WEBHOOK_URL=your_discord_webhook_url
 
 ```bash
 uv run python -m src.main collect --year 2026 --date 2026-06-11
+```
+
+해당 날짜의 schedule/boxscore/lineup raw 파일을 다시 받아 최종 점수까지 갱신:
+
+```bash
+uv run python -m src.main collect --year 2026 --date 2026-06-11 --force-refresh
 ```
 
 연도별 raw 수집:

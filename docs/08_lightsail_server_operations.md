@@ -34,6 +34,7 @@ STATIZ_MIN_LEAD_MINUTES=35
 STATIZ_SKIP_COLLECT=<0_or_1>
 STATIZ_SKIP_FEATURES=<0_or_1>
 STATIZ_PUBLISH_PUBLIC_RESULTS=<0_or_1>
+STATIZ_PUBLISH_UPDATE_BEFORE=1
 EOF
 ```
 
@@ -51,8 +52,11 @@ cd "$STATIZ_REPO_DIR"
 timedatectl show -p Timezone --value
 sudo cp ops/systemd/statiz-auto-submit.service /etc/systemd/system/
 sudo cp ops/systemd/statiz-auto-submit.timer /etc/systemd/system/
+sudo cp ops/systemd/statiz-public-results.service /etc/systemd/system/
+sudo cp ops/systemd/statiz-public-results.timer /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now statiz-auto-submit.timer
+sudo systemctl enable --now statiz-public-results.timer
 ```
 
 수동 dry-run 1회 실행:
@@ -65,8 +69,10 @@ sudo systemctl start statiz-auto-submit.service
 
 ```bash
 systemctl status statiz-auto-submit.timer
+systemctl status statiz-public-results.timer
 systemctl list-timers 'statiz-*'
 journalctl -u statiz-auto-submit.service -n 100 --no-pager
+journalctl -u statiz-public-results.service -n 100 --no-pager
 tail -n 20 "$STATIZ_REPO_DIR/logs/scheduler_run_log.csv"
 ```
 
@@ -84,6 +90,28 @@ tail -n 20 "$STATIZ_REPO_DIR/logs/scheduler_run_log.csv"
 - 자동 제출은 `logs/submission_log.csv`의 `source=auto` 성공 제출 이력을 보고 같은 경기 반복 제출을 건너뛴다.
 - 수동 제출 성공 이력은 이후 자동 제출 갱신 1회를 막지 않는다.
 - Discord 알림은 실제 제출 성공 건이 있을 때만 보내며 양팀 선발투수를 포함한다.
+
+## 공개 대시보드 publish
+
+`ops/systemd/statiz-public-results.timer`는 KST 기준 23:30에 실행한다.
+
+이 작업은 예측 제출을 하지 않는다. 해당 날짜의 schedule, boxscore, lineup raw 파일을 강제 갱신하고 clean 데이터를 다시 만든 뒤 `web/public/results.json`을 export/push한다.
+
+서버 wrapper:
+
+```bash
+./scripts/server_publish_public_results.sh
+```
+
+주요 동작:
+
+1. `STATIZ_PUBLISH_UPDATE_BEFORE=1`이면 `scripts/server_update.sh`로 최신 `main`을 fast-forward 반영
+2. `collect --force-refresh`로 해당 날짜 최종 경기 정보 재수집
+3. `clean --year <year>` 실행
+4. `src.public_results.export_public_results()` 실행
+5. `web/public/results.json`만 변경된 경우 `origin/main`에 publish commit push
+
+서버 checkout에 tracked local changes가 있거나 `origin/main`보다 오래된 상태면 publish는 중단된다.
 
 ## 서버 업데이트
 

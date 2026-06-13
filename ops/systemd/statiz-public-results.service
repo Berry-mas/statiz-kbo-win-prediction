@@ -1,0 +1,20 @@
+[Unit]
+Description=Publish Statiz public dashboard results
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/statiz_code
+Environment=STATIZ_REPO_DIR=/home/ubuntu/statiz_code
+Environment=STATIZ_UV_BIN=/home/ubuntu/.local/bin/uv
+Environment=STATIZ_PUBLISH_UPDATE_BEFORE=1
+EnvironmentFile=-/etc/statiz-auto-submit.env
+ExecStart=/home/ubuntu/statiz_code/scripts/server_publish_public_results.sh
+TimeoutStartSec=45min
+Nice=5
+
+[Install]
+WantedBy=multi-user.target
