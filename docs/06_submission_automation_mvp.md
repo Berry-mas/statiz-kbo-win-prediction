@@ -100,4 +100,4 @@ uv run python -m src.main auto-submit \
 로컬 Mac은 MVP 검증용으로 사용한다. 실제 시즌 운영 전에는 고정 공인 IP가 붙은 서버로 이전하고, 그 서버 IP를 대회측에 등록한다.
 
 상세 이전 계획은 `docs/07_local_to_static_ip_server_plan.md`를 따른다.
-Lightsail 운영 자동화 절차는 `docs/08_lightsail_server_operations.md`를 따른다.
+고정 IP 서버 운영 자동화 절차는 `docs/08_lightsail_server_operations.md`를 따른다.

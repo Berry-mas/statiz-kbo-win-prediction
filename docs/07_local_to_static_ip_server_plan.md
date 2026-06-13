@@ -4,12 +4,12 @@
 
 로컬 Mac에서 dry-run 자동화, Discord 알림, 공개 대시보드를 검증한 뒤 고정 공인 IP가 있는 서버로 운영을 이전했다.
 
-2026-06-10 기준 서버 이전은 Lightsail로 완료했다.
+2026-06-10 기준 서버 이전은 고정 IP 서버로 완료했다.
 
 - Ubuntu 24.04
-- SSH user: `ubuntu`
-- repo path: `/home/ubuntu/statiz_code`
-- static IP: `3.39.52.227`
+- SSH user: private runbook에서 관리
+- repo path: private runbook에서 관리
+- static IP: 공개 문서에 기록하지 않음
 - 기준 코드: GitHub `origin/main` 최신 운영 커밋
 - `data/`, `artifacts/`, `.env` 배치 완료
 - systemd timer/service 설치 완료
@@ -45,12 +45,12 @@ Vercel / Next.js
 
 우선순위:
 
-1. AWS Lightsail + Static IP
+1. 고정 IP Linux VM
 2. AWS EC2 + Elastic IP
 3. Naver Cloud VM + 공인 고정 IP
 4. Oracle Cloud VM + Reserved Public IP
 
-MVP 이전은 AWS Lightsail로 진행했다.
+MVP 이전은 고정 IP Linux VM으로 진행했다.
 
 ## 이전 전 로컬 완료 조건 기록
 

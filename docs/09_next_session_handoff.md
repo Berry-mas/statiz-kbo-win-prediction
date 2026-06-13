@@ -3,11 +3,11 @@
 ## 현재 운영 상태
 
 - GitHub main 최신 운영 커밋: 이 문서 작성 시점의 `origin/main`
-- Lightsail: `ubuntu@3.39.52.227`
-- 서버 repo: `/home/ubuntu/statiz_code`
-- 실제 제출 gate: `/etc/statiz-auto-submit.env`에서 해제 완료
+- 운영 서버: 등록 IP 서버. 접속 정보는 private runbook에서 확인
+- 서버 repo: private runbook에서 확인
+- 실제 제출 gate: 서버 환경파일에서 확인
 - 자동 제출: `statiz-auto-submit.timer`가 KST 12:30~18:30 polling
-- 수동 제출: Vercel 대시보드의 `Manual Submit` 버튼이 GitHub Actions를 거쳐 Lightsail에서 실행
+- 수동 제출: Vercel 대시보드의 `Manual Submit` 버튼이 GitHub Actions를 거쳐 등록 IP 서버에서 실행
 - 제출 API: `prediction/savePrediction`에 `multipart/form-data`로 `s_no`, `percent` 전송
 - Discord: 실제 제출 성공 건만 알림. 알림에는 경기, 예측 승률, 홈팀 제출 확률, 양팀 선발투수를 포함
 - 공개 웹사이트: `web/public/results.json`의 finalized submitted results만 노출
@@ -18,8 +18,7 @@
 
 ```bash
 gh run list --repo Berry-mas/statiz-kbo-win-prediction --workflow "Manual Statiz submit" --limit 5
-ssh -i /Users/junseo/Downloads/LightsailDefaultKey-ap-northeast-2.pem ubuntu@3.39.52.227 \
-  'cd /home/ubuntu/statiz_code && tail -n 20 logs/submission_log.csv'
+ssh <server-alias> 'cd "$STATIZ_REPO_DIR" && tail -n 20 logs/submission_log.csv'
 ```
 
 2. 성공 건이 있으면 Discord 알림 문구와 선발투수 표시를 확인한다.
@@ -53,17 +52,11 @@ curl -sS https://web-steel-seven-15.vercel.app/public/results.json
 
 ## 안전 체크
 
-- 실제 제출을 멈춰야 하면 `/etc/statiz-auto-submit.env`에서 아래처럼 바꾼다.
+- 실제 제출을 멈춰야 하면 서버 환경파일에서 아래처럼 바꾼다.
 
 ```ini
 STATIZ_DRY_RUN_ONLY=1
 STATIZ_EXECUTE_SUBMIT=0
 ```
 
-- 다시 열 때는 아래 세 값이 모두 맞아야 한다.
-
-```ini
-STATIZ_DRY_RUN_ONLY=0
-STATIZ_EXECUTE_SUBMIT=1
-STATIZ_IP_REGISTERED=1
-```
+- 다시 열 때는 private runbook의 gate 값을 확인한 뒤 서버 환경파일에 반영한다.

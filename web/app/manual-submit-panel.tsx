@@ -39,7 +39,7 @@ export function ManualSubmitPanel() {
         return;
       }
 
-      setState({ status: "success", message: "Queued on Lightsail" });
+      setState({ status: "success", message: "Queued on submit server" });
     } catch (error) {
       setState({
         status: "error",

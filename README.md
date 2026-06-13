@@ -2,18 +2,16 @@
 
 Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 및 제출 자동화 프로젝트임.
 
-현재 범위는 API raw 수집, leakage-safe feature 생성, LightGBM 앙상블 학습/검증, 당일 예측, Lightsail 고정 IP 기반 제출 자동화까지 포함함.
+현재 범위는 API raw 수집, leakage-safe feature 생성, LightGBM 앙상블 학습/검증, 당일 예측, 고정 IP 서버 기반 제출 자동화까지 포함함.
 
 ## 현재 상태
 
 - 기준 모델: `artifacts/model_registry/lgbm_v008`
 - 추론 대상: 정규시즌 경기의 홈팀 승리 확률
-- 운영 서버: AWS Lightsail Ubuntu 24.04
-- 서버 경로: `/home/ubuntu/statiz_code`
-- Static IP: `3.39.52.227`
+- 운영 서버: 고정 IP Linux 서버
 - 서버 자동화: `systemd` service/timer 기반 `auto-submit` 실행
-- 실제 제출 gate: `/etc/statiz-auto-submit.env`에서 해제 완료
-- 수동 제출: Vercel 대시보드 버튼이 GitHub Actions를 거쳐 Lightsail에서 실행함
+- 실제 제출 gate: 서버 환경파일의 명시적 flag로 제어함
+- 수동 제출: Vercel 대시보드 버튼이 GitHub Actions를 거쳐 등록 IP 서버에서 실행함
 - Discord 알림: 실제 제출 성공 건이 있을 때만 발송하며 양팀 선발투수를 포함함
 
 ## 모델
@@ -149,28 +147,18 @@ systemd unit:
 - `scripts/server_manual_submit.sh`
 - `scripts/server_update.sh`
 
-서버 환경파일:
+서버 환경파일은 배포 환경별 private runbook에서 관리함.
 
 ```bash
-/etc/statiz-auto-submit.env
+STATIZ_ENV_FILE=/path/to/statiz-auto-submit.env
 ```
 
-실제 제출 운영값:
+실제 제출 gate는 아래 세 값이 모두 제출 허용 상태일 때만 열린다.
 
 ```bash
-STATIZ_DRY_RUN_ONLY=0
-STATIZ_EXECUTE_SUBMIT=1
-STATIZ_IP_REGISTERED=1
-STATIZ_SKIP_COLLECT=0
-STATIZ_SKIP_FEATURES=0
-```
-
-실제 제출 전 gate:
-
-```bash
-STATIZ_DRY_RUN_ONLY=0
-STATIZ_EXECUTE_SUBMIT=1
-STATIZ_IP_REGISTERED=1
+STATIZ_DRY_RUN_ONLY=<0_or_1>
+STATIZ_EXECUTE_SUBMIT=<0_or_1>
+STATIZ_IP_REGISTERED=<0_or_1>
 ```
 
 상세 운영 절차는 `docs/08_lightsail_server_operations.md` 기준임.
@@ -288,7 +276,7 @@ src/
 ├── trainer.py          # LightGBM 학습
 └── public_results.py   # 공개 결과 JSON export
 
-ops/systemd/            # Lightsail systemd unit
+ops/systemd/            # server systemd unit
 scripts/                # 평가 및 서버 운영 스크립트
 docs/                   # 설계/운영 문서
 web/                    # 공개 결과 대시보드

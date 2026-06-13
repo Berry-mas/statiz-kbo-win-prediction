@@ -1,52 +1,39 @@
-# Lightsail 서버 운영 자동화
+# 고정 IP 서버 운영 자동화
 
 ## 현재 운영 상태
 
-- 서버: AWS Lightsail, Ubuntu 24.04
-- SSH user: `ubuntu`
-- repo path: `/home/ubuntu/statiz_code`
-- static IP: `3.39.52.227`
+- 서버: 고정 IP Linux 서버
+- repo path: 배포 환경별 private runbook에서 관리
+- static IP: 공개 문서에 기록하지 않음
 - 기준 코드: GitHub `origin/main` 최신 운영 커밋
 - `data/`, `artifacts/` 전송 완료
 - `.env` 설정 완료
 - systemd timer/service 설치 완료
-- 대회측 IP 등록 완료로 실제 제출 gate 해제 완료
-- Vercel 수동 제출 버튼은 GitHub Actions SSH를 통해 이 서버에서 실행됨
+- 실제 제출 gate는 서버 환경파일의 명시적 flag로 제어
+- Vercel 수동 제출 버튼은 GitHub Actions SSH를 통해 등록 IP 서버에서 실행됨
 
 ## 안전 원칙
 
-실제 제출은 아래 세 환경변수가 모두 맞을 때만 wrapper가 `--execute-submit`을 붙인다.
+실제 제출은 dry-run 해제, execute-submit 허용, 등록 IP 확인 flag가 모두 제출 허용 상태일 때만 wrapper가 `--execute-submit`을 붙인다.
 
-```bash
-STATIZ_DRY_RUN_ONLY=0
-STATIZ_EXECUTE_SUBMIT=1
-STATIZ_IP_REGISTERED=1
-```
-
-현재 운영값은 실제 제출을 허용한다.
-
-```ini
-STATIZ_DRY_RUN_ONLY=0
-STATIZ_EXECUTE_SUBMIT=1
-STATIZ_IP_REGISTERED=1
-```
+현재 운영값은 private runbook 또는 서버 환경파일에서만 확인한다.
 
 ## 서버 환경파일
 
-서버에서 `/etc/statiz-auto-submit.env`를 생성한다.
+서버에서 `STATIZ_ENV_FILE` 경로의 환경파일을 생성한다.
 
 ```bash
-sudo tee /etc/statiz-auto-submit.env >/dev/null <<'EOF'
-STATIZ_REPO_DIR=/home/ubuntu/statiz_code
-STATIZ_UV_BIN=/home/ubuntu/.local/bin/uv
+sudo tee "$STATIZ_ENV_FILE" >/dev/null <<'EOF'
+STATIZ_REPO_DIR=/path/to/statiz_code
+STATIZ_UV_BIN=/path/to/uv
 STATIZ_MODEL_VERSION=lgbm_v008
-STATIZ_DRY_RUN_ONLY=0
-STATIZ_EXECUTE_SUBMIT=1
-STATIZ_IP_REGISTERED=1
+STATIZ_DRY_RUN_ONLY=<0_or_1>
+STATIZ_EXECUTE_SUBMIT=<0_or_1>
+STATIZ_IP_REGISTERED=<0_or_1>
 STATIZ_MIN_LEAD_MINUTES=35
-STATIZ_SKIP_COLLECT=0
-STATIZ_SKIP_FEATURES=0
-STATIZ_PUBLISH_PUBLIC_RESULTS=1
+STATIZ_SKIP_COLLECT=<0_or_1>
+STATIZ_SKIP_FEATURES=<0_or_1>
+STATIZ_PUBLISH_PUBLIC_RESULTS=<0_or_1>
 EOF
 ```
 
@@ -60,7 +47,7 @@ repo의 unit 파일을 systemd 경로에 복사한다.
 서버 timezone은 `Asia/Seoul`이어야 한다.
 
 ```bash
-cd /home/ubuntu/statiz_code
+cd "$STATIZ_REPO_DIR"
 timedatectl show -p Timezone --value
 sudo cp ops/systemd/statiz-auto-submit.service /etc/systemd/system/
 sudo cp ops/systemd/statiz-auto-submit.timer /etc/systemd/system/
@@ -80,7 +67,7 @@ sudo systemctl start statiz-auto-submit.service
 systemctl status statiz-auto-submit.timer
 systemctl list-timers 'statiz-*'
 journalctl -u statiz-auto-submit.service -n 100 --no-pager
-tail -n 20 /home/ubuntu/statiz_code/logs/scheduler_run_log.csv
+tail -n 20 "$STATIZ_REPO_DIR/logs/scheduler_run_log.csv"
 ```
 
 ## 타이머 정책
@@ -103,14 +90,14 @@ tail -n 20 /home/ubuntu/statiz_code/logs/scheduler_run_log.csv
 서버에서 최신 코드를 반영할 때:
 
 ```bash
-cd /home/ubuntu/statiz_code
+cd "$STATIZ_REPO_DIR"
 STATIZ_EXPECTED_COMMIT=<expected-short-commit> ./scripts/server_update.sh
 ```
 
 최신 `main`을 그대로 받을 때는 `STATIZ_EXPECTED_COMMIT`을 생략한다.
 
 ```bash
-cd /home/ubuntu/statiz_code
+cd "$STATIZ_REPO_DIR"
 ./scripts/server_update.sh
 ```
 
@@ -128,7 +115,7 @@ cd /home/ubuntu/statiz_code
 문제가 생겨 즉시 dry-run으로 되돌릴 때:
 
 ```bash
-sudoedit /etc/statiz-auto-submit.env
+sudoedit "$STATIZ_ENV_FILE"
 ```
 
 아래처럼 변경한다.
@@ -138,12 +125,6 @@ STATIZ_DRY_RUN_ONLY=1
 STATIZ_EXECUTE_SUBMIT=0
 ```
 
-다시 실제 제출을 열 때:
-
-```ini
-STATIZ_DRY_RUN_ONLY=0
-STATIZ_EXECUTE_SUBMIT=1
-STATIZ_IP_REGISTERED=1
-```
+다시 실제 제출을 열 때는 private runbook의 gate 값을 확인한 뒤 서버 환경파일에 반영한다.
 
 변경 후에는 daemon reload 없이 다음 timer 실행부터 반영된다.
