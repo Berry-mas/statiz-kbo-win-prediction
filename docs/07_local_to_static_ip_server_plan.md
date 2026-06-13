@@ -1,11 +1,10 @@
-# 로컬 검증 후 고정 IP 서버 이전 계획
+# 고정 IP 서버 이전 기록
 
 ## 결정
 
-현재 단계에서는 로컬 Mac에서 dry-run 자동화, Discord 알림, 공개 대시보드를 검증한다.
-실제 시즌 운영 전에는 고정 공인 IP가 있는 서버로 이전한다.
+로컬 Mac에서 dry-run 자동화, Discord 알림, 공개 대시보드를 검증한 뒤 고정 공인 IP가 있는 서버로 운영을 이전했다.
 
-2026-06-10 기준 서버 이전은 Lightsail로 진행 중이다.
+2026-06-10 기준 서버 이전은 Lightsail로 완료했다.
 
 - Ubuntu 24.04
 - SSH user: `ubuntu`
@@ -13,8 +12,9 @@
 - static IP: `3.39.52.227`
 - 기준 코드: GitHub `origin/main` 최신 운영 커밋
 - `data/`, `artifacts/`, `.env` 배치 완료
-- 서버 dry-run 리허설 완료
-- 대회측 IP 등록 전이므로 `--execute-submit` 금지
+- systemd timer/service 설치 완료
+- 대회측 IP 등록 완료
+- 실제 제출 gate 해제 완료
 
 이유:
 
@@ -41,7 +41,7 @@ Vercel / Next.js
   - API key / secret 없음
 ```
 
-## 서버 후보
+## 서버 후보 검토 기록
 
 우선순위:
 
@@ -50,9 +50,9 @@ Vercel / Next.js
 3. Naver Cloud VM + 공인 고정 IP
 4. Oracle Cloud VM + Reserved Public IP
 
-MVP 이전은 AWS Lightsail이 가장 단순하다.
+MVP 이전은 AWS Lightsail로 진행했다.
 
-## 이전 전 로컬 완료 조건
+## 이전 전 로컬 완료 조건 기록
 
 - `auto-submit --skip-collect --skip-features --now ...` 리허설 통과
 - T-20 이전: `ready` 또는 `lineup_missing_fallback`
@@ -62,7 +62,7 @@ MVP 이전은 AWS Lightsail이 가장 단순하다.
 - `web/public/results.json` 생성 확인
 - `uv run poe all` 통과
 
-## 서버 준비 체크리스트
+## 서버 준비 체크리스트 기록
 
 1. 서버 생성
    - Ubuntu LTS 사용
@@ -72,7 +72,7 @@ MVP 이전은 AWS Lightsail이 가장 단순하다.
 2. 대회측 등록
    - 서버 고정 공인 IP 확인
    - 해당 IP를 Statiz 대회측에 등록 또는 기존 등록 IP 교체 요청
-   - 등록 완료 전에는 실제 API 제출 금지
+   - 등록 완료 후 실제 제출 gate 해제
 
 3. 런타임 설치
    - Python 3.11+
@@ -97,7 +97,7 @@ MVP 이전은 AWS Lightsail이 가장 단순하다.
    - 실제 날짜 dry-run
    - Discord 알림 확인
 
-7. 실제 제출 전 gate
+7. 실제 제출 gate
    - 서버 IP가 대회측 등록 IP와 일치
    - `--execute-submit` 없이 dry-run 성공
    - `logs/scheduler_run_log.csv` status 확인
@@ -133,11 +133,10 @@ uv run python -m src.main auto-submit \
   --execute-submit
 ```
 
-## 다음 구현 후보
+## 남은 운영 개선 후보
 
-- 서버용 `systemd` service/timer 설치 및 dry-run timer 운영
-- public JSON을 GitHub/Vercel로 자동 반영하는 배포 스크립트
-- 서버 health check와 Discord heartbeat
-- 라인업 폴링 반복 실행 모드
+- public JSON과 제출 로그의 공개 가능 subset을 더 자세히 배포
+- 서버 health check와 Discord heartbeat 추가
+- 웹 대시보드에서 수동 제출 workflow 상태 표시
 
 서버 systemd 운영 절차는 `docs/08_lightsail_server_operations.md`에 정리한다.

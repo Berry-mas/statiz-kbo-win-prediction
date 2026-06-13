@@ -265,7 +265,9 @@ if p == 50.00:
 ### 제출 API
 ```
 POST /prediction/savePrediction
-Body: { "s_no": 2025041801, "percent": 54.37 }
+Body: multipart/form-data
+  s_no=2025041801
+  percent=54.37
 ```
 
 ### 재시도 정책
@@ -278,9 +280,13 @@ Body: { "s_no": 2025041801, "percent": 54.37 }
 | 컬럼 | 내용 |
 |------|------|
 | s_no | 경기 번호 |
+| game_date | 경기일 |
 | submitted_prob | 제출한 확률 |
 | submitted | 성공 여부 |
+| source | `auto` 또는 `manual` |
 | attempts | 시도 횟수 |
+| submitted_at | 제출 시각 |
+| response_status | API 응답 코드 |
 | response_message | API 응답 메시지 |
 
 ---

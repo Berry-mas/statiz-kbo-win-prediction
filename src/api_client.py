@@ -82,17 +82,10 @@ class StatizAPIClient:
     def _get_headers(
         self, method: str, path: str, params: dict[str, Any] | None = None
     ) -> dict[str, str]:
-        """Generate authentication headers"""
-        # Normalize path (remove /baseballApi prefix)
+        """Generate authentication headers."""
         clean_path = path.replace("/baseballApi", "").lstrip("/")
-
-        # Normalize query
         query = self._normalize_query(params or {})
-
-        # Timestamp
         timestamp = str(int(time.time()))
-
-        # Signature
         signature = self._generate_signature(method, clean_path, query, timestamp)
 
         return {
@@ -156,7 +149,7 @@ class StatizAPIClient:
                 time.sleep(wait)
                 continue
 
-            response.raise_for_status()
+            _raise_for_error("GET", endpoint, response)
             return dict(response.json())
 
         raise RuntimeError(
@@ -182,16 +175,7 @@ class StatizAPIClient:
             params=params,
             timeout=self.request_timeout_seconds,
         )
-        if response.status_code >= 400:
-            body = _response_body(response)
-            logger.warning(
-                "POST {} failed status={} body={}",
-                endpoint,
-                response.status_code,
-                body,
-            )
-            raise StatizAPIError("POST", endpoint, response.status_code, body)
-
+        _raise_for_error("POST", endpoint, response)
         return dict(response.json())
 
     def post_form_data(
@@ -215,16 +199,7 @@ class StatizAPIClient:
             params=params,
             timeout=self.request_timeout_seconds,
         )
-        if response.status_code >= 400:
-            body = _response_body(response)
-            logger.warning(
-                "POST {} failed status={} body={}",
-                endpoint,
-                response.status_code,
-                body,
-            )
-            raise StatizAPIError("POST", endpoint, response.status_code, body)
-
+        _raise_for_error("POST", endpoint, response)
         return dict(response.json())
 
     def save_prediction(self, s_no: int, percent: float) -> dict[str, Any]:
@@ -242,3 +217,20 @@ def _response_body(response: requests.Response) -> str:
     else:
         text = str(parsed)
     return text[:1000]
+
+
+def _raise_for_error(method: str, endpoint: str, response: requests.Response) -> None:
+    """Raise a loggable StatizAPIError for non-2xx responses."""
+    status_code = getattr(response, "status_code", 200)
+    if not isinstance(status_code, int) or status_code < 400:
+        return
+
+    body = _response_body(response)
+    logger.warning(
+        "{} {} failed status={} body={}",
+        method,
+        endpoint,
+        status_code,
+        body,
+    )
+    raise StatizAPIError(method, endpoint, status_code, body)

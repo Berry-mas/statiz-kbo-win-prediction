@@ -28,6 +28,7 @@ from .feature_builder import FeatureBuilder
 from .notifications import DiscordNotifier
 from .predictor import Predictor, normalize_prob
 from .public_results import export_public_results
+from .submission_log import read_submission_log
 from .submitter import Submitter
 
 KST = timezone(timedelta(hours=9))
@@ -383,11 +384,7 @@ def _already_submitted_snos(game_date: str, source: str = "auto") -> set[int]:
     if not log_path.exists():
         return set()
 
-    try:
-        submitted = pd.read_csv(log_path, encoding="utf-8-sig")
-    except Exception as exc:
-        logger.warning("Could not read submission log for duplicate guard: {}", exc)
-        return set()
+    submitted = read_submission_log(log_path)
 
     required_columns = {"s_no", "game_date", "submitted"}
     if not required_columns.issubset(submitted.columns):

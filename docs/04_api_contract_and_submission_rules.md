@@ -1,12 +1,12 @@
 # API 연동 및 제출 규칙 정리
 
 ## 1. 대회 운영상 반드시 지켜야 할 규칙
-이 대회는 데이터 수집과 제출을 모두 JSON 형식 API로 통일한다.
-즉, 파일 업로드 방식이나 수동 입력이 아니라, 반드시 API 호출 기반으로 운영해야 한다.
+이 대회는 데이터 수집과 제출을 모두 API 호출 기반으로 운영한다.
+수집 API 응답은 JSON이며, 예측 제출은 `prediction/savePrediction`에 `multipart/form-data` text field로 보낸다.
 
 핵심 규칙:
 - 모든 분석 데이터는 JSON API로 수신
-- 예측 결과도 JSON API로 제출
+- 예측 결과는 `multipart/form-data`의 `s_no`, `percent` 필드로 제출
 - 지정 API 방식 외 제출은 인정되지 않음
 - 사전 등록된 IP를 통해서만 접근 가능
 - 경기 시작 15분 전까지 제출 완료해야 함

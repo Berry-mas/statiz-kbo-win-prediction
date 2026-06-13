@@ -12,9 +12,9 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 및 제출 
 - 서버 경로: `/home/ubuntu/statiz_code`
 - Static IP: `3.39.52.227`
 - 서버 자동화: `systemd` service/timer 기반 `auto-submit` 실행
-- 실제 제출 gate: `/etc/statiz-auto-submit.env`에서 명시적으로 해제 필요
-- 등록 전 기본값: dry-run only 유지
-- Discord 알림: 실제 제출 성공 건이 있을 때만 발송함
+- 실제 제출 gate: `/etc/statiz-auto-submit.env`에서 해제 완료
+- 수동 제출: Vercel 대시보드 버튼이 GitHub Actions를 거쳐 Lightsail에서 실행함
+- Discord 알림: 실제 제출 성공 건이 있을 때만 발송하며 양팀 선발투수를 포함함
 
 ## 모델
 
@@ -113,20 +113,27 @@ uv run python -m src.main auto-submit \
 
 운영 timer는 경기 시작 시간이 다른 날을 고려해 KST 12:30~18:30 사이 polling함. 각 실행은 당일 모든 경기의 `game_time`을 기준으로 T-35/T-20/T-15 정책을 경기별로 따로 판단함.
 
+대회 제출 API는 Postman 검증과 동일하게 `multipart/form-data` text field로 전송함.
+
+```text
+s_no=20260330
+percent=48
+```
+
 제출 정책:
 
 - `STATIZ_MIN_LEAD_MINUTES=35`: 경기 시작 35분 전보다 이른 제출 후보 제외
 - T-20 이후: 자동 제출 제외
 - T-15 이후: 공식 deadline 기준 제출 금지
 - 라인업 없음: 제출 가능 window 안에서는 fallback 예측 후보 처리
-- 중복 제출 방지: `logs/submission_log.csv`에 같은 날짜/같은 `s_no` 성공 제출 이력이 있으면 `already_submitted` 처리
+- 중복 제출 방지: 자동 제출은 `source=auto` 성공 이력을 기준으로 같은 경기 반복 제출을 막음. 수동 제출 성공은 이후 자동 갱신 1회를 막지 않음
 - Discord 알림: 실제 제출 성공 건만 알림
 
 Discord 성공 알림 예시:
 
 ```text
-18:30 KIA vs LG: LG 승률 57.12% (제출 홈팀 승률 57.12%)
-17:00 한화 vs 삼성: 한화 승률 55.60% (제출 홈팀 승률 44.40%)
+- 18:30 KIA vs LG: LG 승률 57.12% (제출 홈팀 승률 57.12%) / 선발 네일 vs 임찬규
+- 17:00 한화 vs 삼성: 한화 승률 55.60% (제출 홈팀 승률 44.40%) / 선발 류현진 vs 후라도
 ```
 
 ## 서버 운영
@@ -139,6 +146,7 @@ systemd unit:
 서버 wrapper:
 
 - `scripts/server_auto_submit.sh`
+- `scripts/server_manual_submit.sh`
 - `scripts/server_update.sh`
 
 서버 환경파일:
@@ -147,14 +155,14 @@ systemd unit:
 /etc/statiz-auto-submit.env
 ```
 
-등록 전 안전값:
+실제 제출 운영값:
 
 ```bash
-STATIZ_DRY_RUN_ONLY=1
-STATIZ_EXECUTE_SUBMIT=0
-STATIZ_IP_REGISTERED=0
-STATIZ_SKIP_COLLECT=1
-STATIZ_SKIP_FEATURES=1
+STATIZ_DRY_RUN_ONLY=0
+STATIZ_EXECUTE_SUBMIT=1
+STATIZ_IP_REGISTERED=1
+STATIZ_SKIP_COLLECT=0
+STATIZ_SKIP_FEATURES=0
 ```
 
 실제 제출 전 gate:

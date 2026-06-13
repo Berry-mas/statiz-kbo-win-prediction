@@ -9,12 +9,11 @@
 - 기준 코드: GitHub `origin/main` 최신 운영 커밋
 - `data/`, `artifacts/` 전송 완료
 - `.env` 설정 완료
-- 서버 dry-run 리허설 완료
-- 대회측 IP 등록 전이므로 실제 제출 금지
+- systemd timer/service 설치 완료
+- 대회측 IP 등록 완료로 실제 제출 gate 해제 완료
+- Vercel 수동 제출 버튼은 GitHub Actions SSH를 통해 이 서버에서 실행됨
 
 ## 안전 원칙
-
-등록 전 서버는 dry-run only로만 운영한다.
 
 실제 제출은 아래 세 환경변수가 모두 맞을 때만 wrapper가 `--execute-submit`을 붙인다.
 
@@ -24,12 +23,12 @@ STATIZ_EXECUTE_SUBMIT=1
 STATIZ_IP_REGISTERED=1
 ```
 
-현재 systemd 기본값은 모두 실제 제출을 막는 값이다.
+현재 운영값은 실제 제출을 허용한다.
 
 ```ini
-STATIZ_DRY_RUN_ONLY=1
-STATIZ_EXECUTE_SUBMIT=0
-STATIZ_IP_REGISTERED=0
+STATIZ_DRY_RUN_ONLY=0
+STATIZ_EXECUTE_SUBMIT=1
+STATIZ_IP_REGISTERED=1
 ```
 
 ## 서버 환경파일
@@ -41,18 +40,19 @@ sudo tee /etc/statiz-auto-submit.env >/dev/null <<'EOF'
 STATIZ_REPO_DIR=/home/ubuntu/statiz_code
 STATIZ_UV_BIN=/home/ubuntu/.local/bin/uv
 STATIZ_MODEL_VERSION=lgbm_v008
-STATIZ_DRY_RUN_ONLY=1
-STATIZ_EXECUTE_SUBMIT=0
-STATIZ_IP_REGISTERED=0
+STATIZ_DRY_RUN_ONLY=0
+STATIZ_EXECUTE_SUBMIT=1
+STATIZ_IP_REGISTERED=1
 STATIZ_MIN_LEAD_MINUTES=35
-STATIZ_SKIP_COLLECT=1
-STATIZ_SKIP_FEATURES=1
+STATIZ_SKIP_COLLECT=0
+STATIZ_SKIP_FEATURES=0
+STATIZ_PUBLISH_PUBLIC_RESULTS=1
 EOF
 ```
 
 `STATIZ_MIN_LEAD_MINUTES=35`이면 경기 시작 35분 전부터 T-20 안전 cutoff 전까지만 제출 후보가 된다.
-등록 전 dry-run에서는 `too_early`, `ready`, `lineup_missing_fallback`, `past_safe_cutoff` 상태를 확인하는 용도다.
-`STATIZ_SKIP_COLLECT=1`, `STATIZ_SKIP_FEATURES=1`은 IP 등록 전 반복 timer가 API 수집과 feature rebuild를 과하게 반복하지 않도록 하는 리허설 설정이다.
+수동 제출은 `scripts/server_manual_submit.sh`를 사용하며 `STATIZ_MIN_LEAD_MINUTES` 대기 조건을 붙이지 않는다. 공식 T-15 마감 검증은 동일하게 유지된다.
+제출 API는 Postman 검증과 동일하게 `multipart/form-data` text field `s_no`, `percent`로 호출한다.
 
 ## systemd 설치
 
@@ -93,10 +93,10 @@ tail -n 20 /home/ubuntu/statiz_code/logs/scheduler_run_log.csv
 
 반복 실행을 허용하는 이유:
 
-- 등록 전에는 dry-run only라 실제 저장 API를 호출하지 않는다.
 - `--min-lead-minutes 35`로 각 경기의 시작 시간 기준 너무 이른 제출 후보를 막는다.
-- IP 등록 후 실제 제출 모드에서도 `logs/submission_log.csv`의 성공 제출 이력을 보고 같은 경기 중복 제출을 건너뛴다.
-- Discord 알림은 실제 제출 성공 건이 있을 때만 보낸다.
+- 자동 제출은 `logs/submission_log.csv`의 `source=auto` 성공 제출 이력을 보고 같은 경기 반복 제출을 건너뛴다.
+- 수동 제출 성공 이력은 이후 자동 제출 갱신 1회를 막지 않는다.
+- Discord 알림은 실제 제출 성공 건이 있을 때만 보내며 양팀 선발투수를 포함한다.
 
 ## 서버 업데이트
 
@@ -123,17 +123,9 @@ cd /home/ubuntu/statiz_code
 5. `uv run python -m compileall -q src`
 6. `STATIZ_UPDATE_RUN_TESTS=1`이면 `uv run pytest`
 
-## IP 등록 후 실제 제출 전 체크
+## 실제 제출 gate 변경
 
-아래 조건이 모두 끝나기 전에는 `/etc/statiz-auto-submit.env`의 dry-run gate를 풀지 않는다.
-
-- 대회측에 `3.39.52.227` 등록 완료
-- 등록 완료 후 실제 경기일 dry-run 성공
-- `logs/scheduler_run_log.csv`에서 제출 후보 payload 확인
-- Discord dry-run 알림 수신 확인
-- systemd timer와 service 로그 정상 확인
-
-등록 완료 후 실제 제출을 열 때:
+문제가 생겨 즉시 dry-run으로 되돌릴 때:
 
 ```bash
 sudoedit /etc/statiz-auto-submit.env
@@ -141,7 +133,14 @@ sudoedit /etc/statiz-auto-submit.env
 
 아래처럼 변경한다.
 
-```bash
+```ini
+STATIZ_DRY_RUN_ONLY=1
+STATIZ_EXECUTE_SUBMIT=0
+```
+
+다시 실제 제출을 열 때:
+
+```ini
 STATIZ_DRY_RUN_ONLY=0
 STATIZ_EXECUTE_SUBMIT=1
 STATIZ_IP_REGISTERED=1

@@ -51,6 +51,14 @@ def read_submission_log(path: str | Path) -> pd.DataFrame:
     if header == LEGACY_SUBMISSION_LOG_COLUMNS:
         normalized = _normalize_legacy_rows(rows[1:], csv_path)
         return _coerce_types(pd.DataFrame(normalized, columns=SUBMISSION_LOG_COLUMNS))
+    if {"s_no", "game_date", "submitted"}.issubset(header):
+        partial = pd.DataFrame(rows[1:], columns=header)
+        if "source" not in partial.columns:
+            partial["source"] = "auto"
+        for column in SUBMISSION_LOG_COLUMNS:
+            if column not in partial.columns:
+                partial[column] = pd.NA
+        return _coerce_types(partial[SUBMISSION_LOG_COLUMNS])
 
     logger.warning("Unknown submission log schema in {}: {}", csv_path, header)
     return pd.DataFrame()
