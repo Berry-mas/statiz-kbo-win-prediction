@@ -1,13 +1,20 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { ManualSubmitPanel } from "./manual-submit-panel";
 
+type TeamInfo = {
+  name: string;
+  logo_key: string;
+};
+
 type PublicResult = {
   s_no: number;
   game_date: string;
-  home_team: string;
-  away_team: string;
+  game_time?: string | null;
+  home_team: TeamInfo | string;
+  away_team: TeamInfo | string;
   home_score: number;
   away_score: number;
   home_win_probability: number;
@@ -16,10 +23,85 @@ type PublicResult = {
   correct: boolean;
   model_version: string;
   submitted_at: string;
+  submission_source?: string;
+};
+
+type SchedulerSummary = {
+  checked_at: string | null;
+  status: string;
+  reason: string | null;
+  would_submit: boolean | null;
+  execute_submit: boolean | null;
+  starter_confirmed: boolean | null;
+  batting_lineup_missing: boolean | null;
+  starting_pitcher_count: number | null;
+  starting_batter_count: number | null;
+};
+
+type RecentGame = {
+  s_no: number | null;
+  game_date: string | null;
+  game_time: string | null;
+  home_team: TeamInfo;
+  away_team: TeamInfo;
+  game_status: "scheduled" | "in_progress" | "final" | "cancelled";
+  submitted_at: string;
+  submission_source: string;
+  model_version: string;
+  probability_published: boolean;
+  home_win_probability: number | null;
+  predicted_winner: "home" | "away" | null;
+  home_score: number | null;
+  away_score: number | null;
+  actual_winner: "home" | "away" | null;
+  correct: boolean | null;
+  scheduler: SchedulerSummary | null;
+};
+
+type SubmissionBatch = {
+  game_date: string;
+  source: string;
+  submitted_at: string;
+  submitted_games: number;
+  model_version: string;
+  games: Array<{
+    s_no: number | null;
+    home_team: TeamInfo;
+    away_team: TeamInfo;
+    game_status: string;
+  }>;
+};
+
+type ManualWorkflow = {
+  name: string;
+  status: "success" | "failed" | "unknown";
+  last_checked_at: string | null;
+  last_game_date: string | null;
+  submitted_games: number;
+  source: string;
+  note?: string;
+};
+
+type ModelMetrics = {
+  window: {
+    type: string;
+    requested: number;
+    sample_size: number;
+  };
+  accuracy: number | null;
+  log_loss: number | null;
+  brier: number | null;
 };
 
 type DashboardData = {
+  schema_version?: number;
   generated_at: string;
+  model_version?: string | null;
+  manual_workflow?: ManualWorkflow;
+  latest_submission?: SubmissionBatch | null;
+  recent_submissions?: SubmissionBatch[];
+  recent_games?: RecentGame[];
+  model_metrics?: ModelMetrics;
   results: PublicResult[];
 };
 
@@ -27,43 +109,51 @@ type Metric = {
   label: string;
   value: string;
   detail: string;
+  tone?: "good" | "warn" | "neutral";
 };
 
 const DATA_FILE = path.join(process.cwd(), "public", "results.json");
+const PUBLIC_DIR = path.join(process.cwd(), "public");
 const EPSILON = 1e-15;
 
 export const dynamic = "force-static";
 
 export default async function DashboardPage() {
-  const data = await loadDashboardData();
-  const results = data.results.sort((a, b) => {
-    const dateOrder = b.game_date.localeCompare(a.game_date);
-    return dateOrder !== 0 ? dateOrder : b.s_no - a.s_no;
-  });
-  const metrics = buildMetrics(results);
-  const latestModel = results[0]?.model_version ?? "n/a";
+  const data = normalizeDashboardData(await loadDashboardData());
+  const results = sortResults(data.results);
+  const recentGames = data.recent_games ?? [];
+  const metrics = data.model_metrics ?? buildModelMetrics(results, 20);
+  const metricCards = buildMetricCards(results, recentGames, metrics);
+  const latestSubmission = data.latest_submission ?? null;
+  const modelVersion = data.model_version ?? results[0]?.model_version ?? "n/a";
+  const heroGame = recentGames[0] ?? resultToRecentGame(results[0]);
 
   return (
     <main className="dashboard-shell">
-      <section className="dashboard-header">
-        <div>
-          <p className="eyebrow">Statiz KBO</p>
-          <h1>Finalized Prediction Results</h1>
-          <p className="summary">
-            Public results include only games with completed final scores and a confirmed submission log.
-            Live predictions, raw API payloads, credentials, and in-progress games are not published.
-          </p>
+      <section className="hero-panel">
+        <div className="hero-copy">
+          <p className="eyebrow">Y-wins KBO Forecast</p>
+          <h1>Y-wins kbo 승률 예측</h1>
+          <div className="hero-meta" aria-label="Dashboard status">
+            <span>model_version {modelVersion}</span>
+            <span>{formatTimestamp(data.generated_at)} publish</span>
+          </div>
         </div>
-        <div className="run-meta" aria-label="Dataset metadata">
-          <span>Published rows</span>
-          <strong>{results.length}</strong>
-          <time dateTime={data.generated_at}>{formatTimestamp(data.generated_at)}</time>
+        <div className="hero-board">
+          {heroGame ? (
+            <GameCard game={heroGame} featured />
+          ) : (
+            <div className="hero-empty">
+              <strong>No submissions yet</strong>
+              <span>Waiting for the first public batch</span>
+            </div>
+          )}
         </div>
       </section>
 
-      <section className="metric-grid" aria-label="Dashboard metrics">
-        {metrics.map((metric) => (
-          <article className="metric-card" key={metric.label}>
+      <section className="metric-grid" aria-label="Model operating metrics">
+        {metricCards.map((metric) => (
+          <article className={`metric-card tone-${metric.tone ?? "neutral"}`} key={metric.label}>
             <span>{metric.label}</span>
             <strong>{metric.value}</strong>
             <p>{metric.detail}</p>
@@ -72,82 +162,142 @@ export default async function DashboardPage() {
       </section>
 
       <section className="content-grid">
-        <article className="panel results-panel">
-          <div className="panel-heading">
-            <div>
-              <h2>Settled Games</h2>
-              <p>Most recent finalized submissions</p>
+        <section className="main-column">
+          <article className="section-panel">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Submitted games</p>
+                <h2>최근 제출 경기</h2>
+              </div>
+              <span className="policy-chip">
+                {metrics.window.sample_size}/{metrics.window.requested} metric window
+              </span>
             </div>
-            <span className="policy-chip">{latestModel}</span>
-          </div>
+            {recentGames.length > 0 ? (
+              <div className="game-grid">
+                {recentGames.map((game) => (
+                  <GameCard game={game} key={`${game.s_no}-${game.submitted_at}`} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="Published games will appear here"
+                body="Finalized results show probability and outcome; unfinalized submissions keep probability sealed."
+              />
+            )}
+          </article>
 
-          {results.length > 0 ? (
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Game</th>
-                    <th>Final</th>
-                    <th>Home Win Prob.</th>
-                    <th>Call</th>
-                    <th>Outcome</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.map((game) => (
-                    <tr key={game.s_no}>
-                      <td>{formatDate(game.game_date)}</td>
-                      <td>
-                        <span className="matchup">
-                          {game.away_team} <span>at</span> {game.home_team}
-                        </span>
-                        <span className="venue">s_no {game.s_no}</span>
-                      </td>
-                      <td className="score">
-                        {game.away_score}-{game.home_score}
-                      </td>
-                      <td>
-                        <ProbabilityBar value={game.home_win_probability / 100} />
-                      </td>
-                      <td>{game.predicted_winner === "home" ? "Home" : "Away"}</td>
-                      <td>
-                        <OutcomeBadge correct={game.correct} />
-                      </td>
+          <article className="section-panel">
+            <div className="section-heading compact">
+              <div>
+                <p className="eyebrow">Finalized ledger</p>
+                <h2>확정 결과</h2>
+              </div>
+            </div>
+            {results.length > 0 ? (
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Matchup</th>
+                      <th>Final</th>
+                      <th>Home Win</th>
+                      <th>Call</th>
+                      <th>Result</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="empty-state">
-              <strong>No finalized submissions published yet.</strong>
-              <p>Rows appear here only after a game has a final score and a confirmed submission log.</p>
-            </div>
-          )}
-        </article>
+                  </thead>
+                  <tbody>
+                    {results.map((game) => {
+                      const homeTeam = teamInfo(game.home_team);
+                      const awayTeam = teamInfo(game.away_team);
+                      return (
+                        <tr key={game.s_no}>
+                          <td>{formatDate(game.game_date)}</td>
+                          <td>
+                            <span className="matchup">
+                              {awayTeam.name} <span>at</span> {homeTeam.name}
+                            </span>
+                            <span className="venue">{game.submission_source ?? "auto"}</span>
+                          </td>
+                          <td className="score">
+                            {game.away_score}-{game.home_score}
+                          </td>
+                          <td>
+                            <ProbabilityBar value={game.home_win_probability / 100} />
+                          </td>
+                          <td>{game.predicted_winner === "home" ? homeTeam.name : awayTeam.name}</td>
+                          <td>
+                            <OutcomeBadge correct={game.correct} />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <EmptyState
+                title="No finalized submissions published yet"
+                body="Rows are published after a submitted game has a final score."
+              />
+            )}
+          </article>
+        </section>
 
-        <aside className="panel operations-panel">
-          <h2>Operations</h2>
-          <ManualSubmitPanel />
-          <dl>
-            <div>
-              <dt>Source file</dt>
-              <dd>/results.json</dd>
+        <aside className="side-column">
+          <article className="section-panel operations-panel">
+            <div className="section-heading compact">
+              <div>
+                <p className="eyebrow">Manual workflow</p>
+                <h2>수동 제출</h2>
+              </div>
+              <StatusPill status={data.manual_workflow?.status ?? "unknown"} />
             </div>
-            <div>
-              <dt>Displayed rows</dt>
-              <dd>final only</dd>
+            <ManualSubmitPanel />
+            <WorkflowSummary workflow={data.manual_workflow} />
+          </article>
+
+          <article className="section-panel">
+            <div className="section-heading compact">
+              <div>
+                <p className="eyebrow">Latest batch</p>
+                <h2>가장 최근 제출</h2>
+              </div>
             </div>
-            <div>
-              <dt>API access</dt>
-              <dd>none</dd>
+            {latestSubmission ? (
+              <SubmissionSummary batch={latestSubmission} />
+            ) : (
+              <EmptyState title="No batch" body="No successful submission batch has been published." />
+            )}
+          </article>
+
+          <article className="section-panel">
+            <div className="section-heading compact">
+              <div>
+                <p className="eyebrow">Model ops</p>
+                <h2>운영 지표</h2>
+              </div>
             </div>
-          </dl>
-          <p>
-            The scheduler runs from the registered IP environment. This Vercel app only reads sanitized
-            public JSON generated by the local automation process.
-          </p>
+            <dl className="ops-list">
+              <div>
+                <dt>Accuracy</dt>
+                <dd>{formatRate(metrics.accuracy)}</dd>
+              </div>
+              <div>
+                <dt>LogLoss</dt>
+                <dd>{formatNumber(metrics.log_loss)}</dd>
+              </div>
+              <div>
+                <dt>Brier</dt>
+                <dd>{formatNumber(metrics.brier)}</dd>
+              </div>
+              <div>
+                <dt>Window</dt>
+                <dd>{metrics.window.sample_size} games</dd>
+              </div>
+            </dl>
+          </article>
         </aside>
       </section>
     </main>
@@ -165,91 +315,128 @@ async function loadDashboardData(): Promise<DashboardData> {
   return parsed;
 }
 
+function normalizeDashboardData(data: DashboardData): DashboardData {
+  return {
+    ...data,
+    results: sortResults(data.results),
+    recent_games: data.recent_games ?? data.results.map(resultToRecentGame).filter(isRecentGame),
+    model_metrics: data.model_metrics ?? buildModelMetrics(data.results, 20),
+  };
+}
+
 function isDashboardData(value: unknown): value is DashboardData {
-  if (!isRecord(value) || typeof value.generated_at !== "string" || !Array.isArray(value.results)) {
-    return false;
-  }
-  return value.results.every(isPublicResult);
+  return isRecord(value) && typeof value.generated_at === "string" && Array.isArray(value.results);
 }
 
-function isPublicResult(value: unknown): value is PublicResult {
-  if (!isRecord(value)) {
-    return false;
-  }
-
-  return (
-    typeof value.s_no === "number" &&
-    typeof value.game_date === "string" &&
-    typeof value.home_team === "string" &&
-    typeof value.away_team === "string" &&
-    typeof value.home_score === "number" &&
-    typeof value.away_score === "number" &&
-    typeof value.home_win_probability === "number" &&
-    value.home_win_probability >= 0 &&
-    value.home_win_probability <= 100 &&
-    (value.predicted_winner === "home" || value.predicted_winner === "away") &&
-    (value.actual_winner === "home" || value.actual_winner === "away") &&
-    typeof value.correct === "boolean" &&
-    typeof value.model_version === "string" &&
-    typeof value.submitted_at === "string"
-  );
+function sortResults(results: PublicResult[]): PublicResult[] {
+  return [...results].sort((a, b) => {
+    const dateOrder = b.game_date.localeCompare(a.game_date);
+    return dateOrder !== 0 ? dateOrder : b.s_no - a.s_no;
+  });
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function buildMetrics(results: PublicResult[]): Metric[] {
-  const wins = results.filter((game) => game.correct).length;
-  const logLoss = average(
-    results.map((game) => {
-      const outcome = game.actual_winner === "home" ? 1 : 0;
-      const probability = clampProbability(game.home_win_probability / 100);
-      return -(outcome * Math.log(probability) + (1 - outcome) * Math.log(1 - probability));
-    })
-  );
-  const brier = average(
-    results.map((game) => {
-      const outcome = game.actual_winner === "home" ? 1 : 0;
-      return (game.home_win_probability / 100 - outcome) ** 2;
-    })
-  );
-  const averageConfidence = average(
-    results.map((game) => {
-      const probability = game.home_win_probability / 100;
-      return Math.max(probability, 1 - probability);
-    })
-  );
+function buildMetricCards(results: PublicResult[], recentGames: RecentGame[], metrics: ModelMetrics): Metric[] {
+  const latestGame = recentGames[0];
+  const openSubmitted = recentGames.filter((game) => game.game_status !== "final").length;
+  const latestDetail = latestGame
+    ? `${teamInfo(latestGame.away_team).name} at ${teamInfo(latestGame.home_team).name}`
+    : "No submitted game";
 
   return [
     {
-      label: "Finalized games",
-      value: String(results.length),
-      detail: "Public rows after final-score filter"
+      label: "Latest submission",
+      value: latestGame ? formatDate(latestGame.game_date ?? latestGame.submitted_at) : "n/a",
+      detail: latestDetail,
+      tone: "neutral",
     },
     {
-      label: "Directional accuracy",
-      value: results.length > 0 ? `${Math.round((wins / results.length) * 100)}%` : "n/a",
-      detail: `${wins}/${results.length} submitted calls`
+      label: "Accuracy",
+      value: formatRate(metrics.accuracy),
+      detail: `${metrics.window.sample_size} finalized games`,
+      tone: "good",
     },
     {
       label: "LogLoss",
-      value: Number.isFinite(logLoss) ? logLoss.toFixed(3) : "n/a",
-      detail: "Finalized submitted games only"
+      value: formatNumber(metrics.log_loss),
+      detail: "Recent finalized submissions",
+      tone: "neutral",
     },
     {
-      label: "Avg. confidence",
-      value: Number.isFinite(averageConfidence) ? `${Math.round(averageConfidence * 100)}%` : "n/a",
-      detail: `Brier ${Number.isFinite(brier) ? brier.toFixed(3) : "n/a"}`
-    }
+      label: "Open submitted",
+      value: String(openSubmitted),
+      detail: `${results.length} finalized public rows`,
+      tone: openSubmitted > 0 ? "warn" : "neutral",
+    },
   ];
+}
+
+function buildModelMetrics(results: PublicResult[], requested: number): ModelMetrics {
+  const window = sortResults(results).slice(0, requested);
+  if (window.length === 0) {
+    return {
+      window: { type: "recent_finalized_submitted_games", requested, sample_size: 0 },
+      accuracy: null,
+      log_loss: null,
+      brier: null,
+    };
+  }
+
+  const correct = window.filter((game) => game.correct).length;
+  const logLoss = average(
+    window.map((game) => {
+      const outcome = game.actual_winner === "home" ? 1 : 0;
+      const probability = clampProbability(game.home_win_probability / 100);
+      return -(outcome * Math.log(probability) + (1 - outcome) * Math.log(1 - probability));
+    }),
+  );
+  const brier = average(
+    window.map((game) => {
+      const outcome = game.actual_winner === "home" ? 1 : 0;
+      return (game.home_win_probability / 100 - outcome) ** 2;
+    }),
+  );
+
+  return {
+    window: { type: "recent_finalized_submitted_games", requested, sample_size: window.length },
+    accuracy: correct / window.length,
+    log_loss: logLoss,
+    brier,
+  };
+}
+
+function resultToRecentGame(result: PublicResult | undefined): RecentGame | null {
+  if (!result) {
+    return null;
+  }
+  return {
+    s_no: result.s_no,
+    game_date: result.game_date,
+    game_time: result.game_time ?? null,
+    home_team: teamInfo(result.home_team),
+    away_team: teamInfo(result.away_team),
+    game_status: "final",
+    submitted_at: result.submitted_at,
+    submission_source: result.submission_source ?? "auto",
+    model_version: result.model_version,
+    probability_published: true,
+    home_win_probability: result.home_win_probability,
+    predicted_winner: result.predicted_winner,
+    home_score: result.home_score,
+    away_score: result.away_score,
+    actual_winner: result.actual_winner,
+    correct: result.correct,
+    scheduler: null,
+  };
+}
+
+function isRecentGame(value: RecentGame | null): value is RecentGame {
+  return value !== null;
 }
 
 function average(values: number[]): number {
   if (values.length === 0) {
     return Number.NaN;
   }
-
   return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
 
@@ -257,25 +444,195 @@ function clampProbability(value: number): number {
   return Math.min(Math.max(value, EPSILON), 1 - EPSILON);
 }
 
-function ProbabilityBar({ value }: { value: number }) {
+function GameCard({ game, featured = false }: { game: RecentGame; featured?: boolean }) {
+  const homeTeam = teamInfo(game.home_team);
+  const awayTeam = teamInfo(game.away_team);
+  const predictedTeam =
+    game.predicted_winner === "home" ? homeTeam : game.predicted_winner === "away" ? awayTeam : null;
+
   return (
-    <div className="probability" aria-label={`${Math.round(value * 100)} percent home win probability`}>
-      <span>{Math.round(value * 100)}%</span>
+    <article className={`game-card ${featured ? "game-card-featured" : ""}`}>
+      <div className="game-card-top">
+        <span>{formatDate(game.game_date ?? game.submitted_at)}</span>
+        <StatusPill status={game.game_status} />
+      </div>
+      <div className="teams">
+        <TeamLogo team={awayTeam} />
+        <div className="versus">
+          <strong>{awayTeam.name}</strong>
+          <span>at</span>
+          <strong>{homeTeam.name}</strong>
+        </div>
+        <TeamLogo team={homeTeam} />
+      </div>
+      <div className="game-card-bottom">
+        <div>
+          <span>Submitted</span>
+          <strong>{formatTimestamp(game.submitted_at)}</strong>
+        </div>
+        <div>
+          <span>Home win</span>
+          {game.probability_published && game.home_win_probability !== null ? (
+            <ProbabilityBar value={game.home_win_probability / 100} />
+          ) : (
+            <strong>Sealed</strong>
+          )}
+        </div>
+      </div>
+      <div className="game-footer">
+        <span>{game.model_version}</span>
+        {game.game_status === "final" && game.away_score !== null && game.home_score !== null ? (
+          <strong>
+            {game.away_score}-{game.home_score} · {game.correct ? "hit" : "miss"}
+          </strong>
+        ) : (
+          <strong>{predictedTeam ? predictedTeam.name : "pending final"}</strong>
+        )}
+      </div>
+      {game.scheduler ? (
+        <div className="scheduler-line">
+          <span>{statusLabel(game.scheduler.status)}</span>
+          <span>
+            SP {game.scheduler.starting_pitcher_count ?? 0} · lineup{" "}
+            {game.scheduler.batting_lineup_missing ? "fallback" : "ready"}
+          </span>
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function TeamLogo({ team }: { team: TeamInfo }) {
+  const src = logoSrc(team.logo_key);
+  return (
+    <div className="team-logo" aria-label={`${team.name} logo`}>
+      {src ? <img alt="" src={src} /> : <span>{teamInitials(team.name)}</span>}
+    </div>
+  );
+}
+
+function logoSrc(logoKey: string): string | null {
+  for (const ext of ["svg", "png", "webp"]) {
+    const candidate = path.join(PUBLIC_DIR, "team-logos", `${logoKey}.${ext}`);
+    if (existsSync(candidate)) {
+      return `/team-logos/${logoKey}.${ext}`;
+    }
+  }
+  return null;
+}
+
+function ProbabilityBar({ value }: { value: number }) {
+  const percentage = Math.round(value * 100);
+  return (
+    <div className="probability" aria-label={`${percentage} percent home win probability`}>
+      <span>{percentage}%</span>
       <div>
-        <i style={{ width: `${value * 100}%` }} />
+        <i style={{ width: `${percentage}%` }} />
       </div>
     </div>
   );
 }
 
 function OutcomeBadge({ correct }: { correct: boolean }) {
-  return <span className={`badge ${correct ? "badge-good" : "badge-bad"}`}>{correct ? "Correct" : "Miss"}</span>;
+  return <span className={`badge ${correct ? "badge-good" : "badge-bad"}`}>{correct ? "Hit" : "Miss"}</span>;
+}
+
+function StatusPill({ status }: { status: string }) {
+  return <span className={`status-pill status-${status}`}>{statusLabel(status)}</span>;
+}
+
+function WorkflowSummary({ workflow }: { workflow?: ManualWorkflow }) {
+  const row = workflow ?? {
+    name: "Manual Statiz submit",
+    status: "unknown" as const,
+    last_checked_at: null,
+    last_game_date: null,
+    submitted_games: 0,
+    source: "submission_log",
+  };
+
+  return (
+    <dl className="ops-list">
+      <div>
+        <dt>Last run</dt>
+        <dd>{row.last_checked_at ? formatTimestamp(row.last_checked_at) : "unknown"}</dd>
+      </div>
+      <div>
+        <dt>Game date</dt>
+        <dd>{row.last_game_date ?? "unknown"}</dd>
+      </div>
+      <div>
+        <dt>Submitted</dt>
+        <dd>{row.submitted_games}</dd>
+      </div>
+    </dl>
+  );
+}
+
+function SubmissionSummary({ batch }: { batch: SubmissionBatch }) {
+  return (
+    <div className="submission-summary">
+      <strong>{batch.submitted_games} games</strong>
+      <span>
+        {batch.source} · {formatTimestamp(batch.submitted_at)}
+      </span>
+      <div className="mini-matchups">
+        {batch.games.slice(0, 5).map((game) => (
+          <span key={`${game.s_no}-${game.home_team.logo_key}`}>
+            {game.away_team.name} at {game.home_team.name}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="empty-state">
+      <strong>{title}</strong>
+      <p>{body}</p>
+    </div>
+  );
+}
+
+function teamInfo(value: TeamInfo | string): TeamInfo {
+  if (typeof value === "string") {
+    return { name: value, logo_key: value.toLowerCase().replaceAll(" ", "-") };
+  }
+  return value;
+}
+
+function teamInitials(name: string): string {
+  if (/^[A-Za-z]+$/.test(name)) {
+    return name.slice(0, 3).toUpperCase();
+  }
+  return name.slice(0, 2);
+}
+
+function statusLabel(status: string): string {
+  const labels: Record<string, string> = {
+    success: "success",
+    failed: "failed",
+    unknown: "unknown",
+    final: "final",
+    scheduled: "scheduled",
+    in_progress: "live",
+    cancelled: "cancelled",
+    ready: "ready",
+    lineup_missing_fallback: "fallback",
+    already_submitted: "submitted",
+    too_early: "early",
+    past_safe_cutoff: "cutoff",
+    past_hard_deadline: "closed",
+  };
+  return labels[status] ?? status;
 }
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en", {
     month: "short",
-    day: "numeric"
+    day: "numeric",
   }).format(new Date(value));
 }
 
@@ -284,6 +641,18 @@ function formatTimestamp(value: string): string {
     month: "short",
     day: "numeric",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   }).format(new Date(value));
+}
+
+function formatRate(value: number | null): string {
+  return value === null || !Number.isFinite(value) ? "n/a" : `${Math.round(value * 100)}%`;
+}
+
+function formatNumber(value: number | null): string {
+  return value === null || !Number.isFinite(value) ? "n/a" : value.toFixed(3);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }

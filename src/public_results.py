@@ -19,10 +19,29 @@ from .constants import (
     GAMES_CSV,
     PREDICTION_LOG_CSV,
     PUBLIC_RESULTS_JSON,
+    SCHEDULER_RUN_LOG_CSV,
     SUBMISSION_LOG_CSV,
     TEAM_CODES,
 )
 from .submission_log import read_submission_log
+
+SCHEMA_VERSION = 2
+METRIC_WINDOW = 20
+RECENT_SUBMISSION_LIMIT = 6
+RECENT_GAME_LIMIT = 12
+
+TEAM_LOGO_KEYS: dict[int, str] = {
+    1001: "samsung",
+    2002: "kia",
+    3001: "lotte",
+    5002: "lg",
+    6002: "doosan",
+    7002: "hanwha",
+    9002: "ssg",
+    10001: "kiwoom",
+    11001: "nc",
+    12001: "kt",
+}
 
 
 def export_public_results(
@@ -41,26 +60,81 @@ def export_public_results(
     games = _read_csv(GAMES_CSV)
     predictions = _read_csv(PREDICTION_LOG_CSV)
     submissions = _read_csv(SUBMISSION_LOG_CSV)
+    scheduler_runs = _read_csv(SCHEDULER_RUN_LOG_CSV)
 
     rows: list[dict[str, Any]] = []
     if not games.empty and not predictions.empty and not submissions.empty:
         rows = _build_public_rows(games, predictions, submissions, limit)
 
+    latest_predictions = _latest_by_s_no(predictions, "predicted_at")
+    latest_submissions = _latest_by_s_no(
+        _successful_submissions(submissions), "submitted_at"
+    )
+    latest_scheduler = _latest_by_s_no(scheduler_runs, "checked_at")
+    recent_games = _build_recent_games(
+        games,
+        latest_predictions,
+        latest_submissions,
+        latest_scheduler,
+        RECENT_GAME_LIMIT,
+    )
+    recent_submissions = _build_recent_submissions(
+        latest_submissions,
+        games,
+        latest_predictions,
+        RECENT_SUBMISSION_LIMIT,
+    )
+    metrics = _build_model_metrics(rows, METRIC_WINDOW)
+    latest_submission = recent_submissions[0] if recent_submissions else None
+    latest_model_version = _latest_model_version(rows, recent_games, latest_predictions)
+
     dest = Path(output_path)
     dest.parent.mkdir(parents=True, exist_ok=True)
     existing_payload = _read_existing_payload(dest)
-    if existing_payload is not None and existing_payload.get("results") == rows:
+    payload: dict[str, Any] = {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at": datetime.now(tz=UTC).isoformat(),
+        "publication_policy": {
+            "scope": "Public dashboard data only",
+            "probability_visibility": (
+                "Submitted probabilities are published for finalized games only."
+            ),
+            "excluded": [
+                "credentials",
+                "raw API responses",
+                "feature matrices",
+                "live unfinalized probabilities",
+                "server addresses",
+                "private file paths",
+            ],
+        },
+        "model_version": latest_model_version,
+        "summary": {
+            "published_results": len(rows),
+            "recent_submissions": len(recent_submissions),
+            "recent_games": len(recent_games),
+            "latest_submission_at": latest_submission["submitted_at"]
+            if latest_submission
+            else None,
+            "metrics_window": metrics["window"],
+        },
+        "manual_workflow": _build_manual_workflow_summary(submissions),
+        "latest_submission": latest_submission,
+        "recent_submissions": recent_submissions,
+        "recent_games": recent_games,
+        "model_metrics": metrics,
+        "results": rows,
+    }
+    if existing_payload is not None and _public_payload_without_time(
+        existing_payload
+    ) == _public_payload_without_time(payload):
         logger.info(
-            "Public result rows unchanged; leaving {} untouched with {} rows",
+            "Public dashboard payload unchanged; leaving {} untouched with {} rows",
             dest,
             len(rows),
         )
         return existing_payload
 
-    payload: dict[str, Any] = {
-        "generated_at": datetime.now(tz=UTC).isoformat(),
-        "results": rows,
-    }
     dest.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
@@ -78,6 +152,12 @@ def _read_existing_payload(path: Path) -> dict[str, Any] | None:
     except (OSError, json.JSONDecodeError):
         return None
     return payload if isinstance(payload, dict) else None
+
+
+def _public_payload_without_time(payload: dict[str, Any]) -> dict[str, Any]:
+    comparable = dict(payload)
+    comparable.pop("generated_at", None)
+    return comparable
 
 
 def _read_csv(path: str) -> pd.DataFrame:
@@ -106,7 +186,7 @@ def _build_public_rows(
     if finalized.empty:
         return []
 
-    submitted = submissions[submissions["submitted"].astype(str) == "True"].copy()
+    submitted = _successful_submissions(submissions)
     if submitted.empty:
         return []
 
@@ -133,12 +213,15 @@ def _build_public_rows(
         target = float(row["target_home_win"])
         predicted_home_win = probability > 50.0
         actual_home_win = target == 1.0
+        home_team_code = int(row["home_team_code"])
+        away_team_code = int(row["away_team_code"])
         rows.append(
             {
                 "s_no": int(row["s_no"]),
                 "game_date": str(row["game_date"]),
-                "home_team": TEAM_CODES.get(int(row["home_team_code"]), "Unknown"),
-                "away_team": TEAM_CODES.get(int(row["away_team_code"]), "Unknown"),
+                "game_time": _optional_string(row.get("game_time")),
+                "home_team": _team_public(home_team_code),
+                "away_team": _team_public(away_team_code),
                 "home_score": int(row["home_score"]),
                 "away_score": int(row["away_score"]),
                 "home_win_probability": round(probability, 2),
@@ -147,6 +230,7 @@ def _build_public_rows(
                 "correct": predicted_home_win == actual_home_win,
                 "model_version": str(row["model_version"]),
                 "submitted_at": str(row["submitted_at"]),
+                "submission_source": _optional_string(row.get("source")) or "auto",
             }
         )
     return rows
@@ -154,6 +238,367 @@ def _build_public_rows(
 
 def _latest_by_s_no(df: pd.DataFrame, timestamp_col: str) -> pd.DataFrame:
     """Return the latest row per s_no using a timestamp column when present."""
+    if df.empty or "s_no" not in df.columns:
+        return df
     if timestamp_col in df.columns:
         df = df.sort_values(timestamp_col)
     return df.drop_duplicates(subset=["s_no"], keep="last")
+
+
+def _successful_submissions(submissions: pd.DataFrame) -> pd.DataFrame:
+    if submissions.empty or "submitted" not in submissions.columns:
+        return pd.DataFrame()
+    return submissions[_truthy_series(submissions["submitted"])].copy()
+
+
+def _truthy_series(series: pd.Series) -> pd.Series:
+    return series.astype(str).str.lower().isin({"true", "1"})
+
+
+def _build_recent_games(
+    games: pd.DataFrame,
+    predictions: pd.DataFrame,
+    submissions: pd.DataFrame,
+    scheduler_runs: pd.DataFrame,
+    limit: int,
+) -> list[dict[str, Any]]:
+    if submissions.empty:
+        return []
+
+    merged = submissions.copy()
+    if not games.empty:
+        merged = merged.merge(games, on="s_no", how="left", suffixes=("", "_game"))
+    if not predictions.empty:
+        merged = merged.merge(
+            predictions,
+            on="s_no",
+            how="left",
+            suffixes=("", "_prediction"),
+        )
+    if not scheduler_runs.empty:
+        safe_scheduler = scheduler_runs.drop(columns=["payload"], errors="ignore")
+        merged = merged.merge(
+            safe_scheduler,
+            on="s_no",
+            how="left",
+            suffixes=("", "_scheduler"),
+        )
+
+    sort_columns = [column for column in ("submitted_at", "game_date") if column in merged]
+    if sort_columns:
+        merged = merged.sort_values(sort_columns, ascending=False)
+    merged = merged.head(limit)
+
+    rows: list[dict[str, Any]] = []
+    for _, row in merged.iterrows():
+        home_code = _optional_int(row.get("home_team_code"))
+        away_code = _optional_int(row.get("away_team_code"))
+        home_probability = _optional_float(row.get("home_win_probability"))
+        is_final = _is_final_game(row)
+        submitted_at = _optional_string(row.get("submitted_at")) or ""
+
+        public_row: dict[str, Any] = {
+            "s_no": _optional_int(row.get("s_no")),
+            "game_date": _optional_string(
+                row.get("game_date_game", row.get("game_date"))
+            ),
+            "game_time": _optional_string(row.get("game_time")),
+            "home_team": _team_public(home_code),
+            "away_team": _team_public(away_code),
+            "game_status": _public_game_status(row),
+            "submitted_at": submitted_at,
+            "submission_source": _optional_string(row.get("source")) or "auto",
+            "model_version": _optional_string(row.get("model_version")) or "unknown",
+            "probability_published": is_final,
+            "home_win_probability": round(home_probability, 2)
+            if is_final and home_probability is not None
+            else None,
+            "predicted_winner": _winner_from_probability(home_probability)
+            if is_final
+            else None,
+            "scheduler": _scheduler_summary(row),
+        }
+        if is_final:
+            actual_home_win = float(row["target_home_win"]) == 1.0
+            predicted_home_win = bool(
+                home_probability is not None and home_probability > 50.0
+            )
+            public_row.update(
+                {
+                    "home_score": _optional_int(row.get("home_score")),
+                    "away_score": _optional_int(row.get("away_score")),
+                    "actual_winner": "home" if actual_home_win else "away",
+                    "correct": predicted_home_win == actual_home_win,
+                }
+            )
+        else:
+            public_row.update(
+                {
+                    "home_score": None,
+                    "away_score": None,
+                    "actual_winner": None,
+                    "correct": None,
+                }
+            )
+        rows.append(public_row)
+    return rows
+
+
+def _build_recent_submissions(
+    submissions: pd.DataFrame,
+    games: pd.DataFrame,
+    predictions: pd.DataFrame,
+    limit: int,
+) -> list[dict[str, Any]]:
+    if submissions.empty:
+        return []
+
+    enriched = submissions.copy()
+    if not games.empty:
+        enriched = enriched.merge(games, on="s_no", how="left", suffixes=("", "_game"))
+    if not predictions.empty:
+        enriched = enriched.merge(
+            predictions[["s_no", "model_version"]],
+            on="s_no",
+            how="left",
+        )
+
+    game_date_col = "game_date_game" if "game_date_game" in enriched else "game_date"
+    groups = (
+        enriched.groupby([game_date_col, "source"], dropna=False)
+        if "source" in enriched.columns
+        else enriched.groupby([game_date_col], dropna=False)
+    )
+    batches: list[dict[str, Any]] = []
+    for key, group in groups:
+        if isinstance(key, tuple):
+            game_date, source = key
+        else:
+            game_date, source = key, "auto"
+        sorted_group = group.sort_values("submitted_at")
+        model_versions = sorted(
+            {
+                str(value)
+                for value in sorted_group.get("model_version", pd.Series(dtype=str))
+                .dropna()
+                .tolist()
+            }
+        )
+        games_payload = [
+            {
+                "s_no": _optional_int(row.get("s_no")),
+                "home_team": _team_public(_optional_int(row.get("home_team_code"))),
+                "away_team": _team_public(_optional_int(row.get("away_team_code"))),
+                "game_status": _public_game_status(row),
+            }
+            for _, row in sorted_group.iterrows()
+        ]
+        batches.append(
+            {
+                "game_date": str(game_date),
+                "source": str(source or "auto"),
+                "submitted_at": str(sorted_group["submitted_at"].max()),
+                "submitted_games": int(len(sorted_group)),
+                "model_version": model_versions[-1] if model_versions else "unknown",
+                "games": games_payload,
+            }
+        )
+
+    return sorted(batches, key=lambda row: row["submitted_at"], reverse=True)[:limit]
+
+
+def _build_manual_workflow_summary(submissions: pd.DataFrame) -> dict[str, Any]:
+    base = {
+        "name": "Manual Statiz submit",
+        "status": "unknown",
+        "last_checked_at": None,
+        "last_game_date": None,
+        "submitted_games": 0,
+        "source": "submission_log",
+        "note": (
+            "GitHub workflow run metadata is not published; this summarizes "
+            "manual-source submission log rows only."
+        ),
+    }
+    if submissions.empty or "source" not in submissions.columns:
+        return base
+
+    manual_rows = submissions[submissions["source"].fillna("auto").astype(str) == "manual"]
+    if manual_rows.empty:
+        return base
+
+    latest_at = str(manual_rows["submitted_at"].max())
+    latest_rows = manual_rows[manual_rows["submitted_at"].astype(str) == latest_at]
+    submitted_count = int(_truthy_series(latest_rows["submitted"]).sum())
+    return {
+        **base,
+        "status": "success" if submitted_count > 0 else "failed",
+        "last_checked_at": latest_at,
+        "last_game_date": str(latest_rows["game_date"].iloc[0]),
+        "submitted_games": submitted_count,
+    }
+
+
+def _build_model_metrics(
+    finalized_rows: list[dict[str, Any]], window_size: int
+) -> dict[str, Any]:
+    rows = finalized_rows[:window_size]
+    sample_size = len(rows)
+    if sample_size == 0:
+        return {
+            "window": {
+                "type": "recent_finalized_submitted_games",
+                "requested": window_size,
+                "sample_size": 0,
+            },
+            "accuracy": None,
+            "log_loss": None,
+            "brier": None,
+        }
+
+    correct = sum(1 for row in rows if row["correct"])
+    losses: list[float] = []
+    briers: list[float] = []
+    for row in rows:
+        probability = max(min(float(row["home_win_probability"]) / 100, 1 - 1e-15), 1e-15)
+        outcome = 1.0 if row["actual_winner"] == "home" else 0.0
+        losses.append(
+            -(outcome * _safe_log(probability) + (1 - outcome) * _safe_log(1 - probability))
+        )
+        briers.append((probability - outcome) ** 2)
+
+    return {
+        "window": {
+            "type": "recent_finalized_submitted_games",
+            "requested": window_size,
+            "sample_size": sample_size,
+        },
+        "accuracy": round(correct / sample_size, 4),
+        "log_loss": round(sum(losses) / sample_size, 4),
+        "brier": round(sum(briers) / sample_size, 4),
+    }
+
+
+def _safe_log(value: float) -> float:
+    import math
+
+    return math.log(value)
+
+
+def _latest_model_version(
+    finalized_rows: list[dict[str, Any]],
+    recent_games: list[dict[str, Any]],
+    predictions: pd.DataFrame,
+) -> str | None:
+    for collection in (recent_games, finalized_rows):
+        for row in collection:
+            value = row.get("model_version")
+            if value and value != "unknown":
+                return str(value)
+    if not predictions.empty and "model_version" in predictions.columns:
+        value = predictions.sort_values("predicted_at")["model_version"].dropna()
+        if not value.empty:
+            return str(value.iloc[-1])
+    return None
+
+
+def _team_public(code: int | None) -> dict[str, str]:
+    if code is None:
+        return {"name": "Unknown", "logo_key": "unknown"}
+    return {
+        "name": TEAM_CODES.get(code, "Unknown"),
+        "logo_key": TEAM_LOGO_KEYS.get(code, "unknown"),
+    }
+
+
+def _public_game_status(row: pd.Series) -> str:
+    state = _optional_int(row.get("game_state"))
+    if state == 3:
+        return "final"
+    if state == 2:
+        return "in_progress"
+    if state in {4, 5}:
+        return "cancelled"
+    return "scheduled"
+
+
+def _is_final_game(row: pd.Series) -> bool:
+    return (
+        _optional_int(row.get("game_state")) == 3
+        and _optional_float(row.get("target_home_win")) is not None
+        and _optional_int(row.get("home_score")) is not None
+        and _optional_int(row.get("away_score")) is not None
+    )
+
+
+def _winner_from_probability(probability: float | None) -> str | None:
+    if probability is None:
+        return None
+    return "home" if probability > 50.0 else "away"
+
+
+def _scheduler_summary(row: pd.Series) -> dict[str, Any] | None:
+    status = _optional_string(row.get("status"))
+    if status is None:
+        return None
+    return {
+        "checked_at": _optional_string(row.get("checked_at")),
+        "status": status,
+        "reason": _optional_string(row.get("reason")),
+        "would_submit": _optional_bool(row.get("would_submit")),
+        "execute_submit": _optional_bool(row.get("execute_submit")),
+        "starter_confirmed": _optional_bool(row.get("starter_confirmed")),
+        "batting_lineup_missing": _optional_bool(row.get("batting_lineup_missing")),
+        "starting_pitcher_count": _optional_int(row.get("starting_pitcher_count")),
+        "starting_batter_count": _optional_int(row.get("starting_batter_count")),
+    }
+
+
+def _optional_int(value: Any) -> int | None:
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _optional_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _optional_string(value: Any) -> str | None:
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except TypeError:
+        pass
+    text = str(value).strip()
+    return text if text else None
+
+
+def _optional_bool(value: Any) -> bool | None:
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except TypeError:
+        pass
+    normalized = str(value).lower()
+    if normalized in {"true", "1"}:
+        return True
+    if normalized in {"false", "0"}:
+        return False
+    return None

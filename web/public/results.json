@@ -1,4 +1,51 @@
 {
-  "generated_at": "2026-06-09T00:18:43.861901+00:00",
+  "schema_version": 2,
+  "generated_at": "2026-06-13T12:05:27.314474+00:00",
+  "publication_policy": {
+    "scope": "Public dashboard data only",
+    "probability_visibility": "Submitted probabilities are published for finalized games only.",
+    "excluded": [
+      "credentials",
+      "raw API responses",
+      "feature matrices",
+      "live unfinalized probabilities",
+      "server addresses",
+      "private file paths"
+    ]
+  },
+  "model_version": null,
+  "summary": {
+    "published_results": 0,
+    "recent_submissions": 0,
+    "recent_games": 0,
+    "latest_submission_at": null,
+    "metrics_window": {
+      "type": "recent_finalized_submitted_games",
+      "requested": 20,
+      "sample_size": 0
+    }
+  },
+  "manual_workflow": {
+    "name": "Manual Statiz submit",
+    "status": "unknown",
+    "last_checked_at": null,
+    "last_game_date": null,
+    "submitted_games": 0,
+    "source": "submission_log",
+    "note": "GitHub workflow run metadata is not published; this summarizes manual-source submission log rows only."
+  },
+  "latest_submission": null,
+  "recent_submissions": [],
+  "recent_games": [],
+  "model_metrics": {
+    "window": {
+      "type": "recent_finalized_submitted_games",
+      "requested": 20,
+      "sample_size": 0
+    },
+    "accuracy": null,
+    "log_loss": null,
+    "brier": null
+  },
   "results": []
 }
