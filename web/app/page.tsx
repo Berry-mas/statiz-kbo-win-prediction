@@ -46,6 +46,8 @@ type RecentGame = {
   game_time: string | null;
   home_team: TeamInfo;
   away_team: TeamInfo;
+  home_sp_name?: string | null;
+  away_sp_name?: string | null;
   game_status: "scheduled" | "in_progress" | "final" | "cancelled";
   submitted_at: string;
   submission_source: string;
@@ -424,14 +426,14 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
   const awayProbability = homeProbability !== null ? 100 - homeProbability : null;
   const predictedTeam =
     game.predicted_winner === "home" ? homeTeam : game.predicted_winner === "away" ? awayTeam : null;
-  const awayPitcher = game.scheduler?.away_sp_name?.trim();
-  const homePitcher = game.scheduler?.home_sp_name?.trim();
+  const awayPitcher = (game.away_sp_name ?? game.scheduler?.away_sp_name)?.trim();
+  const homePitcher = (game.home_sp_name ?? game.scheduler?.home_sp_name)?.trim();
 
   return (
     <article className={`game-card ${featured ? "game-card-featured" : ""}`}>
       <div className="game-card-top">
         <span>{formatDate(game.game_date ?? game.submitted_at)}</span>
-        {game.game_status !== "final" ? <StatusPill status={game.game_status} /> : null}
+        <StatusPill status={game.game_status} />
       </div>
       <div className="teams">
         <div className="team-side team-side-away">

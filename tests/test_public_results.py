@@ -139,6 +139,8 @@ def test_export_public_results_includes_only_finalized_submitted_games(
     )
     assert payload["recent_games"][0]["scheduler"]["home_sp_name"] == "홈선발"
     assert payload["recent_games"][0]["scheduler"]["away_sp_name"] == "원정선발"
+    assert payload["recent_games"][0]["home_sp_name"] == "홈선발"
+    assert payload["recent_games"][0]["away_sp_name"] == "원정선발"
     unfinalized_row = next(
         row for row in payload["recent_games"] if row["s_no"] == 20260002
     )

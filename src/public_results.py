@@ -352,6 +352,12 @@ def _recent_game_row(row: pd.Series, as_of: datetime) -> dict[str, Any]:
     display_probability = (
         submitted_probability if submitted_probability is not None else home_probability
     )
+    home_sp_name = _optional_string(
+        row.get("home_sp_name_scheduler", row.get("home_sp_name"))
+    )
+    away_sp_name = _optional_string(
+        row.get("away_sp_name_scheduler", row.get("away_sp_name"))
+    )
     is_final = _is_final_game(row)
     return {
         "s_no": _optional_int(row.get("s_no")),
@@ -359,6 +365,8 @@ def _recent_game_row(row: pd.Series, as_of: datetime) -> dict[str, Any]:
         "game_time": _optional_string(row.get("game_time")),
         "home_team": _team_public(_optional_int(row.get("home_team_code"))),
         "away_team": _team_public(_optional_int(row.get("away_team_code"))),
+        "home_sp_name": home_sp_name,
+        "away_sp_name": away_sp_name,
         "game_status": _public_game_status(row, as_of),
         "submitted_at": _optional_string(row.get("submitted_at")) or "",
         "submission_source": _optional_string(row.get("source")) or "auto",
@@ -627,12 +635,8 @@ def _scheduler_summary(row: pd.Series) -> dict[str, Any] | None:
         "batting_lineup_missing": _optional_bool(row.get("batting_lineup_missing")),
         "starting_pitcher_count": _optional_int(row.get("starting_pitcher_count")),
         "starting_batter_count": _optional_int(row.get("starting_batter_count")),
-        "home_sp_name": _optional_string(
-            row.get("home_sp_name_scheduler", row.get("home_sp_name"))
-        ),
-        "away_sp_name": _optional_string(
-            row.get("away_sp_name_scheduler", row.get("away_sp_name"))
-        ),
+        "home_sp_name": _optional_string(row.get("home_sp_name")),
+        "away_sp_name": _optional_string(row.get("away_sp_name")),
     }
 
 
