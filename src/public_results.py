@@ -627,6 +627,12 @@ def _scheduler_summary(row: pd.Series) -> dict[str, Any] | None:
         "batting_lineup_missing": _optional_bool(row.get("batting_lineup_missing")),
         "starting_pitcher_count": _optional_int(row.get("starting_pitcher_count")),
         "starting_batter_count": _optional_int(row.get("starting_batter_count")),
+        "home_sp_name": _optional_string(
+            row.get("home_sp_name_scheduler", row.get("home_sp_name"))
+        ),
+        "away_sp_name": _optional_string(
+            row.get("away_sp_name_scheduler", row.get("away_sp_name"))
+        ),
     }
 
 

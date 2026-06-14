@@ -96,6 +96,8 @@ def test_export_public_results_includes_only_finalized_submitted_games(
                 "game_time": "18:30",
                 "home_team_code": 1001,
                 "away_team_code": 2002,
+                "home_sp_name": "홈선발",
+                "away_sp_name": "원정선발",
                 "model_version": "lgbm_test",
                 "home_win_probability": 57.12,
                 "starter_confirmed": True,
@@ -135,6 +137,8 @@ def test_export_public_results_includes_only_finalized_submitted_games(
     assert (
         payload["recent_games"][0]["scheduler"]["status"] == "lineup_missing_fallback"
     )
+    assert payload["recent_games"][0]["scheduler"]["home_sp_name"] == "홈선발"
+    assert payload["recent_games"][0]["scheduler"]["away_sp_name"] == "원정선발"
     unfinalized_row = next(
         row for row in payload["recent_games"] if row["s_no"] == 20260002
     )

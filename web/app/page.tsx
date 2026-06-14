@@ -36,6 +36,8 @@ type SchedulerSummary = {
   batting_lineup_missing: boolean | null;
   starting_pitcher_count: number | null;
   starting_batter_count: number | null;
+  home_sp_name?: string | null;
+  away_sp_name?: string | null;
 };
 
 type RecentGame = {
@@ -422,6 +424,8 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
   const awayProbability = homeProbability !== null ? 100 - homeProbability : null;
   const predictedTeam =
     game.predicted_winner === "home" ? homeTeam : game.predicted_winner === "away" ? awayTeam : null;
+  const awayPitcher = game.scheduler?.away_sp_name?.trim();
+  const homePitcher = game.scheduler?.home_sp_name?.trim();
 
   return (
     <article className={`game-card ${featured ? "game-card-featured" : ""}`}>
@@ -442,9 +446,16 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
           <div className="team-probability-placeholder" />
         )}
         <div className="versus">
-          <strong>{awayTeam.name}</strong>
-          <span>vs</span>
-          <strong>{homeTeam.name}</strong>
+          <div className="team-matchup">
+            <strong>{awayTeam.name}</strong>
+            <span>vs</span>
+            <strong>{homeTeam.name}</strong>
+          </div>
+          {awayPitcher || homePitcher ? (
+            <span className="pitcher-matchup">
+              SP {awayPitcher || "TBD"} vs {homePitcher || "TBD"}
+            </span>
+          ) : null}
         </div>
         {homeProbability !== null ? (
           <div className="team-probability team-probability-home">
@@ -486,8 +497,7 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
         <div className="scheduler-line">
           <span>{statusLabel(game.scheduler.status)}</span>
           <span>
-            SP {game.scheduler.starting_pitcher_count ?? 0} · lineup{" "}
-            {game.scheduler.batting_lineup_missing ? "fallback" : "ready"}
+            lineup {game.scheduler.batting_lineup_missing ? "fallback" : "ready"}
           </span>
         </div>
       ) : null}

@@ -344,28 +344,47 @@ h3 {
 }
 
 .versus {
-  display: flex;
+  display: grid;
   min-width: 0;
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
   gap: 8px;
   text-align: center;
 }
 
-.versus strong {
-  max-width: 100%;
+.team-matchup {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+
+.team-matchup strong {
+  min-width: 0;
   overflow: hidden;
   font-size: 1.1rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.versus span {
+.team-matchup span {
   color: var(--muted);
   flex: 0 0 auto;
   font-size: 0.78rem;
   font-weight: 850;
   text-transform: uppercase;
+}
+
+.pitcher-matchup {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .team-logo {
