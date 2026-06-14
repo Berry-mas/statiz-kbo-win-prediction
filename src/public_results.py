@@ -1,8 +1,9 @@
 """
-Build the public dashboard JSON from local logs and finalized game results.
+Build the public dashboard JSON from local logs and game results.
 
-Only finalized games are exported. Live, upcoming, cancelled, and unverified rows
-are excluded so the public dashboard cannot reveal active prediction strategy.
+Finalized submitted games include public probabilities and outcomes. Unfinalized
+submitted games can appear as sealed submission summaries, but live probabilities
+and raw strategy inputs are excluded.
 """
 
 from __future__ import annotations

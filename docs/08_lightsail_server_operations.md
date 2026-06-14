@@ -93,9 +93,11 @@ tail -n 20 "$STATIZ_REPO_DIR/logs/scheduler_run_log.csv"
 
 ## 공개 대시보드 publish
 
-`ops/systemd/statiz-public-results.timer`는 KST 기준 23:30에 실행한다.
+`ops/systemd/statiz-public-results.timer`는 KST 기준 14:00, 17:00, 18:30, 23:30에 실행한다.
 
 이 작업은 예측 제출을 하지 않는다. 해당 날짜의 schedule, boxscore, lineup raw 파일을 강제 갱신하고 clean 데이터를 다시 만든 뒤 `web/public/results.json`을 export/push한다.
+
+14:00, 17:00, 18:30 publish는 같은 날짜 안에서 경기 시작 시간이 다른 제출 batch를 공개 대시보드에 반영하기 위한 실행이다. 경기 전/진행 중인 제출은 확률과 예측팀을 공개하지 않고 제출 여부와 sealed 상태만 보여준다. 23:30 publish는 경기 종료 후 최종 스코어와 공개 가능한 Hit/Miss 결과를 반영하는 기준 실행이다.
 
 서버 wrapper:
 

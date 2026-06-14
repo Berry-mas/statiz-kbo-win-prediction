@@ -260,8 +260,8 @@ export default async function DashboardPage() {
           <article className="section-panel">
             <div className="section-heading compact">
               <div>
-                <p className="eyebrow">Latest batch</p>
-                <h2>가장 최근 제출</h2>
+                <p className="eyebrow">Submission</p>
+                <h2>Latest submission</h2>
               </div>
             </div>
             {latestSubmission ? (
@@ -428,7 +428,7 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
     <article className={`game-card ${featured ? "game-card-featured" : ""}`}>
       <div className="game-card-top">
         <span>{formatDate(game.game_date ?? game.submitted_at)}</span>
-        <StatusPill status={game.game_status} />
+        {game.game_status !== "final" ? <StatusPill status={game.game_status} /> : null}
       </div>
       <div className="teams">
         <div className="team-side team-side-away">
@@ -453,7 +453,7 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
           {game.probability_published && game.home_win_probability !== null ? (
             <MatchupProbabilityBar homeValue={game.home_win_probability / 100} homeTeam={homeTeam} awayTeam={awayTeam} />
           ) : (
-            <strong>비공개</strong>
+            <strong>Sealed</strong>
           )}
         </div>
       </div>
@@ -463,10 +463,10 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
         </span>
         {game.game_status === "final" && game.away_score !== null && game.home_score !== null ? (
           <strong>
-            {game.away_score}-{game.home_score} · {game.correct ? "적중" : "미스"}
+            {game.away_score}-{game.home_score} · {game.correct ? "Hit" : "Miss"}
           </strong>
         ) : (
-          <strong>{predictedTeam ? predictedTeam.name : "결과 대기"}</strong>
+          <strong>{predictedTeam ? predictedTeam.name : "Pending result"}</strong>
         )}
       </div>
       {game.scheduler ? (
@@ -623,10 +623,10 @@ function statusLabel(status: string): string {
     success: "성공",
     failed: "실패",
     unknown: "미확인",
-    final: "경기 종료",
-    scheduled: "예정",
-    in_progress: "진행 중",
-    cancelled: "취소",
+    final: "Final",
+    scheduled: "Scheduled",
+    in_progress: "Live",
+    cancelled: "Cancelled",
     ready: "준비 완료",
     lineup_missing_fallback: "라인업 대기",
     already_submitted: "제출 완료",

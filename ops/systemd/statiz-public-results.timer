@@ -2,6 +2,9 @@
 Description=Run Statiz public dashboard publish after KBO games
 
 [Timer]
+OnCalendar=*-*-* 14:00:00
+OnCalendar=*-*-* 17:00:00
+OnCalendar=*-*-* 18:30:00
 OnCalendar=*-*-* 23:30:00
 Persistent=true
 RandomizedDelaySec=2min
