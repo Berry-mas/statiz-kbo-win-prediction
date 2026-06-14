@@ -290,7 +290,7 @@ h3 {
 
 .teams {
   display: grid;
-  grid-template-columns: 72px minmax(62px, 0.45fr) minmax(132px, 1fr) minmax(62px, 0.45fr) 72px;
+  grid-template-columns: 72px minmax(78px, 0.45fr) minmax(132px, 1fr) minmax(78px, 0.45fr) 72px;
   gap: 12px;
   align-items: center;
 }
@@ -328,7 +328,7 @@ h3 {
   display: block;
   overflow: hidden;
   color: var(--ink);
-  font-size: clamp(1.12rem, 1.5vw, 1.55rem);
+  font-size: clamp(1rem, 1.28vw, 1.38rem);
   font-weight: 950;
   line-height: 1;
   text-overflow: ellipsis;

@@ -422,7 +422,7 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
   const homeTeam = game.home_team;
   const awayTeam = game.away_team;
   const homeProbability =
-    game.probability_published && game.home_win_probability !== null ? Math.round(game.home_win_probability) : null;
+    game.probability_published && game.home_win_probability !== null ? game.home_win_probability : null;
   const awayProbability = homeProbability !== null ? 100 - homeProbability : null;
   const predictedTeam =
     game.predicted_winner === "home" ? homeTeam : game.predicted_winner === "away" ? awayTeam : null;
@@ -442,7 +442,7 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
         </div>
         {awayProbability !== null ? (
           <div className="team-probability team-probability-away">
-            <strong>{awayProbability}%</strong>
+            <strong>{formatProbabilityLabel(awayProbability)}</strong>
           </div>
         ) : (
           <div className="team-probability-placeholder" />
@@ -461,7 +461,7 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
         </div>
         {homeProbability !== null ? (
           <div className="team-probability team-probability-home">
-            <strong>{homeProbability}%</strong>
+            <strong>{formatProbabilityLabel(homeProbability)}</strong>
           </div>
         ) : (
           <div className="team-probability-placeholder" />
@@ -547,13 +547,15 @@ function MatchupProbabilityBar({
   homeTeam: TeamInfo;
   awayTeam: TeamInfo;
 }) {
-  const homePercentage = Math.round(homeValue * 100);
+  const homePercentage = clampProbability(homeValue) * 100;
   const awayPercentage = 100 - homePercentage;
+  const homeLabel = formatProbabilityLabel(homePercentage);
+  const awayLabel = formatProbabilityLabel(awayPercentage);
 
   return (
     <div
       className="matchup-probability"
-      aria-label={`${awayTeam.name} ${awayPercentage} percent, ${homeTeam.name} ${homePercentage} percent`}
+      aria-label={`${awayTeam.name} ${awayLabel}, ${homeTeam.name} ${homeLabel}`}
     >
       <div className="matchup-probability-bar">
         <i className="away-probability" style={{ width: `${awayPercentage}%` }} />
@@ -561,6 +563,10 @@ function MatchupProbabilityBar({
       </div>
     </div>
   );
+}
+
+function formatProbabilityLabel(value: number): string {
+  return `${value.toFixed(2)}%`;
 }
 
 function OutcomeBadge({ correct }: { correct: boolean }) {
