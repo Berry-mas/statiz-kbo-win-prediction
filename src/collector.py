@@ -58,6 +58,23 @@ def _save_json(path: Path, data: dict[str, Any]) -> None:
     logger.debug("Saved {}", path)
 
 
+def _has_complete_starting_batters(data: dict[str, Any]) -> bool:
+    """Return whether a lineup response contains both teams' starting batters."""
+    batter_count = 0
+    for key, players in data.items():
+        if not key.isdigit() or not isinstance(players, list):
+            continue
+        for player in players:
+            if not isinstance(player, dict):
+                continue
+            if player.get("starting") != "Y":
+                continue
+            if str(player.get("position")) == "1":
+                continue
+            batter_count += 1
+    return batter_count >= 18
+
+
 def _pe_label(pe: str) -> str:
     """Convert period parameter to a safe filename segment."""
     return pe if pe else "all"
@@ -131,8 +148,11 @@ class DataCollector:
         dest = _raw_path(year, "lineup", f"{s_no}.json")
 
         if dest.exists() and not force:
-            logger.debug("Lineup already exists, skipping: {}", dest)
-            return json.loads(dest.read_text(encoding="utf-8"))
+            cached = json.loads(dest.read_text(encoding="utf-8"))
+            if _has_complete_starting_batters(cached):
+                logger.debug("Lineup already exists, skipping: {}", dest)
+                return cached
+            logger.info("Cached lineup incomplete, refreshing: {}", dest)
 
         data = self._client.get("/prediction/gameLineup", params={"s_no": s_no})
         _save_json(dest, data)
