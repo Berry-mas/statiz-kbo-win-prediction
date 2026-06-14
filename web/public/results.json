@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-14T08:00:16.453555+00:00",
+  "generated_at": "2026-06-14T08:07:04.641409+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -15,14 +15,14 @@
   },
   "model_version": "lgbm_v008",
   "summary": {
-    "published_results": 5,
+    "published_results": 6,
     "recent_submissions": 2,
     "recent_games": 10,
     "latest_submission_at": "2026-06-14T16:30:59.560004+09:00",
     "metrics_window": {
       "type": "recent_finalized_submitted_games",
       "requested": 20,
-      "sample_size": 5
+      "sample_size": 6
     }
   },
   "manual_workflow": {
@@ -51,7 +51,7 @@
           "name": "한화",
           "logo_key": "hanwha"
         },
-        "game_status": "in_progress"
+        "game_status": "final"
       },
       {
         "s_no": 20260336,
@@ -75,7 +75,7 @@
           "name": "NC",
           "logo_key": "nc"
         },
-        "game_status": "in_progress"
+        "game_status": "cancelled"
       },
       {
         "s_no": 20260339,
@@ -121,7 +121,7 @@
             "name": "한화",
             "logo_key": "hanwha"
           },
-          "game_status": "in_progress"
+          "game_status": "final"
         },
         {
           "s_no": 20260336,
@@ -145,7 +145,7 @@
             "name": "NC",
             "logo_key": "nc"
           },
-          "game_status": "in_progress"
+          "game_status": "cancelled"
         },
         {
           "s_no": 20260339,
@@ -306,7 +306,7 @@
         "name": "NC",
         "logo_key": "nc"
       },
-      "game_status": "in_progress",
+      "game_status": "cancelled",
       "submitted_at": "2026-06-14T16:30:49.556485+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -356,18 +356,18 @@
         "name": "한화",
         "logo_key": "hanwha"
       },
-      "game_status": "in_progress",
+      "game_status": "final",
       "submitted_at": "2026-06-14T13:30:44.604474+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 53.46,
-      "predicted_winner": null,
+      "predicted_winner": "home",
       "scheduler": null,
-      "home_score": null,
-      "away_score": null,
-      "actual_winner": null,
-      "correct": null
+      "home_score": 3,
+      "away_score": 2,
+      "actual_winner": "home",
+      "correct": true
     },
     {
       "s_no": 20260335,
@@ -499,13 +499,35 @@
     "window": {
       "type": "recent_finalized_submitted_games",
       "requested": 20,
-      "sample_size": 5
+      "sample_size": 6
     },
     "accuracy": 1.0,
-    "log_loss": 0.5582,
-    "brier": 0.183
+    "log_loss": 0.5722,
+    "brier": 0.1899
   },
   "results": [
+    {
+      "s_no": 20260337,
+      "game_date": "2026-06-14",
+      "game_time": "14:00:00",
+      "home_team": {
+        "name": "키움",
+        "logo_key": "kiwoom"
+      },
+      "away_team": {
+        "name": "한화",
+        "logo_key": "hanwha"
+      },
+      "home_score": 3,
+      "away_score": 2,
+      "home_win_probability": 52.62,
+      "predicted_winner": "home",
+      "actual_winner": "home",
+      "correct": true,
+      "model_version": "lgbm_v008",
+      "submitted_at": "2026-06-14T13:30:44.604474+09:00",
+      "submission_source": "auto"
+    },
     {
       "s_no": 20260335,
       "game_date": "2026-06-13",
