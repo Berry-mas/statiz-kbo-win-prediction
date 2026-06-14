@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-14T08:07:04.641409+00:00",
+  "generated_at": "2026-06-14T08:52:41.024090+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -256,6 +256,8 @@
         "name": "두산",
         "logo_key": "doosan"
       },
+      "home_sp_name": "김태형",
+      "away_sp_name": "곽빈",
       "game_status": "in_progress",
       "submitted_at": "2026-06-14T16:30:59.560004+09:00",
       "submission_source": "auto",
@@ -281,6 +283,8 @@
         "name": "SSG",
         "logo_key": "ssg"
       },
+      "home_sp_name": "양창섭",
+      "away_sp_name": "해치",
       "game_status": "in_progress",
       "submitted_at": "2026-06-14T16:30:54.561661+09:00",
       "submission_source": "auto",
@@ -306,6 +310,8 @@
         "name": "NC",
         "logo_key": "nc"
       },
+      "home_sp_name": "고영표",
+      "away_sp_name": "김준원",
       "game_status": "cancelled",
       "submitted_at": "2026-06-14T16:30:49.556485+09:00",
       "submission_source": "auto",
@@ -331,6 +337,8 @@
         "name": "롯데",
         "logo_key": "lotte"
       },
+      "home_sp_name": "임찬규",
+      "away_sp_name": "비슬리",
       "game_status": "in_progress",
       "submitted_at": "2026-06-14T16:30:44.558488+09:00",
       "submission_source": "auto",
@@ -356,6 +364,8 @@
         "name": "한화",
         "logo_key": "hanwha"
       },
+      "home_sp_name": "로젠버그",
+      "away_sp_name": "왕옌청",
       "game_status": "final",
       "submitted_at": "2026-06-14T13:30:44.604474+09:00",
       "submission_source": "auto",
@@ -381,6 +391,8 @@
         "name": "두산",
         "logo_key": "doosan"
       },
+      "home_sp_name": "네일",
+      "away_sp_name": "벤자민",
       "game_status": "final",
       "submitted_at": "2026-06-13T16:30:58.899608+09:00",
       "submission_source": "auto",
@@ -406,6 +418,8 @@
         "name": "SSG",
         "logo_key": "ssg"
       },
+      "home_sp_name": "후라도",
+      "away_sp_name": "베니지아노",
       "game_status": "final",
       "submitted_at": "2026-06-13T16:30:53.894841+09:00",
       "submission_source": "auto",
@@ -431,6 +445,8 @@
         "name": "NC",
         "logo_key": "nc"
       },
+      "home_sp_name": "오원석",
+      "away_sp_name": "토다",
       "game_status": "final",
       "submitted_at": "2026-06-13T16:30:48.907827+09:00",
       "submission_source": "auto",
@@ -456,6 +472,8 @@
         "name": "한화",
         "logo_key": "hanwha"
       },
+      "home_sp_name": "알칸타라",
+      "away_sp_name": "박준영",
       "game_status": "final",
       "submitted_at": "2026-06-13T16:30:43.898730+09:00",
       "submission_source": "auto",
@@ -481,6 +499,8 @@
         "name": "롯데",
         "logo_key": "lotte"
       },
+      "home_sp_name": "김진수",
+      "away_sp_name": "이민석",
       "game_status": "final",
       "submitted_at": "2026-06-13T16:30:38.950663+09:00",
       "submission_source": "auto",
