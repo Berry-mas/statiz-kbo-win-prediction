@@ -290,7 +290,7 @@ h3 {
 
 .teams {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) 72px;
+  grid-template-columns: 72px minmax(62px, 0.45fr) minmax(132px, 1fr) minmax(62px, 0.45fr) 72px;
   gap: 12px;
   align-items: center;
 }
@@ -312,6 +312,35 @@ h3 {
 
 .team-side-home span {
   color: var(--green);
+}
+
+.team-probability,
+.team-probability-placeholder {
+  min-width: 0;
+}
+
+.team-probability {
+  align-self: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.team-probability strong {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: clamp(1.12rem, 1.5vw, 1.55rem);
+  font-weight: 950;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team-probability-away {
+  text-align: left;
+}
+
+.team-probability-home {
+  text-align: right;
 }
 
 .versus {
@@ -400,45 +429,6 @@ h3 {
 
 .home-probability {
   background: linear-gradient(90deg, #987719, var(--gold));
-}
-
-.matchup-probability-values {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: baseline;
-  gap: 8px;
-  font-variant-numeric: tabular-nums;
-}
-
-.matchup-probability-values strong {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 5px;
-  min-width: 0;
-  color: var(--ink);
-  font-size: 0.9rem;
-  font-weight: 900;
-}
-
-.matchup-probability-values strong:last-child {
-  justify-content: flex-end;
-  text-align: right;
-}
-
-.matchup-probability-values em {
-  color: var(--muted);
-  font-size: 0.76rem;
-  font-style: normal;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-.matchup-probability-values span {
-  min-width: 0;
-  overflow: hidden;
-  color: inherit;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .game-card-bottom strong,
@@ -621,7 +611,7 @@ tbody tr:last-child td {
 .manual-submit-heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 10px;
 }
 
@@ -835,7 +825,8 @@ tbody tr:last-child td {
   }
 
   .teams {
-    grid-template-columns: 58px minmax(0, 1fr) 58px;
+    grid-template-columns: 54px minmax(46px, 0.42fr) minmax(96px, 1fr) minmax(46px, 0.42fr) 54px;
+    gap: 8px;
   }
 
   .team-logo {

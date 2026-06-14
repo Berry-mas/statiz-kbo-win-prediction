@@ -168,7 +168,6 @@ export default async function DashboardPage() {
             <div className="section-heading">
               <div>
                 <p className="eyebrow">Submitted games</p>
-                <h2>최근 제출 경기</h2>
               </div>
               <span className="policy-chip">
                 {metrics.window.sample_size}/{metrics.window.requested} metric window
@@ -249,7 +248,6 @@ export default async function DashboardPage() {
             <div className="section-heading compact">
               <div>
                 <p className="eyebrow">Manual workflow</p>
-                <h2>수동 제출</h2>
               </div>
               <StatusPill status={data.manual_workflow?.status ?? "unknown"} />
             </div>
@@ -261,7 +259,6 @@ export default async function DashboardPage() {
             <div className="section-heading compact">
               <div>
                 <p className="eyebrow">Submission</p>
-                <h2>Latest submission</h2>
               </div>
             </div>
             {latestSubmission ? (
@@ -275,7 +272,6 @@ export default async function DashboardPage() {
             <div className="section-heading compact">
               <div>
                 <p className="eyebrow">Model ops</p>
-                <h2>운영 지표</h2>
               </div>
             </div>
             <dl className="ops-list">
@@ -343,7 +339,7 @@ function buildMetricCards(results: PublicResult[], recentGames: RecentGame[], me
 
   return [
     {
-      label: "Latest submission",
+      label: "Last submit",
       value: latestGame ? formatDate(latestGame.game_date ?? latestGame.submitted_at) : "n/a",
       detail: latestDetail,
       tone: "neutral",
@@ -421,6 +417,9 @@ function isLgTwinsGame(game: RecentGame): boolean {
 function GameCard({ game, featured = false }: { game: RecentGame; featured?: boolean }) {
   const homeTeam = game.home_team;
   const awayTeam = game.away_team;
+  const homeProbability =
+    game.probability_published && game.home_win_probability !== null ? Math.round(game.home_win_probability) : null;
+  const awayProbability = homeProbability !== null ? 100 - homeProbability : null;
   const predictedTeam =
     game.predicted_winner === "home" ? homeTeam : game.predicted_winner === "away" ? awayTeam : null;
 
@@ -435,11 +434,25 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
           <span>Away</span>
           <TeamLogo team={awayTeam} />
         </div>
+        {awayProbability !== null ? (
+          <div className="team-probability team-probability-away">
+            <strong>{awayProbability}%</strong>
+          </div>
+        ) : (
+          <div className="team-probability-placeholder" />
+        )}
         <div className="versus">
           <strong>{awayTeam.name}</strong>
           <span>vs</span>
           <strong>{homeTeam.name}</strong>
         </div>
+        {homeProbability !== null ? (
+          <div className="team-probability team-probability-home">
+            <strong>{homeProbability}%</strong>
+          </div>
+        ) : (
+          <div className="team-probability-placeholder" />
+        )}
         <div className="team-side team-side-home">
           <span>Home</span>
           <TeamLogo team={homeTeam} />
@@ -527,15 +540,6 @@ function MatchupProbabilityBar({
       className="matchup-probability"
       aria-label={`${awayTeam.name} ${awayPercentage} percent, ${homeTeam.name} ${homePercentage} percent`}
     >
-      <div className="matchup-probability-values">
-        <strong>
-          {awayTeam.name} <span>{awayPercentage}%</span>
-        </strong>
-        <em>vs</em>
-        <strong>
-          {homeTeam.name} <span>{homePercentage}%</span>
-        </strong>
-      </div>
       <div className="matchup-probability-bar">
         <i className="away-probability" style={{ width: `${awayPercentage}%` }} />
         <i className="home-probability" style={{ width: `${homePercentage}%` }} />

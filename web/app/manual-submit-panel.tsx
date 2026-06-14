@@ -51,15 +51,14 @@ export function ManualSubmitPanel() {
   return (
     <form className="manual-submit" onSubmit={submit}>
       <div className="manual-submit-heading">
-        <h3>Manual Submit</h3>
         <span className={`status-dot status-${state.status}`} aria-label={state.status} />
       </div>
       <label>
-        Token
+        Password
         <input
-          autoComplete="off"
+          autoComplete="current-password"
           onChange={(event) => setToken(event.target.value)}
-          placeholder="admin token"
+          placeholder="admin password"
           type="password"
           value={token}
         />
