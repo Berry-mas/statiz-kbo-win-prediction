@@ -135,6 +135,13 @@ def test_export_public_results_includes_only_finalized_submitted_games(
     assert (
         payload["recent_games"][0]["scheduler"]["status"] == "lineup_missing_fallback"
     )
+    unfinalized_row = next(
+        row for row in payload["recent_games"] if row["s_no"] == 20260002
+    )
+    assert unfinalized_row["probability_published"] is True
+    assert unfinalized_row["home_win_probability"] == 41.2
+    assert unfinalized_row["predicted_winner"] is None
+    assert unfinalized_row["correct"] is None
     assert "payload" not in payload["recent_games"][0]["scheduler"]
     assert "internal_payload" not in output_json.read_text(encoding="utf-8")
     assert output_json.exists()

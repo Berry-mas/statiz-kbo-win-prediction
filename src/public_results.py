@@ -1,9 +1,8 @@
 """
 Build the public dashboard JSON from local logs and game results.
 
-Finalized submitted games include public probabilities and outcomes. Unfinalized
-submitted games can appear as sealed submission summaries, but live probabilities
-and raw strategy inputs are excluded.
+Submitted games include public submitted probabilities. Outcomes are only
+published for finalized games, and raw strategy inputs are excluded.
 """
 
 from __future__ import annotations
@@ -116,13 +115,14 @@ def export_public_results(
         "publication_policy": {
             "scope": "Public dashboard data only",
             "probability_visibility": (
-                "Submitted probabilities are published for finalized games only."
+                "Submitted probabilities are published for submitted games; "
+                "outcomes are published for finalized games only."
             ),
             "excluded": [
                 "credentials",
                 "raw API responses",
                 "feature matrices",
-                "live unfinalized probabilities",
+                "unsubmitted live probabilities",
                 "server addresses",
                 "private file paths",
             ],
@@ -348,6 +348,10 @@ def _build_recent_games(
 
 def _recent_game_row(row: pd.Series, as_of: datetime) -> dict[str, Any]:
     home_probability = _optional_float(row.get("home_win_probability"))
+    submitted_probability = _optional_float(row.get("submitted_prob"))
+    display_probability = (
+        submitted_probability if submitted_probability is not None else home_probability
+    )
     is_final = _is_final_game(row)
     return {
         "s_no": _optional_int(row.get("s_no")),
@@ -359,16 +363,16 @@ def _recent_game_row(row: pd.Series, as_of: datetime) -> dict[str, Any]:
         "submitted_at": _optional_string(row.get("submitted_at")) or "",
         "submission_source": _optional_string(row.get("source")) or "auto",
         "model_version": _optional_string(row.get("model_version")) or "unknown",
-        "probability_published": is_final,
-        "home_win_probability": round(home_probability, 2)
-        if is_final and home_probability is not None
+        "probability_published": display_probability is not None,
+        "home_win_probability": round(display_probability, 2)
+        if display_probability is not None
         else None,
         "predicted_winner": _winner_from_probability(home_probability)
         if is_final
         else None,
         "scheduler": _scheduler_summary(row),
         **(
-            _result_fields(row, home_probability)
+            _result_fields(row, display_probability)
             if is_final
             else _empty_result_fields()
         ),

@@ -182,7 +182,7 @@ export default async function DashboardPage() {
             ) : (
               <EmptyState
                 title="Published games will appear here"
-                body="Finalized results show probability and outcome; unfinalized submissions keep probability sealed."
+                body="Submitted games show submitted probability; outcomes appear after final score."
               />
             )}
           </article>

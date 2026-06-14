@@ -89,7 +89,7 @@ uv run python -m src.main auto-submit \
 - `target_home_win`이 있다.
 - 실제 제출 로그에서 `submitted=True`인 row가 있다.
 
-진행 중 경기와 경기 전 경기는 제출 요약에는 포함될 수 있지만 확률과 예측팀은 sealed 상태로 둔다. 취소 경기, dry-run 전용 payload, API 응답 원문은 공개하지 않는다.
+진행 중 경기와 경기 전 경기는 제출 요약과 제출 percent를 공개할 수 있다. Hit/Miss 결과는 확정 경기만 공개한다. 취소 경기, dry-run 전용 payload, API 응답 원문은 공개하지 않는다.
 
 ## 열린 질문
 
