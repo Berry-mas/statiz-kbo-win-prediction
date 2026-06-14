@@ -290,9 +290,14 @@ h3 {
 
 .teams {
   display: grid;
-  grid-template-columns: 72px minmax(78px, 0.45fr) minmax(132px, 1fr) minmax(78px, 0.45fr) 72px;
+  grid-template-columns: 72px minmax(92px, max-content) minmax(132px, 1fr) minmax(92px, max-content) 72px;
   gap: 12px;
   align-items: center;
+}
+
+.game-card-featured .teams {
+  grid-template-columns: 64px minmax(90px, max-content) minmax(116px, 1fr) minmax(90px, max-content) 64px;
+  gap: 10px;
 }
 
 .team-side {
@@ -326,12 +331,10 @@ h3 {
 
 .team-probability strong {
   display: block;
-  overflow: hidden;
   color: var(--ink);
-  font-size: clamp(1rem, 1.28vw, 1.38rem);
+  font-size: clamp(0.95rem, 1.1vw, 1.25rem);
   font-weight: 950;
   line-height: 1;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -407,6 +410,11 @@ h3 {
   width: 82%;
   height: 82%;
   object-fit: contain;
+}
+
+.game-card-featured .team-logo {
+  width: 58px;
+  height: 58px;
 }
 
 .game-card-bottom {
@@ -867,14 +875,19 @@ tbody tr:last-child td {
   }
 
   .teams {
-    grid-template-columns: 54px minmax(46px, 0.42fr) minmax(96px, 1fr) minmax(46px, 0.42fr) 54px;
+    grid-template-columns: 52px minmax(66px, max-content) minmax(86px, 1fr) minmax(66px, max-content) 52px;
     gap: 8px;
   }
 
-  .team-logo {
+  .team-logo,
+  .game-card-featured .team-logo {
     width: 52px;
     height: 52px;
     font-size: 0.8rem;
+  }
+
+  .team-probability strong {
+    font-size: 0.88rem;
   }
 
   .game-card-bottom {
