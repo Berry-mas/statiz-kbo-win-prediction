@@ -258,7 +258,7 @@ export default async function DashboardPage() {
           <article className="section-panel">
             <div className="section-heading compact">
               <div>
-                <p className="eyebrow">Submission</p>
+                <p className="eyebrow">Latest submission</p>
               </div>
             </div>
             {latestSubmission ? (
