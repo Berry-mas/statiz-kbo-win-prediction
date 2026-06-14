@@ -13,6 +13,7 @@ import math
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 from loguru import logger
@@ -31,6 +32,7 @@ SCHEMA_VERSION = 2
 METRIC_WINDOW = 20
 RECENT_SUBMISSION_LIMIT = 6
 RECENT_GAME_LIMIT = 12
+KST = ZoneInfo("Asia/Seoul")
 
 TEAM_LOGO_KEYS: dict[int, str] = {
     1001: "samsung",
@@ -85,18 +87,21 @@ def export_public_results(
         _successful_submissions(submissions), "submitted_at"
     )
     latest_scheduler = _latest_by_s_no(scheduler_runs, "checked_at")
+    generated_at = datetime.now(tz=UTC)
     recent_games = _build_recent_games(
         games,
         latest_predictions,
         latest_submissions,
         latest_scheduler,
         RECENT_GAME_LIMIT,
+        generated_at,
     )
     recent_submissions = _build_recent_submissions(
         latest_submissions,
         games,
         latest_predictions,
         RECENT_SUBMISSION_LIMIT,
+        generated_at,
     )
     metrics = _build_model_metrics(rows, METRIC_WINDOW)
     latest_submission = recent_submissions[0] if recent_submissions else None
@@ -107,7 +112,7 @@ def export_public_results(
     existing_payload = _read_existing_payload(dest)
     payload: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
-        "generated_at": datetime.now(tz=UTC).isoformat(),
+        "generated_at": generated_at.isoformat(),
         "publication_policy": {
             "scope": "Public dashboard data only",
             "probability_visibility": (
@@ -307,6 +312,7 @@ def _build_recent_games(
     submissions: pd.DataFrame,
     scheduler_runs: pd.DataFrame,
     limit: int,
+    as_of: datetime,
 ) -> list[dict[str, Any]]:
     if submissions.empty:
         return []
@@ -337,10 +343,10 @@ def _build_recent_games(
         merged = merged.sort_values(sort_columns, ascending=False)
     merged = merged.head(limit)
 
-    return [_recent_game_row(row) for _, row in merged.iterrows()]
+    return [_recent_game_row(row, as_of) for _, row in merged.iterrows()]
 
 
-def _recent_game_row(row: pd.Series) -> dict[str, Any]:
+def _recent_game_row(row: pd.Series, as_of: datetime) -> dict[str, Any]:
     home_probability = _optional_float(row.get("home_win_probability"))
     is_final = _is_final_game(row)
     return {
@@ -349,7 +355,7 @@ def _recent_game_row(row: pd.Series) -> dict[str, Any]:
         "game_time": _optional_string(row.get("game_time")),
         "home_team": _team_public(_optional_int(row.get("home_team_code"))),
         "away_team": _team_public(_optional_int(row.get("away_team_code"))),
-        "game_status": _public_game_status(row),
+        "game_status": _public_game_status(row, as_of),
         "submitted_at": _optional_string(row.get("submitted_at")) or "",
         "submission_source": _optional_string(row.get("source")) or "auto",
         "model_version": _optional_string(row.get("model_version")) or "unknown",
@@ -394,6 +400,7 @@ def _build_recent_submissions(
     games: pd.DataFrame,
     predictions: pd.DataFrame,
     limit: int,
+    as_of: datetime,
 ) -> list[dict[str, Any]]:
     if submissions.empty:
         return []
@@ -434,7 +441,7 @@ def _build_recent_submissions(
                 "s_no": _optional_int(row.get("s_no")),
                 "home_team": _team_public(_optional_int(row.get("home_team_code"))),
                 "away_team": _team_public(_optional_int(row.get("away_team_code"))),
-                "game_status": _public_game_status(row),
+                "game_status": _public_game_status(row, as_of),
             }
             for _, row in sorted_group.iterrows()
         ]
@@ -561,7 +568,7 @@ def _team_public(code: int | None) -> dict[str, str]:
     }
 
 
-def _public_game_status(row: pd.Series) -> str:
+def _public_game_status(row: pd.Series, as_of: datetime) -> str:
     state = _optional_int(row.get("game_state"))
     if state == 3:
         return "final"
@@ -569,7 +576,22 @@ def _public_game_status(row: pd.Series) -> str:
         return "in_progress"
     if state in {4, 5}:
         return "cancelled"
+    starts_at = _game_starts_at(row)
+    if starts_at is not None and as_of.astimezone(KST) >= starts_at:
+        return "in_progress"
     return "scheduled"
+
+
+def _game_starts_at(row: pd.Series) -> datetime | None:
+    game_date = _optional_string(row.get("game_date_game", row.get("game_date")))
+    game_time = _optional_string(row.get("game_time"))
+    if not game_date or not game_time:
+        return None
+    try:
+        starts_at = datetime.fromisoformat(f"{game_date}T{game_time}")
+    except ValueError:
+        return None
+    return starts_at.replace(tzinfo=KST)
 
 
 def _is_final_game(row: pd.Series) -> bool:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -175,3 +176,28 @@ def test_scheduler_log_reader_skips_malformed_optional_rows(
 
     assert parsed["s_no"].tolist() == [2026061301]
     assert parsed["status"].tolist() == ["lineup_missing_fallback"]
+
+
+def test_public_game_status_uses_game_time_when_schedule_state_is_stale() -> None:
+    row = pd.Series(
+        {
+            "game_state": 1,
+            "game_date": "2026-06-14",
+            "game_time": "14:00:00",
+        }
+    )
+
+    assert (
+        public_results._public_game_status(
+            row,
+            datetime(2026, 6, 14, 4, 55, tzinfo=UTC),
+        )
+        == "scheduled"
+    )
+    assert (
+        public_results._public_game_status(
+            row,
+            datetime(2026, 6, 14, 5, 0, tzinfo=UTC),
+        )
+        == "in_progress"
+    )
