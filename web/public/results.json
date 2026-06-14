@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-14T07:30:59.591683+00:00",
+  "generated_at": "2026-06-14T08:00:16.453555+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -63,7 +63,7 @@
           "name": "롯데",
           "logo_key": "lotte"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260338,
@@ -75,7 +75,7 @@
           "name": "NC",
           "logo_key": "nc"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260339,
@@ -87,7 +87,7 @@
           "name": "SSG",
           "logo_key": "ssg"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260340,
@@ -99,7 +99,7 @@
           "name": "두산",
           "logo_key": "doosan"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -133,7 +133,7 @@
             "name": "롯데",
             "logo_key": "lotte"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260338,
@@ -145,7 +145,7 @@
             "name": "NC",
             "logo_key": "nc"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260339,
@@ -157,7 +157,7 @@
             "name": "SSG",
             "logo_key": "ssg"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260340,
@@ -169,7 +169,7 @@
             "name": "두산",
             "logo_key": "doosan"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -256,7 +256,7 @@
         "name": "두산",
         "logo_key": "doosan"
       },
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-06-14T16:30:59.560004+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -281,7 +281,7 @@
         "name": "SSG",
         "logo_key": "ssg"
       },
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-06-14T16:30:54.561661+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -306,7 +306,7 @@
         "name": "NC",
         "logo_key": "nc"
       },
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-06-14T16:30:49.556485+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -331,7 +331,7 @@
         "name": "롯데",
         "logo_key": "lotte"
       },
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-06-14T16:30:44.558488+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
