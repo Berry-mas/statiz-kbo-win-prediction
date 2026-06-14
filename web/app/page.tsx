@@ -337,14 +337,13 @@ function sortResults(results: PublicResult[]): PublicResult[] {
 function buildMetricCards(results: PublicResult[], recentGames: RecentGame[], metrics: ModelMetrics): Metric[] {
   const latestGame = recentGames[0];
   const openSubmitted = recentGames.filter((game) => game.game_status !== "final").length;
-  const latestDetail = latestGame
-    ? `${latestGame.away_team.name} at ${latestGame.home_team.name}`
-    : "No submitted game";
+  const latestDate = latestGame ? formatDate(latestGame.game_date ?? latestGame.submitted_at) : "n/a";
+  const latestDetail = latestGame ? latestDate : "No submitted game";
 
   return [
     {
       label: "Last submit",
-      value: latestGame ? formatDate(latestGame.game_date ?? latestGame.submitted_at) : "n/a",
+      value: latestDate,
       detail: latestDetail,
       tone: "neutral",
     },
