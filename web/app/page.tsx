@@ -500,6 +500,8 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
           <strong>
             {game.away_score}-{game.home_score} · {game.correct ? "Hit" : "Miss"}
           </strong>
+        ) : game.game_status === "cancelled" ? (
+          <strong>Cancelled</strong>
         ) : (
           <strong>{predictedTeam ? predictedTeam.name : "Pending result"}</strong>
         )}
