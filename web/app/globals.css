@@ -571,6 +571,11 @@ h3 {
   color: var(--red);
 }
 
+.badge-neutral {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
 .table-wrap {
   width: 100%;
   overflow-x: auto;

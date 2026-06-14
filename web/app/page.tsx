@@ -127,6 +127,7 @@ export default async function DashboardPage() {
   const data = normalizeDashboardData(await loadDashboardData());
   const results = sortResults(data.results);
   const recentGames = data.recent_games ?? [];
+  const ledgerGames = recentGames.filter((game) => game.game_status === "final" || game.game_status === "cancelled");
   const metrics = data.model_metrics ?? buildModelMetrics(results, 20);
   const metricCards = buildMetricCards(results, recentGames, metrics);
   const latestSubmission = data.latest_submission ?? null;
@@ -198,7 +199,7 @@ export default async function DashboardPage() {
                 <h2>확정 결과</h2>
               </div>
             </div>
-            {results.length > 0 ? (
+            {ledgerGames.length > 0 ? (
               <div className="table-wrap">
                 <table>
                   <thead>
@@ -212,10 +213,10 @@ export default async function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {results.map((game) => {
+                    {ledgerGames.map((game) => {
                       return (
                         <tr key={game.s_no}>
-                          <td>{formatDate(game.game_date)}</td>
+                          <td>{formatDate(game.game_date ?? game.submitted_at)}</td>
                           <td>
                             <span className="matchup">
                               {game.away_team.name} <span>vs</span> {game.home_team.name}
@@ -223,14 +224,26 @@ export default async function DashboardPage() {
                             <span className="venue">{game.submission_source ?? "auto"}</span>
                           </td>
                           <td className="score">
-                            {game.away_score}-{game.home_score}
+                            {game.game_status === "cancelled" || game.away_score === null || game.home_score === null
+                              ? "Cancelled"
+                              : `${game.away_score}-${game.home_score}`}
                           </td>
                           <td>
-                            <ProbabilityBar value={game.home_win_probability / 100} />
+                            {game.home_win_probability !== null ? (
+                              <ProbabilityBar value={game.home_win_probability / 100} />
+                            ) : (
+                              "n/a"
+                            )}
                           </td>
-                          <td>{game.predicted_winner === "home" ? game.home_team.name : game.away_team.name}</td>
                           <td>
-                            <OutcomeBadge correct={game.correct} />
+                            {game.predicted_winner === "home"
+                              ? game.home_team.name
+                              : game.predicted_winner === "away"
+                                ? game.away_team.name
+                                : "n/a"}
+                          </td>
+                          <td>
+                            <OutcomeBadge correct={game.correct} status={game.game_status} />
                           </td>
                         </tr>
                       );
@@ -336,7 +349,7 @@ function sortResults(results: PublicResult[]): PublicResult[] {
 
 function buildMetricCards(results: PublicResult[], recentGames: RecentGame[], metrics: ModelMetrics): Metric[] {
   const latestGame = recentGames[0];
-  const openSubmitted = recentGames.filter((game) => game.game_status !== "final").length;
+  const openSubmitted = recentGames.filter((game) => game.game_status === "scheduled" || game.game_status === "in_progress").length;
   const latestDate = latestGame ? formatDate(latestGame.game_date ?? latestGame.submitted_at) : "n/a";
   const latestDetail = latestGame ? "Submission date" : "No submitted game";
 
@@ -565,7 +578,13 @@ function formatProbabilityLabel(value: number): string {
   return `${value.toFixed(2)}%`;
 }
 
-function OutcomeBadge({ correct }: { correct: boolean }) {
+function OutcomeBadge({ correct, status }: { correct: boolean | null; status?: RecentGame["game_status"] }) {
+  if (status === "cancelled") {
+    return <span className="badge badge-neutral">Cancelled</span>;
+  }
+  if (correct === null) {
+    return <span className="badge badge-neutral">Pending</span>;
+  }
   return <span className={`badge ${correct ? "badge-good" : "badge-bad"}`}>{correct ? "Hit" : "Miss"}</span>;
 }
 

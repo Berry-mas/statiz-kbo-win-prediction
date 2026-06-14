@@ -266,7 +266,9 @@ def _build_public_rows(
 
 
 def _public_result_row(row: pd.Series) -> dict[str, Any]:
-    probability = float(row["home_win_probability"])
+    probability = _optional_float(row.get("submitted_prob"))
+    if probability is None:
+        probability = float(row["home_win_probability"])
     predicted_home_win = probability > 50.0
     actual_home_win = float(row["target_home_win"]) == 1.0
     return {
@@ -375,7 +377,7 @@ def _recent_game_row(row: pd.Series, as_of: datetime) -> dict[str, Any]:
         "home_win_probability": round(display_probability, 2)
         if display_probability is not None
         else None,
-        "predicted_winner": _winner_from_probability(home_probability)
+        "predicted_winner": _winner_from_probability(display_probability)
         if is_final
         else None,
         "scheduler": _scheduler_summary(row),

@@ -47,7 +47,7 @@ def test_export_public_results_includes_only_finalized_submitted_games(
             {
                 "s_no": 20260001,
                 "game_date": "2026-06-09",
-                "home_win_probability": 57.12,
+                "home_win_probability": 42.0,
                 "model_version": "lgbm_test",
                 "predicted_at": "2026-06-09T09:00:00+00:00",
             },
@@ -128,12 +128,18 @@ def test_export_public_results_includes_only_finalized_submitted_games(
         "name": "삼성",
         "logo_key": "samsung",
     }
+    assert payload["results"][0]["home_win_probability"] == 57.12
+    assert payload["results"][0]["predicted_winner"] == "home"
+    assert payload["results"][0]["correct"] is True
     assert payload["manual_workflow"]["status"] == "success"
     assert payload["manual_workflow"]["submitted_games"] == 1
     assert payload["latest_submission"]["source"] == "manual"
     assert payload["model_metrics"]["window"]["sample_size"] == 1
     assert payload["model_metrics"]["accuracy"] == 1.0
     assert payload["recent_games"][0]["probability_published"] is True
+    assert payload["recent_games"][0]["home_win_probability"] == 57.12
+    assert payload["recent_games"][0]["predicted_winner"] == "home"
+    assert payload["recent_games"][0]["correct"] is True
     assert (
         payload["recent_games"][0]["scheduler"]["status"] == "lineup_missing_fallback"
     )
