@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-14T14:32:55.276677+00:00",
+  "generated_at": "2026-06-14T14:46:35.944806+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -264,7 +264,7 @@
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 51.48,
-      "predicted_winner": "away",
+      "predicted_winner": "home",
       "scheduler": null,
       "home_score": 1,
       "away_score": 8,
@@ -521,9 +521,9 @@
       "requested": 20,
       "sample_size": 9
     },
-    "accuracy": 1.0,
-    "log_loss": 0.5994,
-    "brier": 0.2034
+    "accuracy": 0.8889,
+    "log_loss": 0.6073,
+    "brier": 0.2074
   },
   "results": [
     {
@@ -540,10 +540,10 @@
       },
       "home_score": 1,
       "away_score": 8,
-      "home_win_probability": 49.71,
-      "predicted_winner": "away",
+      "home_win_probability": 51.48,
+      "predicted_winner": "home",
       "actual_winner": "away",
-      "correct": true,
+      "correct": false,
       "model_version": "lgbm_v008",
       "submitted_at": "2026-06-14T16:30:59.560004+09:00",
       "submission_source": "auto"
@@ -562,7 +562,7 @@
       },
       "home_score": 10,
       "away_score": 8,
-      "home_win_probability": 54.9,
+      "home_win_probability": 50.08,
       "predicted_winner": "home",
       "actual_winner": "home",
       "correct": true,
@@ -584,7 +584,7 @@
       },
       "home_score": 3,
       "away_score": 2,
-      "home_win_probability": 52.62,
+      "home_win_probability": 53.46,
       "predicted_winner": "home",
       "actual_winner": "home",
       "correct": true,
@@ -606,7 +606,7 @@
       },
       "home_score": 6,
       "away_score": 1,
-      "home_win_probability": 50.95,
+      "home_win_probability": 53.07,
       "predicted_winner": "home",
       "actual_winner": "home",
       "correct": true,
