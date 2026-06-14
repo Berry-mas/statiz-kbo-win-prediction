@@ -455,7 +455,7 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
           </div>
           {awayPitcher || homePitcher ? (
             <span className="pitcher-matchup">
-              SP {awayPitcher || "TBD"} vs {homePitcher || "TBD"}
+              {awayPitcher || "TBD"} vs {homePitcher || "TBD"}
             </span>
           ) : null}
         </div>
