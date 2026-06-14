@@ -431,6 +431,29 @@ h3 {
   background: linear-gradient(90deg, #987719, var(--gold));
 }
 
+.submission-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.submission-seal strong {
+  color: var(--ink);
+  font-size: 1.02rem;
+  font-weight: 950;
+}
+
+.submission-seal span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .game-card-bottom strong,
 .game-footer strong {
   font-size: 0.92rem;

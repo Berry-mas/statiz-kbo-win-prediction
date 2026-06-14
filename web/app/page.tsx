@@ -463,13 +463,16 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
           {game.probability_published && game.home_win_probability !== null ? (
             <MatchupProbabilityBar homeValue={game.home_win_probability / 100} homeTeam={homeTeam} awayTeam={awayTeam} />
           ) : (
-            <strong>Sealed</strong>
+            <div className="submission-seal">
+              <strong>Submitted</strong>
+              <span>Sealed</span>
+            </div>
           )}
         </div>
       </div>
       <div className="game-footer">
         <span>
-          {game.model_version} · 제출 {formatTimestamp(game.submitted_at)}
+          {game.model_version} · Submitted {formatTimestamp(game.submitted_at)}
         </span>
         {game.game_status === "final" && game.away_score !== null && game.home_score !== null ? (
           <strong>
