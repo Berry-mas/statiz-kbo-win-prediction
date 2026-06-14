@@ -338,7 +338,7 @@ function buildMetricCards(results: PublicResult[], recentGames: RecentGame[], me
   const latestGame = recentGames[0];
   const openSubmitted = recentGames.filter((game) => game.game_status !== "final").length;
   const latestDate = latestGame ? formatDate(latestGame.game_date ?? latestGame.submitted_at) : "n/a";
-  const latestDetail = latestGame ? latestDate : "No submitted game";
+  const latestDetail = latestGame ? "Submission date" : "No submitted game";
 
   return [
     {
@@ -442,6 +442,7 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
         {awayProbability !== null ? (
           <div className="team-probability team-probability-away">
             <strong>{formatProbabilityLabel(awayProbability)}</strong>
+            {awayPitcher ? <span className="pitcher-matchup">{awayPitcher}</span> : null}
           </div>
         ) : (
           <div className="team-probability-placeholder" />
@@ -452,15 +453,11 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
             <span>vs</span>
             <strong>{homeTeam.name}</strong>
           </div>
-          {awayPitcher || homePitcher ? (
-            <span className="pitcher-matchup">
-              {awayPitcher || "TBD"} vs {homePitcher || "TBD"}
-            </span>
-          ) : null}
         </div>
         {homeProbability !== null ? (
           <div className="team-probability team-probability-home">
             <strong>{formatProbabilityLabel(homeProbability)}</strong>
+            {homePitcher ? <span className="pitcher-matchup">{homePitcher}</span> : null}
           </div>
         ) : (
           <div className="team-probability-placeholder" />

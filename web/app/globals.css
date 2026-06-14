@@ -325,7 +325,9 @@ h3 {
 }
 
 .team-probability {
+  display: grid;
   align-self: center;
+  gap: 7px;
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
@@ -373,10 +375,11 @@ h3 {
 }
 
 .pitcher-matchup {
+  display: block;
   min-width: 0;
   overflow: hidden;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 800;
   line-height: 1.2;
   text-overflow: ellipsis;
