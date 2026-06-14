@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-14T06:53:12.225419+00:00",
+  "generated_at": "2026-06-14T07:30:59.591683+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -16,9 +16,9 @@
   "model_version": "lgbm_v008",
   "summary": {
     "published_results": 5,
-    "recent_submissions": 3,
+    "recent_submissions": 2,
     "recent_games": 10,
-    "latest_submission_at": "2026-06-14T15:20:52.722005+09:00",
+    "latest_submission_at": "2026-06-14T16:30:59.560004+09:00",
     "metrics_window": {
       "type": "recent_finalized_submitted_games",
       "requested": 20,
@@ -36,11 +36,23 @@
   },
   "latest_submission": {
     "game_date": "2026-06-14",
-    "source": "manual",
-    "submitted_at": "2026-06-14T15:20:52.722005+09:00",
-    "submitted_games": 4,
+    "source": "auto",
+    "submitted_at": "2026-06-14T16:30:59.560004+09:00",
+    "submitted_games": 5,
     "model_version": "lgbm_v008",
     "games": [
+      {
+        "s_no": 20260337,
+        "home_team": {
+          "name": "키움",
+          "logo_key": "kiwoom"
+        },
+        "away_team": {
+          "name": "한화",
+          "logo_key": "hanwha"
+        },
+        "game_status": "in_progress"
+      },
       {
         "s_no": 20260336,
         "home_team": {
@@ -94,11 +106,23 @@
   "recent_submissions": [
     {
       "game_date": "2026-06-14",
-      "source": "manual",
-      "submitted_at": "2026-06-14T15:20:52.722005+09:00",
-      "submitted_games": 4,
+      "source": "auto",
+      "submitted_at": "2026-06-14T16:30:59.560004+09:00",
+      "submitted_games": 5,
       "model_version": "lgbm_v008",
       "games": [
+        {
+          "s_no": 20260337,
+          "home_team": {
+            "name": "키움",
+            "logo_key": "kiwoom"
+          },
+          "away_team": {
+            "name": "한화",
+            "logo_key": "hanwha"
+          },
+          "game_status": "in_progress"
+        },
         {
           "s_no": 20260336,
           "home_team": {
@@ -146,27 +170,6 @@
             "logo_key": "doosan"
           },
           "game_status": "scheduled"
-        }
-      ]
-    },
-    {
-      "game_date": "2026-06-14",
-      "source": "auto",
-      "submitted_at": "2026-06-14T13:30:44.604474+09:00",
-      "submitted_games": 1,
-      "model_version": "lgbm_v008",
-      "games": [
-        {
-          "s_no": 20260337,
-          "home_team": {
-            "name": "키움",
-            "logo_key": "kiwoom"
-          },
-          "away_team": {
-            "name": "한화",
-            "logo_key": "hanwha"
-          },
-          "game_status": "in_progress"
         }
       ]
     },
@@ -254,8 +257,8 @@
         "logo_key": "doosan"
       },
       "game_status": "scheduled",
-      "submitted_at": "2026-06-14T15:20:52.722005+09:00",
-      "submission_source": "manual",
+      "submitted_at": "2026-06-14T16:30:59.560004+09:00",
+      "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 51.48,
@@ -279,8 +282,8 @@
         "logo_key": "ssg"
       },
       "game_status": "scheduled",
-      "submitted_at": "2026-06-14T15:20:47.721797+09:00",
-      "submission_source": "manual",
+      "submitted_at": "2026-06-14T16:30:54.561661+09:00",
+      "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 50.08,
@@ -304,8 +307,8 @@
         "logo_key": "nc"
       },
       "game_status": "scheduled",
-      "submitted_at": "2026-06-14T15:20:42.712637+09:00",
-      "submission_source": "manual",
+      "submitted_at": "2026-06-14T16:30:49.556485+09:00",
+      "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 56.65,
@@ -329,8 +332,8 @@
         "logo_key": "lotte"
       },
       "game_status": "scheduled",
-      "submitted_at": "2026-06-14T15:20:37.719279+09:00",
-      "submission_source": "manual",
+      "submitted_at": "2026-06-14T16:30:44.558488+09:00",
+      "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 53.07,
