@@ -315,10 +315,11 @@ h3 {
 }
 
 .versus {
-  display: grid;
+  display: flex;
   min-width: 0;
-  justify-items: center;
-  gap: 2px;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
   text-align: center;
 }
 
@@ -332,7 +333,8 @@ h3 {
 
 .versus span {
   color: var(--muted);
-  font-size: 0.74rem;
+  flex: 0 0 auto;
+  font-size: 0.78rem;
   font-weight: 850;
   text-transform: uppercase;
 }
@@ -401,16 +403,17 @@ h3 {
 }
 
 .matchup-probability-values {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px;
   font-variant-numeric: tabular-nums;
 }
 
 .matchup-probability-values strong {
   display: inline-flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 5px;
   min-width: 0;
   color: var(--ink);
   font-size: 0.9rem;
@@ -422,12 +425,18 @@ h3 {
   text-align: right;
 }
 
+.matchup-probability-values em {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
 .matchup-probability-values span {
   min-width: 0;
   overflow: hidden;
-  color: var(--muted);
-  font-size: 0.74rem;
-  font-weight: 800;
+  color: inherit;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -734,7 +743,9 @@ tbody tr:last-child td {
 
 .submission-summary {
   display: grid;
-  gap: 8px;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px 14px;
   padding: 16px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -747,14 +758,33 @@ tbody tr:last-child td {
   line-height: 1;
 }
 
+.submission-summary > span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .mini-matchups {
-  display: grid;
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 4px;
 }
 
 .mini-matchups span {
+  max-width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f7f8f6;
   overflow: hidden;
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

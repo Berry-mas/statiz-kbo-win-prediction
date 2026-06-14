@@ -432,7 +432,7 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
       </div>
       <div className="teams">
         <div className="team-side team-side-away">
-          <span>원정</span>
+          <span>Away</span>
           <TeamLogo team={awayTeam} />
         </div>
         <div className="versus">
@@ -441,15 +441,12 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
           <strong>{homeTeam.name}</strong>
         </div>
         <div className="team-side team-side-home">
-          <span>홈</span>
+          <span>Home</span>
           <TeamLogo team={homeTeam} />
         </div>
       </div>
       <div className="game-card-bottom">
         <div className="probability-panel">
-          <span>
-            {awayTeam.name} 승률 vs {homeTeam.name} 승률
-          </span>
           {game.probability_published && game.home_win_probability !== null ? (
             <MatchupProbabilityBar homeValue={game.home_win_probability / 100} homeTeam={homeTeam} awayTeam={awayTeam} />
           ) : (
@@ -530,19 +527,18 @@ function MatchupProbabilityBar({
       className="matchup-probability"
       aria-label={`${awayTeam.name} ${awayPercentage} percent, ${homeTeam.name} ${homePercentage} percent`}
     >
+      <div className="matchup-probability-values">
+        <strong>
+          {awayTeam.name} <span>{awayPercentage}%</span>
+        </strong>
+        <em>vs</em>
+        <strong>
+          {homeTeam.name} <span>{homePercentage}%</span>
+        </strong>
+      </div>
       <div className="matchup-probability-bar">
         <i className="away-probability" style={{ width: `${awayPercentage}%` }} />
         <i className="home-probability" style={{ width: `${homePercentage}%` }} />
-      </div>
-      <div className="matchup-probability-values">
-        <strong>
-          <span>{awayTeam.name}</span>
-          {awayPercentage}%
-        </strong>
-        <strong>
-          <span>{homeTeam.name}</span>
-          {homePercentage}%
-        </strong>
       </div>
     </div>
   );
