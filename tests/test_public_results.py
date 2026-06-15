@@ -220,3 +220,19 @@ def test_public_game_status_uses_game_time_when_schedule_state_is_stale() -> Non
         )
         == "in_progress"
     )
+
+
+def test_recent_game_date_limit_keeps_whole_dates() -> None:
+    merged = pd.DataFrame(
+        [
+            {"s_no": 1, "game_date": "2026-06-16"},
+            {"s_no": 2, "game_date": "2026-06-16"},
+            {"s_no": 3, "game_date": "2026-06-15"},
+            {"s_no": 4, "game_date": "2026-06-15"},
+            {"s_no": 5, "game_date": "2026-06-14"},
+        ]
+    )
+
+    limited = public_results._limit_recent_game_dates(merged, 2)
+
+    assert limited["s_no"].tolist() == [1, 2, 3, 4]

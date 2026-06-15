@@ -30,7 +30,7 @@ from .submission_log import read_submission_log
 SCHEMA_VERSION = 2
 METRIC_WINDOW = 20
 RECENT_SUBMISSION_LIMIT = 6
-RECENT_GAME_LIMIT = 12
+RECENT_GAME_DATE_LIMIT: int | None = None
 KST = ZoneInfo("Asia/Seoul")
 
 TEAM_LOGO_KEYS: dict[int, str] = {
@@ -92,7 +92,7 @@ def export_public_results(
         latest_predictions,
         latest_submissions,
         latest_scheduler,
-        RECENT_GAME_LIMIT,
+        RECENT_GAME_DATE_LIMIT,
         generated_at,
     )
     recent_submissions = _build_recent_submissions(
@@ -313,7 +313,7 @@ def _build_recent_games(
     predictions: pd.DataFrame,
     submissions: pd.DataFrame,
     scheduler_runs: pd.DataFrame,
-    limit: int,
+    date_limit: int | None,
     as_of: datetime,
 ) -> list[dict[str, Any]]:
     if submissions.empty:
@@ -343,9 +343,27 @@ def _build_recent_games(
     ]
     if sort_columns:
         merged = merged.sort_values(sort_columns, ascending=False)
-    merged = merged.head(limit)
+    merged = _limit_recent_game_dates(merged, date_limit)
 
     return [_recent_game_row(row, as_of) for _, row in merged.iterrows()]
+
+
+def _limit_recent_game_dates(
+    merged: pd.DataFrame,
+    date_limit: int | None,
+) -> pd.DataFrame:
+    if date_limit is None:
+        return merged
+    if date_limit < 1:
+        return merged.iloc[0:0]
+
+    game_date_col = "game_date_game" if "game_date_game" in merged else "game_date"
+    if game_date_col not in merged.columns:
+        return merged
+
+    recent_dates = merged[game_date_col].dropna().astype(str).drop_duplicates()
+    keep_dates = set(recent_dates.head(date_limit))
+    return merged[merged[game_date_col].astype(str).isin(keep_dates)]
 
 
 def _recent_game_row(row: pd.Series, as_of: datetime) -> dict[str, Any]:

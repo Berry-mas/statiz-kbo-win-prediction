@@ -583,7 +583,7 @@ h3 {
   height: 14px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e2e7e2;
+  background: #e2e8f0;
 }
 
 .matchup-probability-bar i {
@@ -592,11 +592,11 @@ h3 {
 }
 
 .away-probability {
-  background: linear-gradient(90deg, var(--green), #6f862e);
+  background: #475569;
 }
 
 .home-probability {
-  background: linear-gradient(90deg, #987719, var(--gold));
+  background: #0f766e;
 }
 
 .submission-seal {
@@ -658,14 +658,14 @@ h3 {
   height: 8px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e2e7e2;
+  background: #e2e8f0;
 }
 
 .probability i {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--green), var(--gold));
+  background: #0f766e;
 }
 
 .status-pill {
