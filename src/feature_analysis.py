@@ -1,0 +1,591 @@
+"""Feature analysis utilities for saved LightGBM prediction models."""
+
+from __future__ import annotations
+
+import json
+import re
+import shutil
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+
+import lightgbm as lgb
+import numpy as np
+import pandas as pd
+from loguru import logger
+from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
+from sklearn.inspection import permutation_importance
+
+from .constants import MODEL_REGISTRY_DIR
+from .feature_matrix import prepare_model_matrix
+from .trainer import ModelTrainer
+
+INTERPRETATION_NOTES = [
+    "Feature importance and SHAP importance are not causal evidence.",
+    "Read these charts as signals the model used strongly for prediction, not as proof that a feature caused the outcome.",
+    "LightGBM gain/split importance and SHAP values describe different views of model behavior.",
+]
+
+
+class _LGBMEnsembleClassifier(ClassifierMixin, BaseEstimator):
+    def __init__(self, models: list[Any]) -> None:
+        self.models = models
+        self.classes_ = np.array([0, 1])
+
+    def fit(self, X: pd.DataFrame, y: pd.Series) -> _LGBMEnsembleClassifier:
+        return self
+
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
+        probabilities = _predict_probability(self.models, X)
+        return np.column_stack([1 - probabilities, probabilities])
+
+    def predict(self, X: pd.DataFrame) -> np.ndarray:
+        return (self.predict_proba(X)[:, 1] >= 0.5).astype(int)
+
+
+class _LGBMEnsembleRegressor(RegressorMixin, BaseEstimator):
+    def __init__(self, models: list[Any]) -> None:
+        self.models = models
+
+    def fit(self, X: pd.DataFrame, y: pd.Series) -> _LGBMEnsembleRegressor:
+        return self
+
+    def predict(self, X: pd.DataFrame) -> np.ndarray:
+        return _predict_probability(self.models, X)
+
+
+def visualize_lgbm_feature_effects(
+    model: Any,
+    X_valid: pd.DataFrame,
+    y_valid: pd.Series | np.ndarray | None = None,
+    output_dir: str | Path = "feature_analysis",
+    top_n: int = 30,
+    task_type: str = "classification",
+    scoring: str | None = None,
+    dependence_features: list[str] | None = None,
+    random_state: int = 42,
+    model_version: str | None = None,
+    manifest_extra: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Generate LightGBM importance, SHAP, and permutation analysis artifacts.
+
+    Binary classification SHAP outputs are normalized to the positive class.
+    Multi-class SHAP outputs raise a clear error because this project serves a
+    binary home-win probability model.
+    """
+    if not isinstance(X_valid, pd.DataFrame):
+        raise TypeError("X_valid must be a pandas DataFrame with feature names.")
+    if X_valid.empty:
+        raise ValueError("X_valid must contain at least one row.")
+    if top_n < 1:
+        raise ValueError("top_n must be >= 1.")
+    if task_type not in {"classification", "regression"}:
+        raise ValueError("task_type must be 'classification' or 'regression'.")
+
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    models = _normalize_models(model)
+    feature_names = list(X_valid.columns)
+
+    lgbm_importance = _lightgbm_importance(models, feature_names)
+    lgbm_csv = output_path / "lgbm_feature_importance.csv"
+    lgbm_importance.to_csv(lgbm_csv, index=False)
+    gain_plot = output_path / f"lgbm_gain_top{top_n}.png"
+    split_plot = output_path / f"lgbm_split_top{top_n}.png"
+    _plot_bar(
+        lgbm_importance,
+        value_column="mean_gain",
+        title=f"LightGBM gain importance top {top_n}",
+        output_path=gain_plot,
+        top_n=top_n,
+    )
+    _plot_bar(
+        lgbm_importance,
+        value_column="mean_split",
+        title=f"LightGBM split importance top {top_n}",
+        output_path=split_plot,
+        top_n=top_n,
+    )
+
+    shap_values = _mean_positive_class_shap(models, X_valid)
+    shap_importance = pd.DataFrame(
+        {
+            "feature": feature_names,
+            "mean_abs_shap": np.abs(shap_values).mean(axis=0),
+        }
+    ).sort_values("mean_abs_shap", ascending=False, ignore_index=True)
+    shap_csv = output_path / "shap_importance.csv"
+    shap_importance.to_csv(shap_csv, index=False)
+    shap_summary_plot = output_path / "shap_summary.png"
+    shap_bar_plot = output_path / f"shap_bar_top{top_n}.png"
+    _plot_shap_summary(shap_values, X_valid, shap_summary_plot)
+    _plot_shap_bar(shap_importance, shap_bar_plot, top_n)
+
+    dependence_images: dict[str, str] = {}
+    for feature in dependence_features or []:
+        if feature not in X_valid.columns:
+            logger.warning("Dependence feature not found, skipping: {}", feature)
+            continue
+        output_file = output_path / f"dependence_{_safe_filename(feature)}.png"
+        _plot_shap_dependence(shap_values, X_valid, feature, output_file)
+        dependence_images[feature] = output_file.name
+
+    permutation_csv: Path | None = None
+    permutation_plot: Path | None = None
+    permutation_df = pd.DataFrame()
+    if y_valid is None:
+        logger.warning(
+            "Skipping permutation importance because y_valid was not provided."
+        )
+    else:
+        permutation_df = _permutation_importance(
+            models=models,
+            X_valid=X_valid,
+            y_valid=y_valid,
+            task_type=task_type,
+            scoring=scoring,
+            random_state=random_state,
+        )
+        permutation_csv = output_path / "permutation_importance.csv"
+        permutation_df.to_csv(permutation_csv, index=False)
+        permutation_plot = output_path / f"permutation_importance_top{top_n}.png"
+        _plot_bar(
+            permutation_df.rename(columns={"importance_mean": "value"}),
+            value_column="value",
+            title=f"Permutation importance top {top_n}",
+            output_path=permutation_plot,
+            top_n=top_n,
+        )
+
+    manifest = {
+        "schema_version": 1,
+        "generated_at": datetime.now(tz=UTC).isoformat(),
+        "model_version": model_version,
+        "task_type": task_type,
+        "sample_size": int(len(X_valid)),
+        "top_n": int(top_n),
+        "interpretation_notes": INTERPRETATION_NOTES,
+        "sections": [
+            {
+                "id": "lgbm_gain",
+                "title": "LightGBM gain importance",
+                "description": "Total loss reduction attributed to each feature across trees.",
+                "image_path": gain_plot.name,
+                "csv_path": lgbm_csv.name,
+            },
+            {
+                "id": "lgbm_split",
+                "title": "LightGBM split importance",
+                "description": "How often each feature is used for a tree split.",
+                "image_path": split_plot.name,
+                "csv_path": lgbm_csv.name,
+            },
+            {
+                "id": "shap_summary",
+                "title": "SHAP summary",
+                "description": "Per-game contribution distribution for the positive home-win class.",
+                "image_path": shap_summary_plot.name,
+                "csv_path": shap_csv.name,
+            },
+            {
+                "id": "shap_bar",
+                "title": "SHAP mean absolute impact",
+                "description": "Average absolute SHAP contribution by feature.",
+                "image_path": shap_bar_plot.name,
+                "csv_path": shap_csv.name,
+            },
+        ],
+        "csv_paths": {
+            "lgbm_feature_importance": lgbm_csv.name,
+            "shap_importance": shap_csv.name,
+            "permutation_importance": permutation_csv.name if permutation_csv else None,
+        },
+        "dependence_images": dependence_images,
+        "top_features": {
+            "gain": _top_feature_records(lgbm_importance, "mean_gain", top_n),
+            "split": _top_feature_records(lgbm_importance, "mean_split", top_n),
+            "shap": _top_feature_records(shap_importance, "mean_abs_shap", top_n),
+            "permutation": _top_feature_records(
+                permutation_df, "importance_mean", top_n
+            )
+            if not permutation_df.empty
+            else [],
+        },
+    }
+    if permutation_plot is not None:
+        manifest["sections"].append(
+            {
+                "id": "permutation",
+                "title": "Permutation importance",
+                "description": "Prediction score drop after shuffling one feature at a time.",
+                "image_path": permutation_plot.name,
+                "csv_path": permutation_csv.name if permutation_csv else None,
+            }
+        )
+    if manifest_extra:
+        manifest.update(manifest_extra)
+
+    manifest_path = output_path / "manifest.json"
+    manifest_path.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return manifest
+
+
+def run_saved_model_feature_analysis(
+    model_version: str,
+    years: list[int],
+    output_dir: str | Path = "outputs/feature_analysis",
+    top_n: int = 30,
+    scoring: str | None = None,
+    dependence_features: list[str] | None = None,
+    random_state: int = 42,
+) -> Path:
+    """Run feature analysis for a saved model registry version."""
+    model_dir = Path(MODEL_REGISTRY_DIR) / model_version
+    if not model_dir.exists():
+        raise FileNotFoundError(f"Model directory not found: {model_dir}")
+
+    models = [
+        lgb.Booster(model_file=str(path))
+        for path in sorted(model_dir.glob("model_seed*.txt"))
+    ]
+    if not models:
+        raise FileNotFoundError(f"No model_seed*.txt files found in {model_dir}")
+
+    feature_list = json.loads(
+        (model_dir / "feature_list.json").read_text(encoding="utf-8")
+    )
+    categorical_features = json.loads(
+        (model_dir / "categorical_features.json").read_text(encoding="utf-8")
+    )
+
+    trainer = ModelTrainer(model_version="feature_analysis_only")
+    df = trainer.load_features(years)
+    analysis_df, analysis_window = _select_analysis_frame(df)
+    X_valid = prepare_model_matrix(analysis_df, feature_list, categorical_features)
+    y_valid = analysis_df["target_home_win"].astype(int)
+
+    version_output_dir = Path(output_dir) / model_version
+    visualize_lgbm_feature_effects(
+        model=models,
+        X_valid=X_valid,
+        y_valid=y_valid,
+        output_dir=version_output_dir,
+        top_n=top_n,
+        task_type="classification",
+        scoring=scoring,
+        dependence_features=dependence_features,
+        random_state=random_state,
+        model_version=model_version,
+        manifest_extra={
+            "years": years,
+            "analysis_window": analysis_window,
+            "source_model_dir": str(model_dir),
+        },
+    )
+    return version_output_dir
+
+
+def publish_feature_analysis_to_web(
+    output_dir: str | Path,
+    public_dir: str | Path = "web/public/feature-analysis",
+    public_path_prefix: str = "/feature-analysis",
+) -> Path:
+    """Copy generated analysis files to Next.js public assets and rewrite paths."""
+    source_dir = Path(output_dir)
+    manifest_path = source_dir / "manifest.json"
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Feature analysis manifest not found: {manifest_path}")
+
+    target_dir = Path(public_dir)
+    target_dir.mkdir(parents=True, exist_ok=True)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    for file_path in source_dir.iterdir():
+        if file_path.is_file() and file_path.name != "manifest.json":
+            shutil.copy2(file_path, target_dir / file_path.name)
+
+    web_manifest = _manifest_with_public_paths(manifest, public_path_prefix)
+    target_manifest = target_dir / "manifest.json"
+    target_manifest.write_text(
+        json.dumps(web_manifest, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return target_manifest
+
+
+def _normalize_models(model: Any) -> list[Any]:
+    if isinstance(model, list | tuple):
+        models = list(model)
+    else:
+        models = [model]
+    if not models:
+        raise ValueError("model must contain at least one LightGBM model.")
+    return models
+
+
+def _predict_probability(models: list[Any], X: pd.DataFrame) -> np.ndarray:
+    predictions: list[np.ndarray] = []
+    for model in models:
+        if hasattr(model, "predict_proba"):
+            proba = model.predict_proba(X)
+            values = np.asarray(proba)
+            if values.ndim == 2 and values.shape[1] == 2:
+                predictions.append(values[:, 1].astype(float))
+            else:
+                predictions.append(values.astype(float).reshape(-1))
+            continue
+        predictions.append(np.asarray(model.predict(X), dtype=float).reshape(-1))
+    return np.mean(predictions, axis=0)
+
+
+def _lightgbm_importance(models: list[Any], feature_names: list[str]) -> pd.DataFrame:
+    rows: list[pd.DataFrame] = []
+    for index, model in enumerate(models):
+        booster = _as_booster(model)
+        gain = booster.feature_importance(importance_type="gain")
+        split = booster.feature_importance(importance_type="split")
+        if len(gain) != len(feature_names):
+            raise ValueError(
+                f"Feature count mismatch: model has {len(gain)} features, X_valid has {len(feature_names)}."
+            )
+        rows.append(
+            pd.DataFrame(
+                {
+                    "feature": feature_names,
+                    "gain": gain,
+                    "split": split,
+                    "model_index": index,
+                }
+            )
+        )
+    combined = pd.concat(rows, ignore_index=True)
+    summary = (
+        combined.groupby("feature", as_index=False)
+        .agg(mean_gain=("gain", "mean"), mean_split=("split", "mean"))
+        .sort_values("mean_gain", ascending=False, ignore_index=True)
+    )
+    total_gain = float(summary["mean_gain"].sum())
+    total_split = float(summary["mean_split"].sum())
+    summary["gain_share"] = summary["mean_gain"] / total_gain if total_gain > 0 else 0.0
+    summary["split_share"] = (
+        summary["mean_split"] / total_split if total_split > 0 else 0.0
+    )
+    return summary
+
+
+def _as_booster(model: Any) -> lgb.Booster:
+    if isinstance(model, lgb.Booster):
+        return model
+    booster = getattr(model, "booster_", None)
+    if isinstance(booster, lgb.Booster):
+        return booster
+    raise TypeError("model must be a lightgbm.Booster or fitted LightGBM estimator.")
+
+
+def _mean_positive_class_shap(models: list[Any], X_valid: pd.DataFrame) -> np.ndarray:
+    shap = _import_shap()
+    values: list[np.ndarray] = []
+    for model in models:
+        explainer = shap.TreeExplainer(_as_booster(model))
+        shap_output = explainer.shap_values(X_valid)
+        values.append(_positive_class_shap_array(shap_output, len(X_valid)))
+    return np.mean(values, axis=0)
+
+
+def _positive_class_shap_array(shap_output: Any, sample_size: int) -> np.ndarray:
+    if isinstance(shap_output, list):
+        if len(shap_output) == 2:
+            return np.asarray(shap_output[1], dtype=float)
+        if len(shap_output) == 1:
+            return np.asarray(shap_output[0], dtype=float)
+        raise ValueError("Multi-class SHAP output is not supported.")
+
+    arr = np.asarray(shap_output, dtype=float)
+    if arr.ndim == 2:
+        return arr
+    if arr.ndim == 3 and arr.shape[-1] == 2:
+        return arr[:, :, 1]
+    if arr.ndim == 3 and arr.shape[0] == 2 and arr.shape[1] == sample_size:
+        return arr[1, :, :]
+    raise ValueError(
+        "Unsupported SHAP output shape; multi-class models are not supported."
+    )
+
+
+def _permutation_importance(
+    models: list[Any],
+    X_valid: pd.DataFrame,
+    y_valid: pd.Series | np.ndarray,
+    task_type: str,
+    scoring: str | None,
+    random_state: int,
+) -> pd.DataFrame:
+    if task_type == "classification":
+        estimator: BaseEstimator = _LGBMEnsembleClassifier(models)
+        effective_scoring = scoring or "accuracy"
+    else:
+        estimator = _LGBMEnsembleRegressor(models)
+        effective_scoring = scoring or "neg_mean_squared_error"
+
+    result = permutation_importance(
+        estimator,
+        X_valid,
+        y_valid,
+        scoring=effective_scoring,
+        n_repeats=10,
+        random_state=random_state,
+        n_jobs=1,
+    )
+    return pd.DataFrame(
+        {
+            "feature": list(X_valid.columns),
+            "importance_mean": result.importances_mean,
+            "importance_std": result.importances_std,
+            "scoring": effective_scoring,
+        }
+    ).sort_values("importance_mean", ascending=False, ignore_index=True)
+
+
+def _plot_bar(
+    df: pd.DataFrame,
+    value_column: str,
+    title: str,
+    output_path: Path,
+    top_n: int,
+) -> None:
+    plt = _import_matplotlib()
+    plot_df = df.nlargest(top_n, value_column).sort_values(value_column)
+    fig_height = max(4.8, 0.32 * len(plot_df) + 1.5)
+    fig, ax = plt.subplots(figsize=(9.5, fig_height))
+    ax.barh(plot_df["feature"], plot_df[value_column], color="#0d7a5f")
+    ax.set_title(title)
+    ax.set_xlabel(value_column)
+    ax.grid(axis="x", alpha=0.18)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=160)
+    plt.close(fig)
+
+
+def _plot_shap_summary(
+    shap_values: np.ndarray, X_valid: pd.DataFrame, output_path: Path
+) -> None:
+    shap = _import_shap()
+    plt = _import_matplotlib()
+    shap.summary_plot(shap_values, X_valid, show=False)
+    fig = plt.gcf()
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=160, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _plot_shap_bar(
+    shap_importance: pd.DataFrame, output_path: Path, top_n: int
+) -> None:
+    _plot_bar(
+        shap_importance.rename(columns={"mean_abs_shap": "value"}),
+        value_column="value",
+        title=f"SHAP mean absolute impact top {top_n}",
+        output_path=output_path,
+        top_n=top_n,
+    )
+
+
+def _plot_shap_dependence(
+    shap_values: np.ndarray,
+    X_valid: pd.DataFrame,
+    feature: str,
+    output_path: Path,
+) -> None:
+    shap = _import_shap()
+    plt = _import_matplotlib()
+    shap.dependence_plot(feature, shap_values, X_valid, show=False)
+    fig = plt.gcf()
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=160, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _import_matplotlib() -> Any:
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError as exc:
+        raise RuntimeError(
+            "matplotlib is required for feature analysis plots. Install project dependencies."
+        ) from exc
+    return plt
+
+
+def _import_shap() -> Any:
+    try:
+        import shap
+    except ImportError as exc:
+        raise RuntimeError(
+            "shap is required for SHAP feature analysis. Install project dependencies."
+        ) from exc
+    return shap
+
+
+def _top_feature_records(
+    df: pd.DataFrame, value_column: str, top_n: int
+) -> list[dict[str, Any]]:
+    if df.empty:
+        return []
+    rows = df.nlargest(top_n, value_column)[["feature", value_column]]
+    return [
+        {"feature": str(row["feature"]), "value": float(row[value_column])}
+        for row in rows.to_dict(orient="records")
+    ]
+
+
+def _select_analysis_frame(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]:
+    analysis_df = df.copy()
+    analysis_df["_game_date"] = pd.to_datetime(analysis_df["game_date"])
+    holdout_start = pd.Timestamp("2025-09-01")
+    holdout = analysis_df[
+        (analysis_df["_game_date"] >= holdout_start) & (analysis_df["year"] == 2025)
+    ].copy()
+    if not holdout.empty and holdout["target_home_win"].nunique() >= 2:
+        return holdout, {
+            "type": "late_2025_analysis_sample",
+            "start_date": holdout_start.date().isoformat(),
+            "sample_size": int(len(holdout)),
+        }
+    return analysis_df, {
+        "type": "all_loaded_feature_rows",
+        "sample_size": int(len(analysis_df)),
+    }
+
+
+def _safe_filename(value: str) -> str:
+    safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", value.strip())
+    return safe.strip("._") or "feature"
+
+
+def _manifest_with_public_paths(
+    manifest: dict[str, Any],
+    public_path_prefix: str,
+) -> dict[str, Any]:
+    prefix = public_path_prefix.rstrip("/")
+    web_manifest = json.loads(json.dumps(manifest, ensure_ascii=False))
+
+    def public_path(value: str | None) -> str | None:
+        if not value:
+            return value
+        if value.startswith("/"):
+            return value
+        return f"{prefix}/{value}"
+
+    for section in web_manifest.get("sections", []):
+        section["image_path"] = public_path(section.get("image_path"))
+        section["csv_path"] = public_path(section.get("csv_path"))
+    for key, value in list(web_manifest.get("csv_paths", {}).items()):
+        web_manifest["csv_paths"][key] = public_path(value)
+    for key, value in list(web_manifest.get("dependence_images", {}).items()):
+        web_manifest["dependence_images"][key] = public_path(value)
+    return web_manifest
