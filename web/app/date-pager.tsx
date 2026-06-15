@@ -16,7 +16,7 @@ type DatePagerProps = {
 };
 
 export function DatePager({ ariaLabel, pages }: DatePagerProps) {
-  const [pageIndex, setPageIndex] = useState(0);
+  const [pageIndex, setPageIndex] = useState(Math.max(pages.length - 1, 0));
   const activePageIndex = Math.min(pageIndex, Math.max(pages.length - 1, 0));
   const activePage = pages[activePageIndex];
   const pageSummary = useMemo(() => {

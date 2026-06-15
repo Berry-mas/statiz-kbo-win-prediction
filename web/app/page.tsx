@@ -213,7 +213,6 @@ export default async function DashboardPage() {
             <div className="section-heading compact">
               <div>
                 <p className="eyebrow">Finalized ledger</p>
-                <h2>확정 결과</h2>
               </div>
             </div>
             {ledgerGames.length > 0 ? (
@@ -403,7 +402,7 @@ function groupGamesByDate(games: RecentGame[]): Array<{ key: string; games: Rece
     const key = gameDateKey(game);
     groups.set(key, [...(groups.get(key) ?? []), game]);
   }
-  return Array.from(groups, ([key, group]) => ({ key, games: group }));
+  return Array.from(groups, ([key, group]) => ({ key, games: group })).sort((a, b) => a.key.localeCompare(b.key));
 }
 
 function gameDateKey(game: RecentGame): string {
@@ -711,10 +710,14 @@ function statusLabel(status: string): string {
 }
 
 function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
+  const parts = new Intl.DateTimeFormat("en-US", {
+    month: "numeric",
     day: "numeric",
-  }).format(new Date(value));
+    timeZone: "Asia/Seoul",
+  }).formatToParts(new Date(value));
+  const month = parts.find((part) => part.type === "month")?.value ?? "";
+  const day = parts.find((part) => part.type === "day")?.value ?? "";
+  return `${month}.${day}`;
 }
 
 function formatGameCount(value: number): string {
@@ -722,14 +725,15 @@ function formatGameCount(value: number): string {
 }
 
 function formatTimestamp(value: string): string {
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "short",
-    day: "numeric",
+  const date = new Date(value);
+  const dateLabel = formatDate(value);
+  const timeLabel = new Intl.DateTimeFormat("ko-KR", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
     timeZone: "Asia/Seoul",
-  }).format(new Date(value));
+  }).format(date);
+  return `${dateLabel} ${timeLabel}`;
 }
 
 function formatRate(value: number | null): string {
