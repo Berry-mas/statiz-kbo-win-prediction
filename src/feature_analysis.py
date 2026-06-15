@@ -13,7 +13,7 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
+from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.inspection import permutation_importance
 
 from .constants import MODEL_REGISTRY_DIR
@@ -27,12 +27,13 @@ INTERPRETATION_NOTES = [
 ]
 
 
-class _LGBMEnsembleClassifier(ClassifierMixin, BaseEstimator):
-    def __init__(self, models: list[Any]) -> None:
+class _LGBMEnsembleEstimator(ClassifierMixin, BaseEstimator):
+    def __init__(self, models: list[Any], task_type: str) -> None:
         self.models = models
+        self.task_type = task_type
         self.classes_ = np.array([0, 1])
 
-    def fit(self, X: pd.DataFrame, y: pd.Series) -> _LGBMEnsembleClassifier:
+    def fit(self, X: pd.DataFrame, y: pd.Series) -> _LGBMEnsembleEstimator:
         return self
 
     def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
@@ -40,17 +41,8 @@ class _LGBMEnsembleClassifier(ClassifierMixin, BaseEstimator):
         return np.column_stack([1 - probabilities, probabilities])
 
     def predict(self, X: pd.DataFrame) -> np.ndarray:
-        return (self.predict_proba(X)[:, 1] >= 0.5).astype(int)
-
-
-class _LGBMEnsembleRegressor(RegressorMixin, BaseEstimator):
-    def __init__(self, models: list[Any]) -> None:
-        self.models = models
-
-    def fit(self, X: pd.DataFrame, y: pd.Series) -> _LGBMEnsembleRegressor:
-        return self
-
-    def predict(self, X: pd.DataFrame) -> np.ndarray:
+        if self.task_type == "classification":
+            return (self.predict_proba(X)[:, 1] >= 0.5).astype(int)
         return _predict_probability(self.models, X)
 
 
@@ -423,11 +415,10 @@ def _permutation_importance(
     scoring: str | None,
     random_state: int,
 ) -> pd.DataFrame:
+    estimator = _LGBMEnsembleEstimator(models=models, task_type=task_type)
     if task_type == "classification":
-        estimator: BaseEstimator = _LGBMEnsembleClassifier(models)
         effective_scoring = scoring or "accuracy"
     else:
-        estimator = _LGBMEnsembleRegressor(models)
         effective_scoring = scoring or "neg_mean_squared_error"
 
     result = permutation_importance(
@@ -573,6 +564,7 @@ def _manifest_with_public_paths(
 ) -> dict[str, Any]:
     prefix = public_path_prefix.rstrip("/")
     web_manifest = json.loads(json.dumps(manifest, ensure_ascii=False))
+    web_manifest.pop("source_model_dir", None)
 
     def public_path(value: str | None) -> str | None:
         if not value:

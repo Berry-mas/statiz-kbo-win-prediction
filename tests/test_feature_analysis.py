@@ -75,6 +75,7 @@ def test_publish_feature_analysis_to_web_rewrites_manifest_paths(tmp_path):
         """
         {
           "schema_version": 1,
+          "source_model_dir": "artifacts/model_registry/test_model",
           "sections": [
             {
               "id": "gain",
@@ -99,4 +100,5 @@ def test_publish_feature_analysis_to_web_rewrites_manifest_paths(tmp_path):
     manifest = manifest_path.read_text(encoding="utf-8")
     assert "/feature-analysis/chart.png" in manifest
     assert "/feature-analysis/importance.csv" in manifest
+    assert "source_model_dir" not in manifest
     assert (tmp_path / "public" / "feature-analysis" / "chart.png").exists()

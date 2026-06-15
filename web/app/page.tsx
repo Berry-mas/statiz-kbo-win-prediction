@@ -401,25 +401,20 @@ function isLgTwinsGame(game: RecentGame): boolean {
 }
 
 function groupGamesByDate(games: RecentGame[]): Array<{ key: string; games: RecentGame[] }> {
-  const groups = new Map<string, RecentGame[]>();
-  for (const game of games) {
-    const key = gameDateKey(game);
-    const group = groups.get(key);
-    if (group) {
-      group.push(game);
-    } else {
-      groups.set(key, [game]);
-    }
-  }
-  return Array.from(groups, ([key, group]) => ({ key, games: group })).sort((a, b) =>
-    a.key.localeCompare(b.key),
-  );
+  return groupGamesByKey(games, gameDateKey);
 }
 
 function groupGamesBySubmittedDate(games: RecentGame[]): Array<{ key: string; games: RecentGame[] }> {
+  return groupGamesByKey(games, submittedDateKey);
+}
+
+function groupGamesByKey(
+  games: RecentGame[],
+  keyForGame: (game: RecentGame) => string,
+): Array<{ key: string; games: RecentGame[] }> {
   const groups = new Map<string, RecentGame[]>();
   for (const game of games) {
-    const key = submittedDateKey(game);
+    const key = keyForGame(game);
     const group = groups.get(key);
     if (group) {
       group.push(game);
