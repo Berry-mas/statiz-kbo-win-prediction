@@ -28,11 +28,16 @@ The dashboard uses the dynamic API route `app/api/site-stats/route.ts` for
 page-view and site-like counters. Use Vercel Marketplace Storage with Upstash
 Redis for production. The Vercel project root must remain `web/`.
 
-Required environment variables:
+Required environment variables. Vercel Marketplace may create the `KV_*` names;
+the route also supports the direct Upstash names.
 
 ```bash
-UPSTASH_REDIS_REST_URL=https://...
-UPSTASH_REDIS_REST_TOKEN=...
+KV_REST_API_URL=https://...
+KV_REST_API_TOKEN=...
+
+# Also supported:
+# UPSTASH_REDIS_REST_URL=https://...
+# UPSTASH_REDIS_REST_TOKEN=...
 ```
 
 Provisioning options:
