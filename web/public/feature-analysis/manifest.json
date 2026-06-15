@@ -1,0 +1,557 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T11:18:03.813886+00:00",
+  "model_version": "lgbm_v008",
+  "task_type": "classification",
+  "sample_size": 97,
+  "top_n": 30,
+  "interpretation_notes": [
+    "Feature importance and SHAP importance are not causal evidence.",
+    "Read these charts as signals the model used strongly for prediction, not as proof that a feature caused the outcome.",
+    "LightGBM gain/split importance and SHAP values describe different views of model behavior."
+  ],
+  "sections": [
+    {
+      "id": "lgbm_gain",
+      "title": "LightGBM gain importance",
+      "description": "Total loss reduction attributed to each feature across trees.",
+      "image_path": "/feature-analysis/lgbm_gain_top30.png",
+      "csv_path": "/feature-analysis/lgbm_feature_importance.csv"
+    },
+    {
+      "id": "lgbm_split",
+      "title": "LightGBM split importance",
+      "description": "How often each feature is used for a tree split.",
+      "image_path": "/feature-analysis/lgbm_split_top30.png",
+      "csv_path": "/feature-analysis/lgbm_feature_importance.csv"
+    },
+    {
+      "id": "shap_summary",
+      "title": "SHAP summary",
+      "description": "Per-game contribution distribution for the positive home-win class.",
+      "image_path": "/feature-analysis/shap_summary.png",
+      "csv_path": "/feature-analysis/shap_importance.csv"
+    },
+    {
+      "id": "shap_bar",
+      "title": "SHAP mean absolute impact",
+      "description": "Average absolute SHAP contribution by feature.",
+      "image_path": "/feature-analysis/shap_bar_top30.png",
+      "csv_path": "/feature-analysis/shap_importance.csv"
+    },
+    {
+      "id": "permutation",
+      "title": "Permutation importance",
+      "description": "Prediction score drop after shuffling one feature at a time.",
+      "image_path": "/feature-analysis/permutation_importance_top30.png",
+      "csv_path": "/feature-analysis/permutation_importance.csv"
+    }
+  ],
+  "csv_paths": {
+    "lgbm_feature_importance": "/feature-analysis/lgbm_feature_importance.csv",
+    "shap_importance": "/feature-analysis/shap_importance.csv",
+    "permutation_importance": "/feature-analysis/permutation_importance.csv"
+  },
+  "dependence_images": {},
+  "top_features": {
+    "gain": [
+      {
+        "feature": "away_starter_fip_proxy",
+        "value": 75.19690160751342
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_pa_sum",
+        "value": 71.61667385101319
+      },
+      {
+        "feature": "home_run_diff_last_5",
+        "value": 66.8187801361084
+      },
+      {
+        "feature": "home_starter_whip",
+        "value": 60.53068389892578
+      },
+      {
+        "feature": "home_minus_away_starter_era_last_3",
+        "value": 53.40405588150024
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_war_avg",
+        "value": 52.38025617599487
+      },
+      {
+        "feature": "home_lineup_prev_pa_sum",
+        "value": 51.546730041503906
+      },
+      {
+        "feature": "home_starter_fip_proxy",
+        "value": 50.054595947265625
+      },
+      {
+        "feature": "home_minus_away_starter_whip",
+        "value": 49.72309055328369
+      },
+      {
+        "feature": "away_starter_fip_proxy_last_3",
+        "value": 45.03512001037598
+      },
+      {
+        "feature": "home_runs_for_last_5",
+        "value": 41.46452417373657
+      },
+      {
+        "feature": "away_starter_np_last_game",
+        "value": 41.29536800384521
+      },
+      {
+        "feature": "home_minus_away_starter_np_last_game",
+        "value": 41.02476577758789
+      },
+      {
+        "feature": "home_minus_away_run_diff_last_5",
+        "value": 41.013593673706055
+      },
+      {
+        "feature": "home_minus_away_runs_for_pg",
+        "value": 38.039803981781006
+      },
+      {
+        "feature": "home_starter_fip_proxy_last_3",
+        "value": 37.08964204788208
+      },
+      {
+        "feature": "away_runs_for_pg",
+        "value": 34.560607719421384
+      },
+      {
+        "feature": "home_minus_away_runs_against_last_5",
+        "value": 33.90486993789673
+      },
+      {
+        "feature": "away_win_rate",
+        "value": 33.67712230682373
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_war_sum",
+        "value": 33.39398374557495
+      },
+      {
+        "feature": "away_run_diff_last_5",
+        "value": 33.37644186019897
+      },
+      {
+        "feature": "home_minus_away_starter_starts",
+        "value": 30.672693824768068
+      },
+      {
+        "feature": "away_starter_era_last_3",
+        "value": 30.440859699249266
+      },
+      {
+        "feature": "home_minus_away_starter_fip_proxy",
+        "value": 29.875669860839842
+      },
+      {
+        "feature": "home_starter_era",
+        "value": 29.874356079101563
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_sb_sum",
+        "value": 29.7284818649292
+      },
+      {
+        "feature": "home_minus_away_bullpen_ip_last_3",
+        "value": 29.214268016815186
+      },
+      {
+        "feature": "home_minus_away_starter_fip_proxy_last_3",
+        "value": 28.89426193237305
+      },
+      {
+        "feature": "away_starter_era",
+        "value": 28.53821039199829
+      },
+      {
+        "feature": "home_run_diff_pg",
+        "value": 27.532297992706297
+      }
+    ],
+    "split": [
+      {
+        "feature": "away_starter_fip_proxy",
+        "value": 6.4
+      },
+      {
+        "feature": "home_run_diff_last_5",
+        "value": 6.2
+      },
+      {
+        "feature": "home_starter_whip",
+        "value": 5.6
+      },
+      {
+        "feature": "home_minus_away_starter_era_last_3",
+        "value": 5.4
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_pa_sum",
+        "value": 5.2
+      },
+      {
+        "feature": "away_starter_fip_proxy_last_3",
+        "value": 4.8
+      },
+      {
+        "feature": "home_lineup_prev_pa_sum",
+        "value": 4.6
+      },
+      {
+        "feature": "home_starter_fip_proxy",
+        "value": 4.6
+      },
+      {
+        "feature": "home_minus_away_starter_whip",
+        "value": 4.6
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_war_avg",
+        "value": 4.2
+      },
+      {
+        "feature": "home_runs_for_last_5",
+        "value": 4.2
+      },
+      {
+        "feature": "away_starter_np_last_game",
+        "value": 4.2
+      },
+      {
+        "feature": "home_minus_away_starter_np_last_game",
+        "value": 4.2
+      },
+      {
+        "feature": "home_starter_fip_proxy_last_3",
+        "value": 4.2
+      },
+      {
+        "feature": "home_minus_away_run_diff_last_5",
+        "value": 4.0
+      },
+      {
+        "feature": "home_minus_away_runs_for_pg",
+        "value": 3.8
+      },
+      {
+        "feature": "away_win_rate",
+        "value": 3.8
+      },
+      {
+        "feature": "away_runs_for_pg",
+        "value": 3.6
+      },
+      {
+        "feature": "home_minus_away_runs_against_last_5",
+        "value": 3.6
+      },
+      {
+        "feature": "away_run_diff_last_5",
+        "value": 3.4
+      },
+      {
+        "feature": "away_starter_era_last_3",
+        "value": 3.4
+      },
+      {
+        "feature": "away_starter_era",
+        "value": 3.4
+      },
+      {
+        "feature": "home_starter_era",
+        "value": 3.2
+      },
+      {
+        "feature": "home_minus_away_bullpen_ip_last_3",
+        "value": 3.2
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_sb_sum",
+        "value": 3.0
+      },
+      {
+        "feature": "home_minus_away_starter_fip_proxy_last_3",
+        "value": 3.0
+      },
+      {
+        "feature": "home_minus_away_run_diff_pg",
+        "value": 3.0
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_war_sum",
+        "value": 2.8
+      },
+      {
+        "feature": "home_minus_away_starter_starts",
+        "value": 2.8
+      },
+      {
+        "feature": "home_run_diff_pg",
+        "value": 2.8
+      }
+    ],
+    "shap": [
+      {
+        "feature": "home_minus_away_lineup_prev_pa_sum",
+        "value": 0.03527010725341926
+      },
+      {
+        "feature": "away_starter_fip_proxy",
+        "value": 0.022703082818413378
+      },
+      {
+        "feature": "home_starter_whip",
+        "value": 0.017084322233579148
+      },
+      {
+        "feature": "home_lineup_prev_pa_sum",
+        "value": 0.014664495261829419
+      },
+      {
+        "feature": "home_starter_fip_proxy",
+        "value": 0.013493803414723936
+      },
+      {
+        "feature": "home_minus_away_starter_whip",
+        "value": 0.012333654520143091
+      },
+      {
+        "feature": "home_minus_away_starter_starts",
+        "value": 0.011862692230167518
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_war_sum",
+        "value": 0.011036329561736826
+      },
+      {
+        "feature": "home_games_played",
+        "value": 0.010542622981287735
+      },
+      {
+        "feature": "home_minus_away_starter_fip_proxy",
+        "value": 0.01036012866945831
+      },
+      {
+        "feature": "away_starter_np_last_game",
+        "value": 0.010190308095257047
+      },
+      {
+        "feature": "home_run_diff_last_5",
+        "value": 0.009355054654849449
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_war_avg",
+        "value": 0.0087445607649438
+      },
+      {
+        "feature": "home_runs_for_last_5",
+        "value": 0.008438741500606573
+      },
+      {
+        "feature": "home_minus_away_starter_era_last_3",
+        "value": 0.0077770038916270354
+      },
+      {
+        "feature": "away_lineup_prev_sb_sum",
+        "value": 0.007011976103953647
+      },
+      {
+        "feature": "away_team_code",
+        "value": 0.006364093699550387
+      },
+      {
+        "feature": "home_minus_away_runs_against_pg",
+        "value": 0.006267808533863106
+      },
+      {
+        "feature": "home_minus_away_starter_fip_proxy_last_3",
+        "value": 0.006266075408629322
+      },
+      {
+        "feature": "home_starter_fip_proxy_last_3",
+        "value": 0.006174751741543329
+      },
+      {
+        "feature": "home_minus_away_runs_against_last_5",
+        "value": 0.0060410007309440895
+      },
+      {
+        "feature": "away_bullpen_ip_last_3",
+        "value": 0.00583582251006799
+      },
+      {
+        "feature": "home_minus_away_run_diff_last_5",
+        "value": 0.005798774464283515
+      },
+      {
+        "feature": "away_starter_fip_proxy_last_3",
+        "value": 0.005459802332255093
+      },
+      {
+        "feature": "home_minus_away_starter_np_last_game",
+        "value": 0.0053931458662561695
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_sb_sum",
+        "value": 0.005229425979738397
+      },
+      {
+        "feature": "away_lineup_prev_pa_sum",
+        "value": 0.004804151429381734
+      },
+      {
+        "feature": "home_runs_for_pg",
+        "value": 0.004790005136287911
+      },
+      {
+        "feature": "away_starter_whip",
+        "value": 0.004707435463126939
+      },
+      {
+        "feature": "home_minus_away_starter_games",
+        "value": 0.004460119128348453
+      }
+    ],
+    "permutation": [
+      {
+        "feature": "home_minus_away_lineup_prev_pa_sum",
+        "value": 0.054639175257732
+      },
+      {
+        "feature": "home_starter_fip_proxy",
+        "value": 0.03608247422680414
+      },
+      {
+        "feature": "home_run_diff_last_5",
+        "value": 0.026804123711340257
+      },
+      {
+        "feature": "home_minus_away_run_diff_last_5",
+        "value": 0.020618556701030976
+      },
+      {
+        "feature": "home_lineup_prev_pa_sum",
+        "value": 0.015463917525773242
+      },
+      {
+        "feature": "home_starter_whip",
+        "value": 0.01546391752577323
+      },
+      {
+        "feature": "away_win_rate",
+        "value": 0.014432989690721676
+      },
+      {
+        "feature": "home_minus_away_lineup_top4_prev_ops_pa_weighted",
+        "value": 0.013402061855670144
+      },
+      {
+        "feature": "away_starter_fip_proxy",
+        "value": 0.013402061855670121
+      },
+      {
+        "feature": "away_starter_np_last_game",
+        "value": 0.012371134020618601
+      },
+      {
+        "feature": "away_starter_era",
+        "value": 0.01237113402061859
+      },
+      {
+        "feature": "away_lineup_prev_ops_pa_weighted",
+        "value": 0.011340206185567058
+      },
+      {
+        "feature": "home_minus_away_runs_for_pg",
+        "value": 0.010309278350515505
+      },
+      {
+        "feature": "home_runs_for_last_5",
+        "value": 0.010309278350515493
+      },
+      {
+        "feature": "away_lineup_prev_pa_sum",
+        "value": 0.009278350515463985
+      },
+      {
+        "feature": "away_lineup_prev_wrcplus_pa_weighted",
+        "value": 0.009278350515463973
+      },
+      {
+        "feature": "team_recent_win_rate_ratio",
+        "value": 0.009278350515463963
+      },
+      {
+        "feature": "away_starter_whip",
+        "value": 0.009278350515463963
+      },
+      {
+        "feature": "home_minus_away_runs_for_last_5",
+        "value": 0.00927835051546395
+      },
+      {
+        "feature": "home_minus_away_starter_fip_proxy",
+        "value": 0.00927835051546394
+      },
+      {
+        "feature": "away_starter_games",
+        "value": 0.008247422680412408
+      },
+      {
+        "feature": "home_runs_for_pg",
+        "value": 0.007216494845360877
+      },
+      {
+        "feature": "day_of_week",
+        "value": 0.007216494845360877
+      },
+      {
+        "feature": "home_minus_away_lineup_prev_war_avg",
+        "value": 0.007216494845360855
+      },
+      {
+        "feature": "away_runs_for_pg",
+        "value": 0.006185567010309323
+      },
+      {
+        "feature": "away_lineup_prev_stats_coverage",
+        "value": 0.006185567010309323
+      },
+      {
+        "feature": "away_starter_era_last_3",
+        "value": 0.006185567010309323
+      },
+      {
+        "feature": "away_runs_for_last_5",
+        "value": 0.006185567010309323
+      },
+      {
+        "feature": "away_runs_against_pg",
+        "value": 0.005154639175257769
+      },
+      {
+        "feature": "away_bullpen_ip_last_3",
+        "value": 0.005154639175257769
+      }
+    ]
+  },
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "analysis_window": {
+    "type": "late_2025_analysis_sample",
+    "start_date": "2025-09-01",
+    "sample_size": 97
+  },
+  "source_model_dir": "artifacts/model_registry/lgbm_v008"
+}
