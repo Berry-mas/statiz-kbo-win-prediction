@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { DatePager } from "./date-pager";
 import { ManualSubmitPanel } from "./manual-submit-panel";
+import { SiteStatsStrip } from "./site-stats";
 
 type TeamInfo = {
   name: string;
@@ -175,6 +176,8 @@ export default async function DashboardPage() {
           )}
         </div>
       </section>
+
+      <SiteStatsStrip />
 
       <section className="metric-grid" aria-label="Model operating metrics">
         {metricCards.map((metric) => (

@@ -19,6 +19,31 @@ or unfinalized predictions in this directory.
 - Game-card dates use `M.D`; operational game dates use `YYYY.MM.DD`.
 - Hit/Miss and Accuracy are based on submitted probability.
 - Cancelled games are shown but excluded from accuracy.
+- Site views and site-level likes are stored in Upstash Redis, not in
+  `public/results.json` or local files.
+
+## Site Stats Storage
+
+The dashboard uses the dynamic API route `app/api/site-stats/route.ts` for
+page-view and site-like counters. Use Vercel Marketplace Storage with Upstash
+Redis for production. The Vercel project root must remain `web/`.
+
+Required environment variables:
+
+```bash
+UPSTASH_REDIS_REST_URL=https://...
+UPSTASH_REDIS_REST_TOKEN=...
+```
+
+Provisioning options:
+
+1. In Vercel, add the Upstash Redis integration from Marketplace Storage and
+   connect it to this project so Vercel injects the Redis REST credentials.
+2. For local development, copy the same values into `web/.env.local`.
+
+The current scope is `site`, so one global like counter is shown. The API also
+accepts a future `scope` value for extending the same storage pattern to
+game-level likes later.
 
 ## Local Commands
 
