@@ -3,13 +3,17 @@ name = "statiz-prediction"
 version = "0.1.0"
 description = "KBO baseball win probability prediction system for Statiz competition"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "requests>=2.31",
     "pandas>=2.0",
     "numpy>=1.26",
     "lightgbm>=4.3",
     "scikit-learn>=1.3",
+    "matplotlib>=3.8",
+    "shap>=0.45",
+    "numba>=0.60",
+    "llvmlite>=0.43",
     "joblib>=1.3",
     "python-dotenv>=1.0",
     "loguru>=0.7",
