@@ -135,10 +135,10 @@ export default async function DashboardPage() {
   const latestSubmission = data.latest_submission ?? null;
   const modelVersion = data.model_version ?? results[0]?.model_version ?? "n/a";
   const heroGame = recentGames.find(isLgTwinsGame) ?? null;
-  const recentGamePages = groupGamesByDate(recentGames).map(({ key, games }) => ({
+  const recentGamePages = groupGamesBySubmittedDate(recentGames).map(({ key, games }) => ({
     key,
     label: formatDate(key),
-    detail: formatGameCount(games.length),
+    detail: `${formatGameCount(games.length)} submitted`,
     content: (
       <div className="game-grid">
         {games.map((game) => (
@@ -320,7 +320,7 @@ function sortResults(results: PublicResult[]): PublicResult[] {
 function buildMetricCards(results: PublicResult[], recentGames: RecentGame[], metrics: ModelMetrics): Metric[] {
   const latestGame = recentGames[0];
   const openSubmitted = recentGames.filter((game) => game.game_status === "scheduled" || game.game_status === "in_progress").length;
-  const latestDate = latestGame ? formatDate(latestGame.game_date ?? latestGame.submitted_at) : "n/a";
+  const latestDate = latestGame ? formatDate(latestGame.submitted_at) : "n/a";
   const latestDetail = latestGame ? "Submission date" : "No submitted game";
 
   return [
@@ -416,10 +416,30 @@ function groupGamesByDate(games: RecentGame[]): Array<{ key: string; games: Rece
   );
 }
 
+function groupGamesBySubmittedDate(games: RecentGame[]): Array<{ key: string; games: RecentGame[] }> {
+  const groups = new Map<string, RecentGame[]>();
+  for (const game of games) {
+    const key = submittedDateKey(game);
+    const group = groups.get(key);
+    if (group) {
+      group.push(game);
+    } else {
+      groups.set(key, [game]);
+    }
+  }
+  return Array.from(groups, ([key, group]) => ({ key, games: group })).sort((a, b) =>
+    a.key.localeCompare(b.key),
+  );
+}
+
 function gameDateKey(game: RecentGame): string {
   if (game.game_date) {
     return game.game_date;
   }
+  return game.submitted_at.slice(0, 10);
+}
+
+function submittedDateKey(game: RecentGame): string {
   return game.submitted_at.slice(0, 10);
 }
 
