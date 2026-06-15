@@ -124,6 +124,35 @@ systemctl list-timers 'statiz-public-results.timer'
 
 서버 checkout에 tracked local changes가 있거나 `origin/main`보다 오래된 상태면 publish는 중단된다.
 
+## Feature analysis publish
+
+모델 해석 차트는 서버에 모델 registry와 feature CSV가 있을 때 생성한다.
+
+```bash
+cd "$STATIZ_REPO_DIR"
+uv run --python 3.12 python scripts/evaluate_model.py \
+  --model-version lgbm_v008 \
+  --years 2023,2024,2025 \
+  --feature-analysis \
+  --publish-web
+```
+
+생성 확인:
+
+```bash
+ls web/public/feature-analysis
+```
+
+공개 반영:
+
+```bash
+git add web/public/feature-analysis
+git commit -m "Publish feature analysis artifacts"
+git push
+```
+
+`/feature-analysis` 페이지는 `web/public/feature-analysis/manifest.json`이 있으면 차트와 CSV 링크를 표시하고, 없으면 미게시 fallback을 표시한다.
+
 ## 서버 업데이트
 
 서버에서 최신 코드를 반영할 때:

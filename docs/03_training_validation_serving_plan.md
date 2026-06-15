@@ -72,6 +72,36 @@
 
 ---
 
+## 4.1 모델 해석 산출물
+
+저장 모델의 feature 분석은 `src/feature_analysis.py`와 `scripts/evaluate_model.py --feature-analysis`로 생성한다.
+
+주요 산출물:
+- LightGBM gain/split importance CSV 및 Top N bar plot
+- SHAP summary plot, SHAP mean absolute impact bar plot, CSV
+- 선택 feature별 SHAP dependence plot
+- permutation importance CSV 및 Top N bar plot
+- `web/public/feature-analysis/manifest.json`
+
+기본 실행:
+
+```bash
+uv run --python 3.12 python scripts/evaluate_model.py \
+  --model-version lgbm_v008 \
+  --years 2023,2024,2025 \
+  --feature-analysis \
+  --publish-web
+```
+
+해석 주의:
+- feature importance와 SHAP importance는 인과관계를 의미하지 않는다.
+- “원인”이 아니라 “모델이 예측에 활용한 신호”로 해석한다.
+- gain/split importance, SHAP, permutation importance는 서로 다른 관점이다.
+
+상세 운영 절차는 `docs/09_model_feature_analysis.md` 기준이다.
+
+---
+
 ## 5. 앙상블 전략
 초기 권장:
 - 동일 모델 + 다른 random seed 5개
