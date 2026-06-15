@@ -79,7 +79,9 @@ export function SiteStatsStrip() {
         onClick={() => updateStats("like", getVisitorId())}
         type="button"
       >
-        <span className="baseball-mark" aria-hidden="true" />
+        <span className="baseball-mark" aria-hidden="true">
+          ⚾️
+        </span>
         {stats.liked ? "Liked" : status === "pending" ? "Saving" : "Like"}
       </button>
       {status === "offline" ? <span className="site-stats-note">Stats offline</span> : null}

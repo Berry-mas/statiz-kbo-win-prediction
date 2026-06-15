@@ -159,7 +159,7 @@ export default async function DashboardPage() {
       <section className="hero-panel">
         <div className="hero-copy">
           <p className="eyebrow">Y-wins KBO Forecast</p>
-          <h1>Y-wins KBO Forecast</h1>
+          <h1>KBO win probability dashboard</h1>
           <div className="model-line" aria-label="Model version">
             <span>model</span>
             <strong>{modelVersion}</strong>

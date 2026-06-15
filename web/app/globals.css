@@ -85,11 +85,11 @@ p {
 }
 
 h1 {
-  max-width: 760px;
+  max-width: 690px;
   margin: 0;
-  font-size: 3.75rem;
-  line-height: 0.98;
-  white-space: nowrap;
+  font-size: 4.05rem;
+  font-weight: 400;
+  line-height: 1.02;
 }
 
 h2 {
@@ -229,40 +229,14 @@ h3 {
 }
 
 .baseball-mark {
-  position: relative;
-  width: 15px;
-  height: 15px;
-  flex: 0 0 15px;
-  overflow: hidden;
-  border: 1px solid var(--line-strong);
-  border-radius: 50%;
-  background: #ffffff;
-}
-
-.baseball-mark::before,
-.baseball-mark::after {
-  position: absolute;
-  top: 2px;
-  bottom: 2px;
-  width: 4px;
-  border-color: var(--red);
-  border-style: solid;
-  content: "";
-  opacity: 0.85;
-}
-
-.baseball-mark::before {
-  left: 2px;
-  border-width: 0 1px 0 0;
-  border-radius: 0 999px 999px 0;
-  transform: rotate(-18deg);
-}
-
-.baseball-mark::after {
-  right: 2px;
-  border-width: 0 0 0 1px;
-  border-radius: 999px 0 0 999px;
-  transform: rotate(-18deg);
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  line-height: 1;
 }
 
 .site-stats-note {
@@ -1013,7 +987,6 @@ tbody tr:last-child td {
 
   h1 {
     font-size: 3.25rem;
-    white-space: normal;
   }
 
   .metric-grid {
