@@ -901,6 +901,7 @@ tbody tr:last-child td {
 
   h1 {
     font-size: 3.25rem;
+    white-space: normal;
   }
 
   .metric-grid {
@@ -921,7 +922,6 @@ tbody tr:last-child td {
 
   h1 {
     font-size: 2.55rem;
-    white-space: normal;
   }
 
   .metric-grid,
@@ -963,5 +963,69 @@ tbody tr:last-child td {
 
   .game-card-bottom {
     display: block;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-panel {
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: 2.05rem;
+    line-height: 1.04;
+  }
+
+  .game-card,
+  .game-card-featured {
+    padding: 14px;
+  }
+
+  .teams,
+  .game-card-featured .teams {
+    grid-template-areas:
+      "away home"
+      "awayprob homeprob"
+      "matchup matchup";
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
+  }
+
+  .team-side-away {
+    grid-area: away;
+    justify-items: start;
+  }
+
+  .team-side-home {
+    grid-area: home;
+    justify-items: end;
+  }
+
+  .team-probability-away {
+    grid-area: awayprob;
+    text-align: left;
+  }
+
+  .team-probability-home {
+    grid-area: homeprob;
+    text-align: right;
+  }
+
+  .versus {
+    grid-area: matchup;
+    padding-top: 2px;
+  }
+
+  .team-matchup strong {
+    font-size: 1rem;
+  }
+
+  .game-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .game-footer > span {
+    white-space: normal;
   }
 }

@@ -160,7 +160,7 @@ export default async function DashboardPage() {
       <section className="hero-panel">
         <div className="hero-copy">
           <p className="eyebrow">Y-wins KBO Forecast</p>
-          <h1>Y-wins KBO Prediction</h1>
+          <h1>Y-wins KBO Forecast</h1>
           <div className="model-line" aria-label="Model version">
             <span>model</span>
             <strong>{modelVersion}</strong>
@@ -646,7 +646,7 @@ function WorkflowSummary({ workflow }: { workflow?: ManualWorkflow }) {
       </div>
       <div>
         <dt>Game date</dt>
-        <dd>{row.last_game_date ?? "unknown"}</dd>
+        <dd>{row.last_game_date ? formatFullDate(row.last_game_date) : "unknown"}</dd>
       </div>
       <div>
         <dt>Submitted</dt>
@@ -718,6 +718,19 @@ function formatDate(value: string): string {
   const month = parts.find((part) => part.type === "month")?.value ?? "";
   const day = parts.find((part) => part.type === "day")?.value ?? "";
   return `${month}.${day}`;
+}
+
+function formatFullDate(value: string): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "Asia/Seoul",
+  }).formatToParts(new Date(value));
+  const year = parts.find((part) => part.type === "year")?.value ?? "";
+  const month = parts.find((part) => part.type === "month")?.value ?? "";
+  const day = parts.find((part) => part.type === "day")?.value ?? "";
+  return `${year}.${month}.${day}`;
 }
 
 function formatGameCount(value: number): string {
