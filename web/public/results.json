@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-15T07:00:18.571101+00:00",
+  "generated_at": "2026-06-15T11:41:29.588752+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -17,7 +17,7 @@
   "summary": {
     "published_results": 9,
     "recent_submissions": 3,
-    "recent_games": 12,
+    "recent_games": 15,
     "latest_submission_at": "2026-06-15T16:00:18.538593+09:00",
     "metrics_window": {
       "type": "recent_finalized_submitted_games",
@@ -634,6 +634,87 @@
       "scheduler": null,
       "home_score": 7,
       "away_score": 6,
+      "actual_winner": "home",
+      "correct": true
+    },
+    {
+      "s_no": 20260333,
+      "game_date": "2026-06-13",
+      "game_time": "17:00:00",
+      "home_team": {
+        "name": "KT",
+        "logo_key": "kt"
+      },
+      "away_team": {
+        "name": "NC",
+        "logo_key": "nc"
+      },
+      "home_sp_name": "오원석",
+      "away_sp_name": "토다",
+      "game_status": "final",
+      "submitted_at": "2026-06-13T16:30:48.907827+09:00",
+      "submission_source": "auto",
+      "model_version": "lgbm_v008",
+      "probability_published": true,
+      "home_win_probability": 55.95,
+      "predicted_winner": "home",
+      "scheduler": null,
+      "home_score": 11,
+      "away_score": 9,
+      "actual_winner": "home",
+      "correct": true
+    },
+    {
+      "s_no": 20260332,
+      "game_date": "2026-06-13",
+      "game_time": "17:00:00",
+      "home_team": {
+        "name": "키움",
+        "logo_key": "kiwoom"
+      },
+      "away_team": {
+        "name": "한화",
+        "logo_key": "hanwha"
+      },
+      "home_sp_name": "알칸타라",
+      "away_sp_name": "박준영",
+      "game_status": "final",
+      "submitted_at": "2026-06-13T16:30:43.898730+09:00",
+      "submission_source": "auto",
+      "model_version": "lgbm_v008",
+      "probability_published": true,
+      "home_win_probability": 58.07,
+      "predicted_winner": "home",
+      "scheduler": null,
+      "home_score": 3,
+      "away_score": 1,
+      "actual_winner": "home",
+      "correct": true
+    },
+    {
+      "s_no": 20260331,
+      "game_date": "2026-06-13",
+      "game_time": "17:00:00",
+      "home_team": {
+        "name": "LG",
+        "logo_key": "lg"
+      },
+      "away_team": {
+        "name": "롯데",
+        "logo_key": "lotte"
+      },
+      "home_sp_name": "김진수",
+      "away_sp_name": "이민석",
+      "game_status": "final",
+      "submitted_at": "2026-06-13T16:30:38.950663+09:00",
+      "submission_source": "auto",
+      "model_version": "lgbm_v008",
+      "probability_published": true,
+      "home_win_probability": 59.28,
+      "predicted_winner": "home",
+      "scheduler": null,
+      "home_score": 5,
+      "away_score": 3,
       "actual_winner": "home",
       "correct": true
     }
