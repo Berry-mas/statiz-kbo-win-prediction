@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
+import { DatePager } from "./date-pager";
 import { ManualSubmitPanel } from "./manual-submit-panel";
 
 type TeamInfo = {
@@ -133,6 +134,26 @@ export default async function DashboardPage() {
   const latestSubmission = data.latest_submission ?? null;
   const modelVersion = data.model_version ?? results[0]?.model_version ?? "n/a";
   const heroGame = recentGames.find(isLgTwinsGame) ?? null;
+  const recentGamePages = groupGamesByDate(recentGames).map(({ key, games }) => ({
+    key,
+    label: formatDate(key),
+    detail: formatGameCount(games.length),
+    itemCount: games.length,
+    content: (
+      <div className="game-grid">
+        {games.map((game) => (
+          <GameCard game={game} key={`${game.s_no ?? "unknown"}-${game.submitted_at}`} />
+        ))}
+      </div>
+    ),
+  }));
+  const ledgerPages = groupGamesByDate(ledgerGames).map(({ key, games }) => ({
+    key,
+    label: formatDate(key),
+    detail: formatGameCount(games.length),
+    itemCount: games.length,
+    content: <LedgerTable games={games} />,
+  }));
 
   return (
     <main className="dashboard-shell">
@@ -179,11 +200,7 @@ export default async function DashboardPage() {
               </span>
             </div>
             {recentGames.length > 0 ? (
-              <div className="game-grid">
-                {recentGames.map((game) => (
-                  <GameCard game={game} key={`${game.s_no}-${game.submitted_at}`} />
-                ))}
-              </div>
+              <DatePager ariaLabel="Submitted games by date" pages={recentGamePages} />
             ) : (
               <EmptyState
                 title="Published games will appear here"
@@ -200,57 +217,7 @@ export default async function DashboardPage() {
               </div>
             </div>
             {ledgerGames.length > 0 ? (
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Matchup</th>
-                      <th>Final</th>
-                      <th>Home Win</th>
-                      <th>Call</th>
-                      <th>Result</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ledgerGames.map((game) => {
-                      return (
-                        <tr key={game.s_no}>
-                          <td>{formatDate(game.game_date ?? game.submitted_at)}</td>
-                          <td>
-                            <span className="matchup">
-                              {game.away_team.name} <span>vs</span> {game.home_team.name}
-                            </span>
-                            <span className="venue">{game.submission_source ?? "auto"}</span>
-                          </td>
-                          <td className="score">
-                            {game.game_status === "cancelled" || game.away_score === null || game.home_score === null
-                              ? "Cancelled"
-                              : `${game.away_score}-${game.home_score}`}
-                          </td>
-                          <td>
-                            {game.home_win_probability !== null ? (
-                              <ProbabilityBar value={game.home_win_probability / 100} />
-                            ) : (
-                              "n/a"
-                            )}
-                          </td>
-                          <td>
-                            {game.predicted_winner === "home"
-                              ? game.home_team.name
-                              : game.predicted_winner === "away"
-                                ? game.away_team.name
-                                : "n/a"}
-                          </td>
-                          <td>
-                            <OutcomeBadge correct={game.correct} status={game.game_status} />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              <DatePager ariaLabel="Finalized ledger by date" pages={ledgerPages} />
             ) : (
               <EmptyState
                 title="No finalized submissions published yet"
@@ -428,6 +395,74 @@ function clampProbability(value: number): number {
 
 function isLgTwinsGame(game: RecentGame): boolean {
   return game.home_team.logo_key === LG_TWINS_LOGO_KEY || game.away_team.logo_key === LG_TWINS_LOGO_KEY;
+}
+
+function groupGamesByDate(games: RecentGame[]): Array<{ key: string; games: RecentGame[] }> {
+  const groups = new Map<string, RecentGame[]>();
+  for (const game of games) {
+    const key = gameDateKey(game);
+    groups.set(key, [...(groups.get(key) ?? []), game]);
+  }
+  return Array.from(groups, ([key, group]) => ({ key, games: group }));
+}
+
+function gameDateKey(game: RecentGame): string {
+  if (game.game_date) {
+    return game.game_date;
+  }
+  return game.submitted_at.slice(0, 10);
+}
+
+function LedgerTable({ games }: { games: RecentGame[] }) {
+  return (
+    <div className="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Matchup</th>
+            <th>Final</th>
+            <th>Home Win</th>
+            <th>Call</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          {games.map((game) => {
+            return (
+              <tr key={`${game.s_no ?? "unknown"}-${game.submitted_at}`}>
+                <td>{formatDate(game.game_date ?? game.submitted_at)}</td>
+                <td>
+                  <span className="matchup">
+                    {game.away_team.name} <span>vs</span> {game.home_team.name}
+                  </span>
+                  <span className="venue">{game.submission_source ?? "auto"}</span>
+                </td>
+                <td className="score">
+                  {game.game_status === "cancelled" || game.away_score === null || game.home_score === null
+                    ? "Cancelled"
+                    : `${game.away_score}-${game.home_score}`}
+                </td>
+                <td>
+                  {game.home_win_probability !== null ? <ProbabilityBar value={game.home_win_probability / 100} /> : "n/a"}
+                </td>
+                <td>
+                  {game.predicted_winner === "home"
+                    ? game.home_team.name
+                    : game.predicted_winner === "away"
+                      ? game.away_team.name
+                      : "n/a"}
+                </td>
+                <td>
+                  <OutcomeBadge correct={game.correct} status={game.game_status} />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 function GameCard({ game, featured = false }: { game: RecentGame; featured?: boolean }) {
@@ -680,6 +715,10 @@ function formatDate(value: string): string {
     month: "short",
     day: "numeric",
   }).format(new Date(value));
+}
+
+function formatGameCount(value: number): string {
+  return `${value} ${value === 1 ? "game" : "games"}`;
 }
 
 function formatTimestamp(value: string): string {

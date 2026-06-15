@@ -249,6 +249,65 @@ h3 {
   gap: 12px;
 }
 
+.date-pager {
+  display: grid;
+  gap: 10px;
+}
+
+.date-pager-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 2px 0 4px;
+}
+
+.date-pager-current {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.date-pager-current strong {
+  font-size: 0.95rem;
+}
+
+.date-pager-current span,
+.date-pager-controls span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.date-pager-controls {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-pager-controls button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.date-pager-controls button:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .game-card {
   display: grid;
   gap: 16px;
@@ -873,6 +932,17 @@ tbody tr:last-child td {
   .section-heading {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .date-pager-bar,
+  .date-pager-current {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .date-pager-controls {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .teams {
