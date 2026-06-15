@@ -1,12 +1,11 @@
 "use client";
 
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useState } from "react";
 
 export type DatePagerPage = {
   key: string;
   label: string;
   detail: string;
-  itemCount: number;
   content: ReactNode;
 };
 
@@ -19,18 +18,13 @@ export function DatePager({ ariaLabel, pages }: DatePagerProps) {
   const [pageIndex, setPageIndex] = useState(Math.max(pages.length - 1, 0));
   const activePageIndex = Math.min(pageIndex, Math.max(pages.length - 1, 0));
   const activePage = pages[activePageIndex];
-  const pageSummary = useMemo(() => {
-    if (!activePage) {
-      return "";
-    }
-    return `${activePage.label} · ${activePage.detail}`;
-  }, [activePage]);
 
   if (!activePage) {
     return null;
   }
 
   const hasMultiplePages = pages.length > 1;
+  const pageSummary = `${activePage.label} · ${activePage.detail}`;
 
   return (
     <div className="date-pager" aria-label={ariaLabel}>

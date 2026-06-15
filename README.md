@@ -1,8 +1,8 @@
-# Statiz KBO Win Prediction
+# Y-wins KBO Forecast
 
 Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 및 제출 자동화 프로젝트임.
 
-현재 범위는 API raw 수집, leakage-safe feature 생성, LightGBM 앙상블 학습/검증, 당일 예측, 고정 IP 서버 기반 제출 자동화까지 포함함.
+현재 범위는 API raw 수집, leakage-safe feature 생성, LightGBM 앙상블 학습/검증, 당일 예측, 고정 IP 서버 기반 제출 자동화, Vercel 공개 대시보드까지 포함함.
 
 ## 현재 상태
 
@@ -10,8 +10,11 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 및 제출 
 - 추론 대상: 정규시즌 경기의 홈팀 승리 확률
 - 운영 서버: 고정 IP Linux 서버
 - 서버 자동화: `systemd` service/timer 기반 `auto-submit` 및 공개 결과 publish 실행
+- 공개 대시보드: https://y-wins-kbo-forecast.vercel.app
+- Vercel root directory: `web`
 - 실제 제출 gate: 서버 환경파일의 명시적 flag로 제어함
 - 수동 제출: Vercel 대시보드 버튼이 GitHub Actions를 거쳐 등록 IP 서버에서 실행함
+- 공개 결과 갱신: `src/public_results.py` 결과 JSON 변경 시 GitHub Actions `Publish public results`가 Lightsail publish를 실행함
 - Discord 알림: 실제 제출 성공 건이 있을 때만 발송하며 양팀 선발투수를 포함함
 
 ## 모델
@@ -133,6 +136,22 @@ Discord 성공 알림 예시:
 - 18:30 KIA vs LG: LG 승률 57.12% (제출 홈팀 승률 57.12%) / 선발 네일 vs 임찬규
 - 17:00 한화 vs 삼성: 한화 승률 55.60% (제출 홈팀 승률 44.40%) / 선발 류현진 vs 후라도
 ```
+
+## 공개 대시보드
+
+Next.js 앱은 `web/` 기준으로 Vercel에 배포함.
+
+- 메인 타이틀: `Y-wins KBO Forecast`
+- 데이터 파일: `web/public/results.json`
+- favicon: `web/app/icon.png`
+- Submitted games: 제출된 경기의 submitted probability 공개
+- 경기 카드: 날짜별 페이지네이션, `M.D` 날짜 표기, 팀 matchup 중앙 배치, 선발투수는 각 팀 확률 아래 표시
+- Finalized ledger: final/cancelled 경기만 날짜별 페이지네이션 표시
+- Hit/Miss/Accuracy: 실제 제출 확률인 `submitted_prob` 기준 계산
+- Cancelled: 정확도 계산에서 제외, 카드/ledger 결과는 `Cancelled`로 표시
+- 운영 패널 game date: `YYYY.MM.DD` 형식 표시
+
+수동 제출 버튼은 Vercel API route가 GitHub Actions workflow dispatch를 호출하고, workflow가 등록 IP 서버에서 제출 스크립트를 실행하는 구조임. 대회 제출 API는 브라우저/Vercel에서 직접 호출하지 않음.
 
 ## 서버 운영
 
@@ -283,12 +302,12 @@ src/
 ├── predictor.py        # 모델 로딩 및 추론
 ├── submitter.py        # 제출 API 호출 및 로그
 ├── trainer.py          # LightGBM 학습
-└── public_results.py   # 공개 결과 JSON export
+└── public_results.py   # 공개 대시보드 JSON export
 
 ops/systemd/            # server systemd unit
 scripts/                # 평가 및 서버 운영 스크립트
 docs/                   # 설계/운영 문서
-web/                    # 공개 결과 대시보드
+web/                    # Vercel 공개 대시보드
 ```
 
 ## Git Ignore Policy

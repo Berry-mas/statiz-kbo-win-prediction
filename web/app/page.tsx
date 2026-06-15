@@ -138,7 +138,6 @@ export default async function DashboardPage() {
     key,
     label: formatDate(key),
     detail: formatGameCount(games.length),
-    itemCount: games.length,
     content: (
       <div className="game-grid">
         {games.map((game) => (
@@ -151,7 +150,6 @@ export default async function DashboardPage() {
     key,
     label: formatDate(key),
     detail: formatGameCount(games.length),
-    itemCount: games.length,
     content: <LedgerTable games={games} />,
   }));
 
@@ -400,9 +398,16 @@ function groupGamesByDate(games: RecentGame[]): Array<{ key: string; games: Rece
   const groups = new Map<string, RecentGame[]>();
   for (const game of games) {
     const key = gameDateKey(game);
-    groups.set(key, [...(groups.get(key) ?? []), game]);
+    const group = groups.get(key);
+    if (group) {
+      group.push(game);
+    } else {
+      groups.set(key, [game]);
+    }
   }
-  return Array.from(groups, ([key, group]) => ({ key, games: group })).sort((a, b) => a.key.localeCompare(b.key));
+  return Array.from(groups, ([key, group]) => ({ key, games: group })).sort((a, b) =>
+    a.key.localeCompare(b.key),
+  );
 }
 
 function gameDateKey(game: RecentGame): string {

@@ -1,10 +1,10 @@
 """
-Submitter: Submits predictions to the Statiz API with retry and validation.
+Submit predictions to the Statiz API with retry and validation.
 
 Competition rules:
 - 50.00% is invalid → normalize_prob() converts to 50.01
 - Must submit at least 15 minutes before game start
-- Retry up to 3 times with exponential backoff (0s, 10s, 30s)
+- Retry up to 3 times with delays of 0s, 10s, and 30s
 - Log every submission attempt to logs/submission_log.csv
 """
 
