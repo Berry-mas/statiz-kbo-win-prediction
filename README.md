@@ -11,6 +11,7 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 및 제출 
 - 운영 서버: 고정 IP Linux 서버
 - 서버 자동화: `systemd` service/timer 기반 `auto-submit` 및 공개 결과 publish 실행
 - 공개 대시보드: https://y-wins-kbo-forecast.vercel.app
+- 모델 해석 페이지: https://y-wins-kbo-forecast.vercel.app/feature-analysis
 - Vercel root directory: `web`
 - 실제 제출 gate: 서버 환경파일의 명시적 flag로 제어함
 - 수동 제출: Vercel 대시보드 버튼이 GitHub Actions를 거쳐 등록 IP 서버에서 실행함
@@ -56,6 +57,38 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 및 제출 
 - `artifacts/model_registry/lgbm_v008/evaluation/model_metrics.csv`
 - `artifacts/model_registry/lgbm_v008/evaluation/baseline_summary.csv`
 - `artifacts/model_registry/lgbm_v008/evaluation/feature_importance.csv`
+
+## 모델 해석
+
+feature importance와 SHAP 분석은 `src/feature_analysis.py`가 담당함.
+
+생성 산출물:
+
+- LightGBM gain/split feature importance CSV 및 Top N bar plot
+- SHAP summary plot, SHAP mean absolute impact bar plot, CSV
+- 선택 feature별 SHAP dependence plot
+- permutation importance CSV 및 bar plot
+- 웹 공개용 `web/public/feature-analysis/manifest.json`
+
+실행 예시:
+
+```bash
+uv run --python 3.12 python scripts/evaluate_model.py \
+  --model-version lgbm_v008 \
+  --years 2023,2024,2025 \
+  --feature-analysis \
+  --publish-web \
+  --top-n 30
+```
+
+로컬 분석 산출물은 `outputs/feature_analysis/<model_version>/`에 저장함.
+`--publish-web`을 함께 쓰면 `web/public/feature-analysis/`에 PNG/CSV/manifest를 복사해 Vercel 공개 페이지가 읽을 수 있게 함.
+
+주의:
+
+- feature importance와 SHAP importance는 인과관계가 아님
+- “이 feature가 원인이다”가 아니라 “모델이 이 feature를 예측에 강하게 활용했다”로 해석해야 함
+- LightGBM gain/split importance와 SHAP 기여도는 서로 다른 관점임
 
 ## Feature 범위
 
@@ -145,8 +178,9 @@ Next.js 앱은 `web/` 기준으로 Vercel에 배포함.
 - 데이터 파일: `web/public/results.json`
 - favicon: `web/app/icon.png`
 - Submitted games: 제출된 경기의 submitted probability 공개
-- 경기 카드: 날짜별 페이지네이션, `M.D` 날짜 표기, 팀 matchup 중앙 배치, 선발투수는 각 팀 확률 아래 표시
+- 경기 카드: 제출일 기준 페이지네이션, `M.D` 날짜 표기, 팀 matchup 중앙 배치, 선발투수는 각 팀 확률 아래 표시
 - Finalized ledger: final/cancelled 경기만 날짜별 페이지네이션 표시
+- Feature analysis: `web/public/feature-analysis/manifest.json` 기반 모델 해석 차트와 CSV 링크 표시
 - Hit/Miss/Accuracy: 실제 제출 확률인 `submitted_prob` 기준 계산
 - Cancelled: 정확도 계산에서 제외, 카드/ledger 결과는 `Cancelled`로 표시
 - 운영 패널 game date: `YYYY.MM.DD` 형식 표시
@@ -256,6 +290,16 @@ uv run python -m src.main train --years 2023,2024,2025
 uv run python scripts/evaluate_model.py --model-version lgbm_v008 --years 2023,2024,2025
 ```
 
+모델 해석 산출물 생성 및 웹 공개 파일 갱신:
+
+```bash
+uv run --python 3.12 python scripts/evaluate_model.py \
+  --model-version lgbm_v008 \
+  --years 2023,2024,2025 \
+  --feature-analysis \
+  --publish-web
+```
+
 당일 예측:
 
 ```bash
@@ -302,6 +346,7 @@ src/
 ├── predictor.py        # 모델 로딩 및 추론
 ├── submitter.py        # 제출 API 호출 및 로그
 ├── trainer.py          # LightGBM 학습
+├── feature_analysis.py # feature importance/SHAP/permutation 분석
 └── public_results.py   # 공개 대시보드 JSON export
 
 ops/systemd/            # server systemd unit
