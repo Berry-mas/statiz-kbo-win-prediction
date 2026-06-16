@@ -113,8 +113,10 @@ type DashboardData = {
 
 type Metric = {
   label: string;
+  labelKo: string;
   value: string;
   detail: string;
+  detailKo: string;
   tone?: "good" | "warn" | "neutral";
 };
 
@@ -139,6 +141,7 @@ export default async function DashboardPage() {
     key,
     label: formatDate(key),
     detail: `${formatGameCount(games.length)} submitted`,
+    detailKo: `${formatGameCountKo(games.length)} 제출`,
     content: (
       <div className="game-grid">
         {games.map((game) => (
@@ -151,6 +154,7 @@ export default async function DashboardPage() {
     key,
     label: formatDate(key),
     detail: formatGameCount(games.length),
+    detailKo: formatGameCountKo(games.length),
     content: <LedgerTable games={games} />,
   }));
 
@@ -159,9 +163,13 @@ export default async function DashboardPage() {
       <section className="hero-panel">
         <div className="hero-copy">
           <p className="eyebrow">Y-wins KBO Forecast</p>
-          <h1>KBO win probability dashboard</h1>
+          <h1 data-en="KBO win probability dashboard" data-ko="KBO 승부예측 대시보드">
+            KBO win probability dashboard
+          </h1>
           <div className="model-line" aria-label="Model version">
-            <span>model</span>
+            <span data-en="model" data-ko="모델">
+              model
+            </span>
             <strong>{modelVersion}</strong>
           </div>
         </div>
@@ -170,8 +178,15 @@ export default async function DashboardPage() {
             <GameCard game={heroGame} featured />
           ) : (
             <div className="hero-empty">
-              <strong>No LG Twins game yet</strong>
-              <span>Waiting for the latest submitted LG Twins matchup</span>
+              <strong data-en="No LG Twins game yet" data-ko="아직 LG 트윈스 경기가 없음">
+                No LG Twins game yet
+              </strong>
+              <span
+                data-en="Waiting for the latest submitted LG Twins matchup"
+                data-ko="최근 제출된 LG 트윈스 경기를 기다리는 중"
+              >
+                Waiting for the latest submitted LG Twins matchup
+              </span>
             </div>
           )}
         </div>
@@ -182,9 +197,13 @@ export default async function DashboardPage() {
       <section className="metric-grid" aria-label="Model operating metrics">
         {metricCards.map((metric) => (
           <article className={`metric-card tone-${metric.tone ?? "neutral"}`} key={metric.label}>
-            <span>{metric.label}</span>
+            <span data-en={metric.label} data-ko={metric.labelKo}>
+              {metric.label}
+            </span>
             <strong>{metric.value}</strong>
-            <p>{metric.detail}</p>
+            <p data-en={metric.detail} data-ko={metric.detailKo}>
+              {metric.detail}
+            </p>
           </article>
         ))}
       </section>
@@ -194,10 +213,15 @@ export default async function DashboardPage() {
           <article className="section-panel">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">Submitted games</p>
+                <p className="eyebrow" data-en="Submitted games" data-ko="제출 경기">
+                  Submitted games
+                </p>
               </div>
               <span className="policy-chip">
-                {metrics.window.sample_size}/{metrics.window.requested} metric window
+                {metrics.window.sample_size}/{metrics.window.requested}{" "}
+                <span data-en="metric window" data-ko="지표 구간">
+                  metric window
+                </span>
               </span>
             </div>
             {recentGames.length > 0 ? (
@@ -205,7 +229,9 @@ export default async function DashboardPage() {
             ) : (
               <EmptyState
                 title="Published games will appear here"
+                titleKo="게시된 경기가 여기에 표시됨"
                 body="Submitted games show submitted probability; outcomes appear after final score."
+                bodyKo="제출된 경기는 제출 확률을 보여주고, 최종 점수 이후 결과가 표시됨."
               />
             )}
           </article>
@@ -213,7 +239,9 @@ export default async function DashboardPage() {
           <article className="section-panel">
             <div className="section-heading compact">
               <div>
-                <p className="eyebrow">Finalized ledger</p>
+                <p className="eyebrow" data-en="Finalized ledger" data-ko="확정 결과 기록">
+                  Finalized ledger
+                </p>
               </div>
             </div>
             {ledgerGames.length > 0 ? (
@@ -221,7 +249,9 @@ export default async function DashboardPage() {
             ) : (
               <EmptyState
                 title="No finalized submissions published yet"
+                titleKo="아직 확정된 제출 결과가 없음"
                 body="Rows are published after a submitted game has a final score."
+                bodyKo="제출된 경기가 최종 점수를 갖게 되면 행이 게시됨."
               />
             )}
           </article>
@@ -231,7 +261,9 @@ export default async function DashboardPage() {
           <article className="section-panel operations-panel">
             <div className="section-heading compact">
               <div>
-                <p className="eyebrow">Manual workflow</p>
+                <p className="eyebrow" data-en="Manual workflow" data-ko="수동 제출">
+                  Manual workflow
+                </p>
               </div>
               <StatusPill status={data.manual_workflow?.status ?? "unknown"} />
             </div>
@@ -242,45 +274,69 @@ export default async function DashboardPage() {
           <article className="section-panel">
             <div className="section-heading compact">
               <div>
-                <p className="eyebrow">Latest submission</p>
+                <p className="eyebrow" data-en="Latest submission" data-ko="최근 제출">
+                  Latest submission
+                </p>
               </div>
             </div>
             {latestSubmission ? (
               <SubmissionSummary batch={latestSubmission} />
             ) : (
-              <EmptyState title="No batch" body="No successful submission batch has been published." />
+              <EmptyState
+                title="No batch"
+                titleKo="제출 묶음 없음"
+                body="No successful submission batch has been published."
+                bodyKo="게시된 성공 제출 묶음이 없음."
+              />
             )}
           </article>
 
           <article className="section-panel">
             <div className="section-heading compact">
               <div>
-                <p className="eyebrow">Model ops</p>
+                <p className="eyebrow" data-en="Model ops" data-ko="모델 운영">
+                  Model ops
+                </p>
               </div>
             </div>
             <dl className="ops-list">
               <div>
-                <dt>Accuracy</dt>
+                <dt data-en="Accuracy" data-ko="정확도">Accuracy</dt>
                 <dd>{formatRate(metrics.accuracy)}</dd>
               </div>
               <div>
-                <dt>LogLoss</dt>
+                <dt data-en="LogLoss" data-ko="로그손실">LogLoss</dt>
                 <dd>{formatNumber(metrics.log_loss)}</dd>
               </div>
               <div>
-                <dt>Brier</dt>
+                <dt data-en="Brier" data-ko="브라이어">Brier</dt>
                 <dd>{formatNumber(metrics.brier)}</dd>
               </div>
               <div>
-                <dt>Window</dt>
-                <dd>{metrics.window.sample_size} games</dd>
+                <dt data-en="Window" data-ko="구간">Window</dt>
+                <dd>
+                  {metrics.window.sample_size}{" "}
+                  <span data-en="games" data-ko="경기">
+                    games
+                  </span>
+                </dd>
               </div>
             </dl>
             <div className="ops-links">
-              <a className="quiet-link" href="/feature-analysis">
+              <a
+                className="quiet-link"
+                data-en="Feature analysis"
+                data-ko="Feature 분석"
+                href="/feature-analysis"
+              >
                 Feature analysis
               </a>
-              <a className="quiet-link" href="/model-guide">
+              <a
+                className="quiet-link"
+                data-en="Model & feature guide"
+                data-ko="모델/변수 설명"
+                href="/model-guide"
+              >
                 Model & feature guide
               </a>
             </div>
@@ -327,30 +383,39 @@ function buildMetricCards(results: PublicResult[], recentGames: RecentGame[], me
   const openSubmitted = recentGames.filter((game) => game.game_status === "scheduled" || game.game_status === "in_progress").length;
   const latestDate = latestGame ? formatDate(latestGame.submitted_at) : "n/a";
   const latestDetail = latestGame ? "Submission date" : "No submitted game";
+  const latestDetailKo = latestGame ? "제출일 기준" : "제출된 경기 없음";
 
   return [
     {
       label: "Last submit",
+      labelKo: "최근 제출",
       value: latestDate,
       detail: latestDetail,
+      detailKo: latestDetailKo,
       tone: "neutral",
     },
     {
       label: "Accuracy",
+      labelKo: "정확도",
       value: formatRate(metrics.accuracy),
       detail: `${metrics.window.sample_size} finalized games`,
+      detailKo: `확정 경기 ${metrics.window.sample_size}개`,
       tone: "good",
     },
     {
       label: "LogLoss",
+      labelKo: "로그손실",
       value: formatNumber(metrics.log_loss),
       detail: "Recent finalized submissions",
+      detailKo: "최근 확정 제출 기준",
       tone: "neutral",
     },
     {
       label: "Open submitted",
+      labelKo: "미확정 제출",
       value: String(openSubmitted),
       detail: `${results.length} finalized public rows`,
+      detailKo: `공개 확정 행 ${results.length}개`,
       tone: openSubmitted > 0 ? "warn" : "neutral",
     },
   ];
@@ -449,12 +514,12 @@ function LedgerTable({ games }: { games: RecentGame[] }) {
       <table>
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Matchup</th>
-            <th>Final</th>
-            <th>Home Win</th>
-            <th>Call</th>
-            <th>Result</th>
+            <th data-en="Date" data-ko="날짜">Date</th>
+            <th data-en="Matchup" data-ko="매치업">Matchup</th>
+            <th data-en="Final" data-ko="최종">Final</th>
+            <th data-en="Home Win" data-ko="홈 승률">Home Win</th>
+            <th data-en="Call" data-ko="예측">Call</th>
+            <th data-en="Result" data-ko="결과">Result</th>
           </tr>
         </thead>
         <tbody>
@@ -469,9 +534,11 @@ function LedgerTable({ games }: { games: RecentGame[] }) {
                   <span className="venue">{game.submission_source ?? "auto"}</span>
                 </td>
                 <td className="score">
-                  {game.game_status === "cancelled" || game.away_score === null || game.home_score === null
-                    ? "Cancelled"
-                    : `${game.away_score}-${game.home_score}`}
+                  {game.game_status === "cancelled" || game.away_score === null || game.home_score === null ? (
+                    <span data-en="Cancelled" data-ko="취소">Cancelled</span>
+                  ) : (
+                    `${game.away_score}-${game.home_score}`
+                  )}
                 </td>
                 <td>
                   {game.home_win_probability !== null ? <ProbabilityBar value={game.home_win_probability / 100} /> : "n/a"}
@@ -505,6 +572,10 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
     game.predicted_winner === "home" ? homeTeam : game.predicted_winner === "away" ? awayTeam : null;
   const awayPitcher = (game.away_sp_name ?? game.scheduler?.away_sp_name)?.trim();
   const homePitcher = (game.home_sp_name ?? game.scheduler?.home_sp_name)?.trim();
+  const schedulerStatus = game.scheduler ? statusLabels(game.scheduler.status) : null;
+  const lineupLabel = game.scheduler?.batting_lineup_missing
+    ? { en: "lineup fallback", ko: "라인업 대기" }
+    : { en: "lineup ready", ko: "라인업 준비" };
 
   return (
     <article className={`game-card ${featured ? "game-card-featured" : ""}`}>
@@ -514,7 +585,7 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
       </div>
       <div className="teams">
         <div className="team-side team-side-away">
-          <span>Away</span>
+          <span data-en="Away" data-ko="원정">Away</span>
           <TeamLogo team={awayTeam} />
         </div>
         {awayProbability !== null ? (
@@ -541,7 +612,7 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
           <div className="team-probability-placeholder" />
         )}
         <div className="team-side team-side-home">
-          <span>Home</span>
+          <span data-en="Home" data-ko="홈">Home</span>
           <TeamLogo team={homeTeam} />
         </div>
       </div>
@@ -551,31 +622,48 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
             <MatchupProbabilityBar homeValue={game.home_win_probability / 100} homeTeam={homeTeam} awayTeam={awayTeam} />
           ) : (
             <div className="submission-seal">
-              <strong>Submitted</strong>
-              <span>Sealed</span>
+              <strong data-en="Submitted" data-ko="제출 완료">Submitted</strong>
+              <span data-en="Sealed" data-ko="비공개">Sealed</span>
             </div>
           )}
         </div>
       </div>
       <div className="game-footer">
         <span>
-          {game.model_version} · Submitted {formatTimestamp(game.submitted_at)}
+          {game.model_version} ·{" "}
+          <span data-en="Submitted" data-ko="제출">
+            Submitted
+          </span>{" "}
+          {formatTimestamp(game.submitted_at)}
         </span>
         {game.game_status === "final" && game.away_score !== null && game.home_score !== null ? (
           <strong>
-            {game.away_score}-{game.home_score} · {game.correct ? "Hit" : "Miss"}
+            {game.away_score}-{game.home_score} ·{" "}
+            <span data-en={game.correct ? "Hit" : "Miss"} data-ko={game.correct ? "적중" : "오답"}>
+              {game.correct ? "Hit" : "Miss"}
+            </span>
           </strong>
         ) : game.game_status === "cancelled" ? (
-          <strong>Cancelled</strong>
+          <strong data-en="Cancelled" data-ko="취소">Cancelled</strong>
         ) : (
-          <strong>{predictedTeam ? predictedTeam.name : "Pending result"}</strong>
+          <strong>
+            {predictedTeam ? (
+              predictedTeam.name
+            ) : (
+              <span data-en="Pending result" data-ko="결과 대기">
+                Pending result
+              </span>
+            )}
+          </strong>
         )}
       </div>
       {game.scheduler ? (
         <div className="scheduler-line">
-          <span>{statusLabel(game.scheduler.status)}</span>
-          <span>
-            lineup {game.scheduler.batting_lineup_missing ? "fallback" : "ready"}
+          <span data-en={schedulerStatus?.en} data-ko={schedulerStatus?.ko}>
+            {schedulerStatus?.en}
+          </span>
+          <span data-en={lineupLabel.en} data-ko={lineupLabel.ko}>
+            {lineupLabel.en}
           </span>
         </div>
       ) : null}
@@ -647,16 +735,37 @@ function formatProbabilityLabel(value: number): string {
 
 function OutcomeBadge({ correct, status }: { correct: boolean | null; status?: RecentGame["game_status"] }) {
   if (status === "cancelled") {
-    return <span className="badge badge-neutral">Cancelled</span>;
+    return (
+      <span className="badge badge-neutral" data-en="Cancelled" data-ko="취소">
+        Cancelled
+      </span>
+    );
   }
   if (correct === null) {
-    return <span className="badge badge-neutral">Pending</span>;
+    return (
+      <span className="badge badge-neutral" data-en="Pending" data-ko="대기">
+        Pending
+      </span>
+    );
   }
-  return <span className={`badge ${correct ? "badge-good" : "badge-bad"}`}>{correct ? "Hit" : "Miss"}</span>;
+  return (
+    <span
+      className={`badge ${correct ? "badge-good" : "badge-bad"}`}
+      data-en={correct ? "Hit" : "Miss"}
+      data-ko={correct ? "적중" : "오답"}
+    >
+      {correct ? "Hit" : "Miss"}
+    </span>
+  );
 }
 
 function StatusPill({ status }: { status: string }) {
-  return <span className={`status-pill status-${status}`}>{statusLabel(status)}</span>;
+  const labels = statusLabels(status);
+  return (
+    <span className={`status-pill status-${status}`} data-en={labels.en} data-ko={labels.ko}>
+      {labels.en}
+    </span>
+  );
 }
 
 function WorkflowSummary({ workflow }: { workflow?: ManualWorkflow }) {
@@ -672,15 +781,15 @@ function WorkflowSummary({ workflow }: { workflow?: ManualWorkflow }) {
   return (
     <dl className="ops-list">
       <div>
-        <dt>Last run</dt>
+        <dt data-en="Last run" data-ko="최근 실행">Last run</dt>
         <dd>{row.last_checked_at ? formatTimestamp(row.last_checked_at) : "unknown"}</dd>
       </div>
       <div>
-        <dt>Game date</dt>
+        <dt data-en="Game date" data-ko="경기일">Game date</dt>
         <dd>{row.last_game_date ? formatFullDate(row.last_game_date) : "unknown"}</dd>
       </div>
       <div>
-        <dt>Submitted</dt>
+        <dt data-en="Submitted" data-ko="제출 수">Submitted</dt>
         <dd>{row.submitted_games}</dd>
       </div>
     </dl>
@@ -690,7 +799,12 @@ function WorkflowSummary({ workflow }: { workflow?: ManualWorkflow }) {
 function SubmissionSummary({ batch }: { batch: SubmissionBatch }) {
   return (
     <div className="submission-summary">
-      <strong>{batch.submitted_games} games</strong>
+      <strong>
+        {batch.submitted_games}{" "}
+        <span data-en="games" data-ko="경기">
+          games
+        </span>
+      </strong>
       <span>
         {batch.source} · {formatTimestamp(batch.submitted_at)}
       </span>
@@ -705,11 +819,25 @@ function SubmissionSummary({ batch }: { batch: SubmissionBatch }) {
   );
 }
 
-function EmptyState({ title, body }: { title: string; body: string }) {
+function EmptyState({
+  title,
+  titleKo,
+  body,
+  bodyKo,
+}: {
+  title: string;
+  titleKo: string;
+  body: string;
+  bodyKo: string;
+}) {
   return (
     <div className="empty-state">
-      <strong>{title}</strong>
-      <p>{body}</p>
+      <strong data-en={title} data-ko={titleKo}>
+        {title}
+      </strong>
+      <p data-en={body} data-ko={bodyKo}>
+        {body}
+      </p>
     </div>
   );
 }
@@ -721,23 +849,27 @@ function teamInitials(name: string): string {
   return name.slice(0, 2);
 }
 
-function statusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    success: "성공",
-    failed: "실패",
-    unknown: "미확인",
-    final: "Final",
-    scheduled: "Scheduled",
-    in_progress: "Live",
-    cancelled: "Cancelled",
-    ready: "준비 완료",
-    lineup_missing_fallback: "라인업 대기",
-    already_submitted: "제출 완료",
-    too_early: "대기 중",
-    past_safe_cutoff: "안전 마감",
-    past_hard_deadline: "제출 마감",
+function statusLabels(status: string): { en: string; ko: string } {
+  const labels: Record<string, { en: string; ko: string }> = {
+    success: { en: "Success", ko: "성공" },
+    failed: { en: "Failed", ko: "실패" },
+    unknown: { en: "Unknown", ko: "미확인" },
+    final: { en: "Final", ko: "종료" },
+    scheduled: { en: "Scheduled", ko: "예정" },
+    in_progress: { en: "Live", ko: "진행 중" },
+    cancelled: { en: "Cancelled", ko: "취소" },
+    ready: { en: "Ready", ko: "준비 완료" },
+    lineup_missing_fallback: { en: "Lineup fallback", ko: "라인업 대기" },
+    already_submitted: { en: "Already submitted", ko: "제출 완료" },
+    too_early: { en: "Waiting", ko: "대기 중" },
+    past_safe_cutoff: { en: "Safe cutoff", ko: "안전 마감" },
+    past_hard_deadline: { en: "Deadline passed", ko: "제출 마감" },
   };
-  return labels[status] ?? status;
+  return labels[status] ?? { en: status, ko: status };
+}
+
+function statusLabel(status: string): string {
+  return statusLabels(status).en;
 }
 
 function formatDate(value: string): string {
@@ -766,6 +898,10 @@ function formatFullDate(value: string): string {
 
 function formatGameCount(value: number): string {
   return `${value} ${value === 1 ? "game" : "games"}`;
+}
+
+function formatGameCountKo(value: number): string {
+  return `${value}경기`;
 }
 
 function formatTimestamp(value: string): string {

@@ -65,11 +65,11 @@ export function SiteStatsStrip() {
   return (
     <section className="site-stats-strip" aria-label="Site activity">
       <div className="site-stat">
-        <span>Views</span>
+        <span data-en="Views" data-ko="조회">Views</span>
         <strong>{formatCount(stats.views)}</strong>
       </div>
       <div className="site-stat">
-        <span>Likes</span>
+        <span data-en="Likes" data-ko="좋아요">Likes</span>
         <strong>{formatCount(stats.likes)}</strong>
       </div>
       <button
@@ -82,9 +82,18 @@ export function SiteStatsStrip() {
         <span className="baseball-mark" aria-hidden="true">
           ⚾️
         </span>
-        {stats.liked ? "Liked" : status === "pending" ? "Saving" : "Like"}
+        <span
+          data-en={stats.liked ? "Liked" : status === "pending" ? "Saving" : "Like"}
+          data-ko={stats.liked ? "좋아요 완료" : status === "pending" ? "저장 중" : "좋아요"}
+        >
+          {stats.liked ? "Liked" : status === "pending" ? "Saving" : "Like"}
+        </span>
       </button>
-      {status === "offline" ? <span className="site-stats-note">Stats offline</span> : null}
+      {status === "offline" ? (
+        <span className="site-stats-note" data-en="Stats offline" data-ko="통계 연결 안 됨">
+          Stats offline
+        </span>
+      ) : null}
     </section>
   );
 }
