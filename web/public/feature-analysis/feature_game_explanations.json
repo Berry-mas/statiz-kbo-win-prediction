@@ -1,0 +1,1246 @@
+{
+  "schema_version": 1,
+  "title": "Game explanation view",
+  "description": "Per-game SHAP factors that pushed the model toward home or away.",
+  "sample_size": 97,
+  "display_count": 12,
+  "class_label": "home_win",
+  "games": [
+    {
+      "id": "20250908",
+      "row_index": 42,
+      "s_no": 20250908,
+      "game_date": "2025-09-16",
+      "home_team": {
+        "code": 1001,
+        "name": "삼성"
+      },
+      "away_team": {
+        "code": 3001,
+        "name": "롯데"
+      },
+      "home_win_probability": 0.608357,
+      "predicted_side": "home",
+      "actual_home_win": 1,
+      "confidence": 0.216715,
+      "explanation_strength": 0.555886,
+      "top_home_factors": [
+        {
+          "feature": "home_minus_away_lineup_prev_war_avg",
+          "label": "lineup prev war avg",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": 0.034139,
+          "abs_contribution": 0.034139,
+          "feature_value": 0.5651533460865417
+        },
+        {
+          "feature": "away_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": 0.03349,
+          "abs_contribution": 0.03349,
+          "feature_value": 1.106145251396648
+        },
+        {
+          "feature": "home_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": 0.031131,
+          "abs_contribution": 0.031131,
+          "feature_value": 0.3919597989949749
+        },
+        {
+          "feature": "away_starter_np_last_game",
+          "label": "starter np last game",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": 0.030985,
+          "abs_contribution": 0.030985,
+          "feature_value": 35.0
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "home_minus_away_lineup_top4_prev_wrcplus_pa_weighted",
+          "label": "lineup top4 prev wrcplus pa weighted",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.013253,
+          "abs_contribution": 0.013253,
+          "feature_value": 15.290285472289142
+        },
+        {
+          "feature": "home_games_played",
+          "label": "games played",
+          "family": "other",
+          "family_label": "Other signals",
+          "side": "home",
+          "contribution": -0.006997,
+          "abs_contribution": 0.006997,
+          "feature_value": 131.0
+        },
+        {
+          "feature": "away_win_rate",
+          "label": "win rate",
+          "family": "team_context",
+          "family_label": "Team context",
+          "side": "away",
+          "contribution": -0.005797,
+          "abs_contribution": 0.005797,
+          "feature_value": 0.4960629921259842
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.005227,
+          "abs_contribution": 0.005227,
+          "feature_value": -7.0
+        }
+      ]
+    },
+    {
+      "id": "20250916",
+      "row_index": 50,
+      "s_no": 20250916,
+      "game_date": "2025-09-18",
+      "home_team": {
+        "code": 6002,
+        "name": "두산"
+      },
+      "away_team": {
+        "code": 10001,
+        "name": "키움"
+      },
+      "home_win_probability": 0.548621,
+      "predicted_side": "home",
+      "actual_home_win": 1,
+      "confidence": 0.097243,
+      "explanation_strength": 0.555452,
+      "top_home_factors": [
+        {
+          "feature": "away_starter_np_last_game",
+          "label": "starter np last game",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": 0.046667,
+          "abs_contribution": 0.046667,
+          "feature_value": 52.0
+        },
+        {
+          "feature": "home_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": 0.035904,
+          "abs_contribution": 0.035904,
+          "feature_value": 1.0683229813664596
+        },
+        {
+          "feature": "home_minus_away_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "comparison",
+          "contribution": 0.033995,
+          "abs_contribution": 0.033995,
+          "feature_value": -0.3527296502124877
+        },
+        {
+          "feature": "home_minus_away_starter_era_last_3",
+          "label": "starter era last 3",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "comparison",
+          "contribution": 0.028804,
+          "abs_contribution": 0.028804,
+          "feature_value": -5.105769230769231
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "home_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "home",
+          "contribution": -0.066916,
+          "abs_contribution": 0.066916,
+          "feature_value": 1222.0
+        },
+        {
+          "feature": "home_minus_away_run_diff_last_5",
+          "label": "run diff last 5",
+          "family": "recent_form",
+          "family_label": "Recent form",
+          "side": "comparison",
+          "contribution": -0.01253,
+          "abs_contribution": 0.01253,
+          "feature_value": -3.1999999999999997
+        },
+        {
+          "feature": "home_games_played",
+          "label": "games played",
+          "family": "other",
+          "family_label": "Other signals",
+          "side": "home",
+          "contribution": -0.011471,
+          "abs_contribution": 0.011471,
+          "feature_value": 127.0
+        },
+        {
+          "feature": "home_run_diff_last_5",
+          "label": "run diff last 5",
+          "family": "recent_form",
+          "family_label": "Recent form",
+          "side": "home",
+          "contribution": -0.0099,
+          "abs_contribution": 0.0099,
+          "feature_value": -2.8
+        }
+      ]
+    },
+    {
+      "id": "20250872",
+      "row_index": 11,
+      "s_no": 20250872,
+      "game_date": "2025-09-05",
+      "home_team": {
+        "code": 1001,
+        "name": "삼성"
+      },
+      "away_team": {
+        "code": 10001,
+        "name": "키움"
+      },
+      "home_win_probability": 0.603236,
+      "predicted_side": "home",
+      "actual_home_win": 1,
+      "confidence": 0.206472,
+      "explanation_strength": 0.546777,
+      "top_home_factors": [
+        {
+          "feature": "home_minus_away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": 0.084593,
+          "abs_contribution": 0.084593,
+          "feature_value": 822.0
+        },
+        {
+          "feature": "away_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": 0.051344,
+          "abs_contribution": 0.051344,
+          "feature_value": 1.772727272727273
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_war_avg",
+          "label": "lineup prev war avg",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": 0.033282,
+          "abs_contribution": 0.033282,
+          "feature_value": 1.4003254057736032
+        },
+        {
+          "feature": "home_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "home",
+          "contribution": 0.01882,
+          "abs_contribution": 0.01882,
+          "feature_value": 3168.0
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "home_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": -0.007721,
+          "abs_contribution": 0.007721,
+          "feature_value": 1.4651162790697674
+        },
+        {
+          "feature": "home_games_played",
+          "label": "games played",
+          "family": "other",
+          "family_label": "Other signals",
+          "side": "home",
+          "contribution": -0.007392,
+          "abs_contribution": 0.007392,
+          "feature_value": 124.0
+        },
+        {
+          "feature": "home_minus_away_lineup_top4_prev_wrcplus_pa_weighted",
+          "label": "lineup top4 prev wrcplus pa weighted",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.007053,
+          "abs_contribution": 0.007053,
+          "feature_value": 20.394603342414584
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_ops_pa_weighted",
+          "label": "lineup prev ops pa weighted",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.005402,
+          "abs_contribution": 0.005402,
+          "feature_value": 0.0993975093001628
+        }
+      ]
+    },
+    {
+      "id": "20250905",
+      "row_index": 35,
+      "s_no": 20250905,
+      "game_date": "2025-09-14",
+      "home_team": {
+        "code": 11001,
+        "name": "NC"
+      },
+      "away_team": {
+        "code": 6002,
+        "name": "두산"
+      },
+      "home_win_probability": 0.599192,
+      "predicted_side": "home",
+      "actual_home_win": 1,
+      "confidence": 0.198385,
+      "explanation_strength": 0.546615,
+      "top_home_factors": [
+        {
+          "feature": "home_minus_away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": 0.071128,
+          "abs_contribution": 0.071128,
+          "feature_value": 2218.0
+        },
+        {
+          "feature": "away_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": 0.049095,
+          "abs_contribution": 0.049095,
+          "feature_value": 1.65
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_war_avg",
+          "label": "lineup prev war avg",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": 0.042193,
+          "abs_contribution": 0.042193,
+          "feature_value": 0.9609477468662792
+        },
+        {
+          "feature": "home_minus_away_starter_starts",
+          "label": "starter starts",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "comparison",
+          "contribution": 0.031568,
+          "abs_contribution": 0.031568,
+          "feature_value": 26.0
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "home_minus_away_lineup_top4_prev_wrcplus_pa_weighted",
+          "label": "lineup top4 prev wrcplus pa weighted",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.013614,
+          "abs_contribution": 0.013614,
+          "feature_value": 29.39105819957527
+        },
+        {
+          "feature": "away_lineup_prev_sb_sum",
+          "label": "lineup prev sb sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "away",
+          "contribution": -0.01002,
+          "abs_contribution": 0.01002,
+          "feature_value": 81.0
+        },
+        {
+          "feature": "home_games_played",
+          "label": "games played",
+          "family": "other",
+          "family_label": "Other signals",
+          "side": "home",
+          "contribution": -0.009775,
+          "abs_contribution": 0.009775,
+          "feature_value": 120.0
+        },
+        {
+          "feature": "home_minus_away_bullpen_era_last_3",
+          "label": "bullpen era last 3",
+          "family": "bullpen",
+          "family_label": "Bullpen load",
+          "side": "comparison",
+          "contribution": -0.00803,
+          "abs_contribution": 0.00803,
+          "feature_value": -13.5
+        }
+      ]
+    },
+    {
+      "id": "20250911",
+      "row_index": 45,
+      "s_no": 20250911,
+      "game_date": "2025-09-17",
+      "home_team": {
+        "code": 6002,
+        "name": "두산"
+      },
+      "away_team": {
+        "code": 10001,
+        "name": "키움"
+      },
+      "home_win_probability": 0.408756,
+      "predicted_side": "away",
+      "actual_home_win": 0,
+      "confidence": 0.182488,
+      "explanation_strength": 0.545661,
+      "top_home_factors": [
+        {
+          "feature": "home_minus_away_starter_starts",
+          "label": "starter starts",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "comparison",
+          "contribution": 0.015213,
+          "abs_contribution": 0.015213,
+          "feature_value": 19.0
+        },
+        {
+          "feature": "away_team_code",
+          "label": "team code",
+          "family": "team_context",
+          "family_label": "Team context",
+          "side": "away",
+          "contribution": 0.00894,
+          "abs_contribution": 0.00894,
+          "feature_value": 7.0
+        },
+        {
+          "feature": "home_minus_away_runs_against_pg",
+          "label": "runs against pg",
+          "family": "team_context",
+          "family_label": "Team context",
+          "side": "comparison",
+          "contribution": 0.006403,
+          "abs_contribution": 0.006403,
+          "feature_value": -1.2330447330447338
+        },
+        {
+          "feature": "away_lineup_prev_sb_sum",
+          "label": "lineup prev sb sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "away",
+          "contribution": 0.006167,
+          "abs_contribution": 0.006167,
+          "feature_value": 30.0
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "home_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "home",
+          "contribution": -0.059285,
+          "abs_contribution": 0.059285,
+          "feature_value": 1214.0
+        },
+        {
+          "feature": "home_run_diff_last_5",
+          "label": "run diff last 5",
+          "family": "recent_form",
+          "family_label": "Recent form",
+          "side": "home",
+          "contribution": -0.059242,
+          "abs_contribution": 0.059242,
+          "feature_value": -3.2
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.04482,
+          "abs_contribution": 0.04482,
+          "feature_value": -1162.0
+        },
+        {
+          "feature": "home_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": -0.033201,
+          "abs_contribution": 0.033201,
+          "feature_value": 1.5544041450777204
+        }
+      ]
+    },
+    {
+      "id": "20250932",
+      "row_index": 65,
+      "s_no": 20250932,
+      "game_date": "2025-09-23",
+      "home_team": {
+        "code": 12001,
+        "name": "KT"
+      },
+      "away_team": {
+        "code": 10001,
+        "name": "키움"
+      },
+      "home_win_probability": 0.554274,
+      "predicted_side": "home",
+      "actual_home_win": 1,
+      "confidence": 0.108548,
+      "explanation_strength": 0.541805,
+      "top_home_factors": [
+        {
+          "feature": "home_minus_away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": 0.135829,
+          "abs_contribution": 0.135829,
+          "feature_value": 1346.0
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_war_sum",
+          "label": "lineup prev war sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": 0.046488,
+          "abs_contribution": 0.046488,
+          "feature_value": 5.314779300242662
+        },
+        {
+          "feature": "home_minus_away_runs_against_pg",
+          "label": "runs against pg",
+          "family": "team_context",
+          "family_label": "Team context",
+          "side": "comparison",
+          "contribution": 0.025142,
+          "abs_contribution": 0.025142,
+          "feature_value": -1.397827903091061
+        },
+        {
+          "feature": "home_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": 0.018785,
+          "abs_contribution": 0.018785,
+          "feature_value": 1.3607427055702916
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "away_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": -0.030707,
+          "abs_contribution": 0.030707,
+          "feature_value": 0.036697247706422
+        },
+        {
+          "feature": "home_run_diff_last_5",
+          "label": "run diff last 5",
+          "family": "recent_form",
+          "family_label": "Recent form",
+          "side": "home",
+          "contribution": -0.022418,
+          "abs_contribution": 0.022418,
+          "feature_value": -3.2
+        },
+        {
+          "feature": "home_starter_days_rest",
+          "label": "starter days rest",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": -0.011776,
+          "abs_contribution": 0.011776,
+          "feature_value": 9.0
+        },
+        {
+          "feature": "away_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": -0.009688,
+          "abs_contribution": 0.009688,
+          "feature_value": 1.110091743119266
+        }
+      ]
+    },
+    {
+      "id": "20250969",
+      "row_index": 83,
+      "s_no": 20250969,
+      "game_date": "2025-09-29",
+      "home_team": {
+        "code": 9002,
+        "name": "SSG"
+      },
+      "away_team": {
+        "code": 3001,
+        "name": "롯데"
+      },
+      "home_win_probability": 0.586503,
+      "predicted_side": "home",
+      "actual_home_win": 1,
+      "confidence": 0.173006,
+      "explanation_strength": 0.529662,
+      "top_home_factors": [
+        {
+          "feature": "home_minus_away_starter_era_last_3",
+          "label": "starter era last 3",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "comparison",
+          "contribution": 0.039326,
+          "abs_contribution": 0.039326,
+          "feature_value": -7.565934065934066
+        },
+        {
+          "feature": "away_starter_np_last_game",
+          "label": "starter np last game",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": 0.036938,
+          "abs_contribution": 0.036938,
+          "feature_value": 52.0
+        },
+        {
+          "feature": "home_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "home",
+          "contribution": 0.034396,
+          "abs_contribution": 0.034396,
+          "feature_value": 3417.0
+        },
+        {
+          "feature": "home_minus_away_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "comparison",
+          "contribution": 0.027254,
+          "abs_contribution": 0.027254,
+          "feature_value": -0.3040973111395646
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "home_minus_away_lineup_prev_war_avg",
+          "label": "lineup prev war avg",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.013888,
+          "abs_contribution": 0.013888,
+          "feature_value": 0.0940181849938299
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.011301,
+          "abs_contribution": 0.011301,
+          "feature_value": 344.0
+        },
+        {
+          "feature": "home_games_played",
+          "label": "games played",
+          "family": "other",
+          "family_label": "Other signals",
+          "side": "home",
+          "contribution": -0.008402,
+          "abs_contribution": 0.008402,
+          "feature_value": 134.0
+        },
+        {
+          "feature": "away_games_played",
+          "label": "games played",
+          "family": "other",
+          "family_label": "Other signals",
+          "side": "away",
+          "contribution": -0.008093,
+          "abs_contribution": 0.008093,
+          "feature_value": 135.0
+        }
+      ]
+    },
+    {
+      "id": "20250906",
+      "row_index": 40,
+      "s_no": 20250906,
+      "game_date": "2025-09-16",
+      "home_team": {
+        "code": 6002,
+        "name": "두산"
+      },
+      "away_team": {
+        "code": 10001,
+        "name": "키움"
+      },
+      "home_win_probability": 0.413854,
+      "predicted_side": "away",
+      "actual_home_win": 0,
+      "confidence": 0.172291,
+      "explanation_strength": 0.525224,
+      "top_home_factors": [
+        {
+          "feature": "home_minus_away_runs_against_pg",
+          "label": "runs against pg",
+          "family": "team_context",
+          "family_label": "Team context",
+          "side": "comparison",
+          "contribution": 0.019693,
+          "abs_contribution": 0.019693,
+          "feature_value": -1.2650381679389318
+        },
+        {
+          "feature": "home_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": 0.012995,
+          "abs_contribution": 0.012995,
+          "feature_value": 1.288808664259928
+        },
+        {
+          "feature": "away_team_code",
+          "label": "team code",
+          "family": "team_context",
+          "family_label": "Team context",
+          "side": "away",
+          "contribution": 0.008231,
+          "abs_contribution": 0.008231,
+          "feature_value": 7.0
+        },
+        {
+          "feature": "away_lineup_prev_sb_sum",
+          "label": "lineup prev sb sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "away",
+          "contribution": 0.004527,
+          "abs_contribution": 0.004527,
+          "feature_value": 30.0
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "home_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "home",
+          "contribution": -0.067792,
+          "abs_contribution": 0.067792,
+          "feature_value": 890.0
+        },
+        {
+          "feature": "home_run_diff_last_5",
+          "label": "run diff last 5",
+          "family": "recent_form",
+          "family_label": "Recent form",
+          "side": "home",
+          "contribution": -0.057708,
+          "abs_contribution": 0.057708,
+          "feature_value": -4.0
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.0467,
+          "abs_contribution": 0.0467,
+          "feature_value": -1486.0
+        },
+        {
+          "feature": "home_minus_away_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "comparison",
+          "contribution": -0.018056,
+          "abs_contribution": 0.018056,
+          "feature_value": 0.1515537622991436
+        }
+      ]
+    },
+    {
+      "id": "20250880",
+      "row_index": 16,
+      "s_no": 20250880,
+      "game_date": "2025-09-07",
+      "home_team": {
+        "code": 1001,
+        "name": "삼성"
+      },
+      "away_team": {
+        "code": 7002,
+        "name": "한화"
+      },
+      "home_win_probability": 0.583704,
+      "predicted_side": "home",
+      "actual_home_win": 1,
+      "confidence": 0.167408,
+      "explanation_strength": 0.520869,
+      "top_home_factors": [
+        {
+          "feature": "home_minus_away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": 0.067029,
+          "abs_contribution": 0.067029,
+          "feature_value": 580.0
+        },
+        {
+          "feature": "away_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": 0.055562,
+          "abs_contribution": 0.055562,
+          "feature_value": 1.1958041958041958
+        },
+        {
+          "feature": "home_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "home",
+          "contribution": 0.043457,
+          "abs_contribution": 0.043457,
+          "feature_value": 3388.0
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_war_avg",
+          "label": "lineup prev war avg",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": 0.030353,
+          "abs_contribution": 0.030353,
+          "feature_value": 1.3924019957582154
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "home_minus_away_lineup_top4_prev_wrcplus_pa_weighted",
+          "label": "lineup top4 prev wrcplus pa weighted",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.008404,
+          "abs_contribution": 0.008404,
+          "feature_value": 30.5129731662159
+        },
+        {
+          "feature": "away_starter_fip_proxy_last_3",
+          "label": "starter fip proxy last 3",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": -0.00771,
+          "abs_contribution": 0.00771,
+          "feature_value": -0.1034482758620689
+        },
+        {
+          "feature": "away_team_code",
+          "label": "team code",
+          "family": "team_context",
+          "family_label": "Team context",
+          "side": "away",
+          "contribution": -0.006698,
+          "abs_contribution": 0.006698,
+          "feature_value": 5.0
+        },
+        {
+          "feature": "home_minus_away_starter_fip_proxy_last_3",
+          "label": "starter fip proxy last 3",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "comparison",
+          "contribution": -0.005967,
+          "abs_contribution": 0.005967,
+          "feature_value": 0.6590038314176245
+        }
+      ]
+    },
+    {
+      "id": "20250974",
+      "row_index": 69,
+      "s_no": 20250974,
+      "game_date": "2025-09-24",
+      "home_team": {
+        "code": 1001,
+        "name": "삼성"
+      },
+      "away_team": {
+        "code": 3001,
+        "name": "롯데"
+      },
+      "home_win_probability": 0.595837,
+      "predicted_side": "home",
+      "actual_home_win": 1,
+      "confidence": 0.191674,
+      "explanation_strength": 0.519966,
+      "top_home_factors": [
+        {
+          "feature": "home_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "home",
+          "contribution": 0.037835,
+          "abs_contribution": 0.037835,
+          "feature_value": 3432.0
+        },
+        {
+          "feature": "away_starter_np_last_game",
+          "label": "starter np last game",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": 0.032789,
+          "abs_contribution": 0.032789,
+          "feature_value": 19.0
+        },
+        {
+          "feature": "home_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": 0.02204,
+          "abs_contribution": 0.02204,
+          "feature_value": 1.10126582278481
+        },
+        {
+          "feature": "home_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": 0.021872,
+          "abs_contribution": 0.021872,
+          "feature_value": 0.4394213381555154
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "home_minus_away_lineup_top4_prev_wrcplus_pa_weighted",
+          "label": "lineup top4 prev wrcplus pa weighted",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.019431,
+          "abs_contribution": 0.019431,
+          "feature_value": 12.718518721921086
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_war_avg",
+          "label": "lineup prev war avg",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.009034,
+          "abs_contribution": 0.009034,
+          "feature_value": 0.2654528808262615
+        },
+        {
+          "feature": "home_games_played",
+          "label": "games played",
+          "family": "other",
+          "family_label": "Other signals",
+          "side": "home",
+          "contribution": -0.005791,
+          "abs_contribution": 0.005791,
+          "feature_value": 136.0
+        },
+        {
+          "feature": "away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "away",
+          "contribution": -0.005105,
+          "abs_contribution": 0.005105,
+          "feature_value": 3602.0
+        }
+      ]
+    },
+    {
+      "id": "20250983",
+      "row_index": 92,
+      "s_no": 20250983,
+      "game_date": "2025-10-01",
+      "home_team": {
+        "code": 2002,
+        "name": "KIA"
+      },
+      "away_team": {
+        "code": 12001,
+        "name": "KT"
+      },
+      "home_win_probability": 0.435491,
+      "predicted_side": "away",
+      "actual_home_win": 0,
+      "confidence": 0.129018,
+      "explanation_strength": 0.518384,
+      "top_home_factors": [
+        {
+          "feature": "home_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": 0.017405,
+          "abs_contribution": 0.017405,
+          "feature_value": -0.4444444444444444
+        },
+        {
+          "feature": "home_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": 0.014801,
+          "abs_contribution": 0.014801,
+          "feature_value": 1.1388888888888888
+        },
+        {
+          "feature": "home_minus_away_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "comparison",
+          "contribution": 0.013841,
+          "abs_contribution": 0.013841,
+          "feature_value": -0.1205450733752619
+        },
+        {
+          "feature": "home_minus_away_starter_days_rest",
+          "label": "starter days rest",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "comparison",
+          "contribution": 0.007591,
+          "abs_contribution": 0.007591,
+          "feature_value": -6.0
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "home_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "home",
+          "contribution": -0.060751,
+          "abs_contribution": 0.060751,
+          "feature_value": 365.0
+        },
+        {
+          "feature": "home_run_diff_last_5",
+          "label": "run diff last 5",
+          "family": "recent_form",
+          "family_label": "Recent form",
+          "side": "home",
+          "contribution": -0.049442,
+          "abs_contribution": 0.049442,
+          "feature_value": -3.6
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.029169,
+          "abs_contribution": 0.029169,
+          "feature_value": -2611.0
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_war_sum",
+          "label": "lineup prev war sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.018737,
+          "abs_contribution": 0.018737,
+          "feature_value": -10.807960990816357
+        }
+      ]
+    },
+    {
+      "id": "20250893",
+      "row_index": 28,
+      "s_no": 20250893,
+      "game_date": "2025-09-11",
+      "home_team": {
+        "code": 2002,
+        "name": "KIA"
+      },
+      "away_team": {
+        "code": 3001,
+        "name": "롯데"
+      },
+      "home_win_probability": 0.431155,
+      "predicted_side": "away",
+      "actual_home_win": 0,
+      "confidence": 0.13769,
+      "explanation_strength": 0.515113,
+      "top_home_factors": [
+        {
+          "feature": "away_starter_np_last_game",
+          "label": "starter np last game",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": 0.032852,
+          "abs_contribution": 0.032852,
+          "feature_value": 56.0
+        },
+        {
+          "feature": "away_team_code",
+          "label": "team code",
+          "family": "team_context",
+          "family_label": "Team context",
+          "side": "away",
+          "contribution": 0.013174,
+          "abs_contribution": 0.013174,
+          "feature_value": 2.0
+        },
+        {
+          "feature": "away_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": 0.005799,
+          "abs_contribution": 0.005799,
+          "feature_value": 1.3923076923076922
+        },
+        {
+          "feature": "home_minus_away_runs_against_last_5",
+          "label": "runs against last 5",
+          "family": "recent_form",
+          "family_label": "Recent form",
+          "side": "comparison",
+          "contribution": 0.004326,
+          "abs_contribution": 0.004326,
+          "feature_value": -2.3999999999999995
+        }
+      ],
+      "top_away_factors": [
+        {
+          "feature": "away_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "away",
+          "contribution": -0.040422,
+          "abs_contribution": 0.040422,
+          "feature_value": 0.6384615384615384
+        },
+        {
+          "feature": "home_starter_whip",
+          "label": "starter whip",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": -0.030987,
+          "abs_contribution": 0.030987,
+          "feature_value": 1.4396782841823057
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "family": "lineup",
+          "family_label": "Lineup strength",
+          "side": "comparison",
+          "contribution": -0.027493,
+          "abs_contribution": 0.027493,
+          "feature_value": -765.0
+        },
+        {
+          "feature": "home_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "family": "starter",
+          "family_label": "Starter quality",
+          "side": "home",
+          "contribution": -0.024033,
+          "abs_contribution": 0.024033,
+          "feature_value": 1.021447721179625
+        }
+      ]
+    }
+  ]
+}

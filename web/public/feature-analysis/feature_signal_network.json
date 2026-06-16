@@ -39,7 +39,7 @@
       "label": "Team context",
       "family": "team_context",
       "color": "#a33b32",
-      "score": 0.169231
+      "score": 0.167949
     },
     {
       "id": "feature:home_minus_away_lineup_prev_pa_sum",
@@ -117,7 +117,7 @@
         },
         "shap": {
           "rank": 3,
-          "value": 0.017084322233579148
+          "value": 0.017084322233579145
         },
         "permutation": {
           "rank": 6,
@@ -229,7 +229,7 @@
         },
         "shap": {
           "rank": 11,
-          "value": 0.010190308095257047
+          "value": 0.010190308095257049
         },
         "permutation": {
           "rank": 10,
@@ -337,7 +337,7 @@
         },
         "shap": {
           "rank": 6,
-          "value": 0.012333654520143091
+          "value": 0.012333654520143088
         }
       }
     },
@@ -533,7 +533,7 @@
         },
         "shap": {
           "rank": 8,
-          "value": 0.011036329561736826
+          "value": 0.011036329561736828
         }
       }
     },
@@ -593,7 +593,7 @@
       "family": "team_context",
       "family_label": "Team context",
       "side": "away",
-      "score": 0.286957,
+      "score": 0.278261,
       "metrics": {
         "gain": {
           "rank": 17,
@@ -604,7 +604,7 @@
           "value": 3.6
         },
         "permutation": {
-          "rank": 25,
+          "rank": 26,
           "value": 0.006185567010309323
         }
       }
@@ -802,7 +802,7 @@
       "source": "family:team_context",
       "target": "feature:away_runs_for_pg",
       "kind": "family_membership",
-      "weight": 0.286957,
+      "weight": 0.278261,
       "label": "Team context"
     },
     {
@@ -844,7 +844,7 @@
       "source": "model_signal",
       "target": "family:team_context",
       "kind": "family_signal",
-      "weight": 0.169231,
+      "weight": 0.167949,
       "label": "Team context"
     },
     {
@@ -862,24 +862,10 @@
       "label": "Home/away related signal"
     },
     {
-      "source": "feature:home_lineup_prev_pa_sum",
-      "target": "feature:home_minus_away_lineup_prev_pa_sum",
-      "kind": "home_away_relation",
-      "weight": 0.878261,
-      "label": "Home/away related signal"
-    },
-    {
       "source": "feature:home_minus_away_starter_whip",
       "target": "feature:home_starter_whip",
       "kind": "home_away_relation",
       "weight": 0.6,
-      "label": "Home/away related signal"
-    },
-    {
-      "source": "feature:away_starter_np_last_game",
-      "target": "feature:home_minus_away_starter_np_last_game",
-      "kind": "home_away_relation",
-      "weight": 0.365217,
       "label": "Home/away related signal"
     },
     {
@@ -890,6 +876,13 @@
       "label": "Home/away related signal"
     },
     {
+      "source": "feature:away_runs_for_pg",
+      "target": "feature:home_minus_away_runs_for_pg",
+      "kind": "home_away_relation",
+      "weight": 0.278261,
+      "label": "Home/away related signal"
+    },
+    {
       "source": "feature:away_starter_fip_proxy_last_3",
       "target": "feature:home_starter_fip_proxy_last_3",
       "kind": "home_away_relation",
@@ -897,10 +890,17 @@
       "label": "Home/away related signal"
     },
     {
-      "source": "feature:away_runs_for_pg",
-      "target": "feature:home_minus_away_runs_for_pg",
+      "source": "feature:away_starter_np_last_game",
+      "target": "feature:home_minus_away_starter_np_last_game",
       "kind": "home_away_relation",
-      "weight": 0.286957,
+      "weight": 0.365217,
+      "label": "Home/away related signal"
+    },
+    {
+      "source": "feature:home_lineup_prev_pa_sum",
+      "target": "feature:home_minus_away_lineup_prev_pa_sum",
+      "kind": "home_away_relation",
+      "weight": 0.878261,
       "label": "Home/away related signal"
     }
   ],

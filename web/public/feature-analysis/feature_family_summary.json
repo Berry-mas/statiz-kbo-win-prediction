@@ -26,11 +26,11 @@
       "id": "starter",
       "label": "Starter quality",
       "color": "#2e607d",
-      "impact_score": 28.733333,
-      "impact_share": 0.463441,
+      "impact_score": 28.8,
+      "impact_share": 0.464516,
       "method_coverage": 4,
       "primary_method": "split",
-      "feature_count": 18,
+      "feature_count": 19,
       "top_features": [
         {
           "feature": "away_starter_fip_proxy",
@@ -96,15 +96,15 @@
         "gain": 7.866667,
         "split": 8.1,
         "shap": 7.6,
-        "permutation": 5.166667
+        "permutation": 5.233333
       }
     },
     {
       "id": "lineup",
       "label": "Lineup strength",
       "color": "#0d7a5f",
-      "impact_score": 14.566667,
-      "impact_share": 0.234946,
+      "impact_score": 14.6,
+      "impact_share": 0.235484,
       "method_coverage": 4,
       "primary_method": "permutation",
       "feature_count": 11,
@@ -170,15 +170,15 @@
         "gain": 3.133333,
         "split": 2.666667,
         "shap": 4.066667,
-        "permutation": 4.7
+        "permutation": 4.733333
       }
     },
     {
       "id": "recent_form",
       "label": "Recent form",
       "color": "#b57a16",
-      "impact_score": 11.033333,
-      "impact_share": 0.177957,
+      "impact_score": 11.0,
+      "impact_share": 0.177419,
       "method_coverage": 4,
       "primary_method": "permutation",
       "feature_count": 8,
@@ -245,18 +245,18 @@
         "gain": 2.933333,
         "split": 2.933333,
         "shap": 1.8,
-        "permutation": 3.366667
+        "permutation": 3.333333
       }
     },
     {
       "id": "team_context",
       "label": "Team context",
       "color": "#a33b32",
-      "impact_score": 5.966667,
-      "impact_share": 0.096237,
+      "impact_score": 5.833333,
+      "impact_share": 0.094086,
       "method_coverage": 4,
       "primary_method": "permutation",
-      "feature_count": 9,
+      "feature_count": 8,
       "top_features": [
         {
           "feature": "away_win_rate",
@@ -284,11 +284,11 @@
           "feature": "away_runs_for_pg",
           "label": "runs for pg",
           "side": "away",
-          "score": 1.1,
+          "score": 1.066667,
           "ranks": {
             "gain": 17,
             "split": 18,
-            "permutation": 25
+            "permutation": 26
           }
         },
         {
@@ -314,7 +314,45 @@
         "gain": 1.433333,
         "split": 1.566667,
         "shap": 1.0,
-        "permutation": 1.966667
+        "permutation": 1.833333
+      }
+    },
+    {
+      "id": "bullpen",
+      "label": "Bullpen load",
+      "color": "#6d4c8d",
+      "impact_score": 0.733333,
+      "impact_share": 0.011828,
+      "method_coverage": 4,
+      "primary_method": "shap",
+      "feature_count": 2,
+      "top_features": [
+        {
+          "feature": "home_minus_away_bullpen_ip_last_3",
+          "label": "bullpen ip last 3",
+          "side": "comparison",
+          "score": 0.366667,
+          "ranks": {
+            "gain": 27,
+            "split": 24
+          }
+        },
+        {
+          "feature": "away_bullpen_ip_last_3",
+          "label": "bullpen ip last 3",
+          "side": "away",
+          "score": 0.366667,
+          "ranks": {
+            "shap": 22,
+            "permutation": 29
+          }
+        }
+      ],
+      "method_scores": {
+        "gain": 0.133333,
+        "split": 0.233333,
+        "shap": 0.3,
+        "permutation": 0.066667
       }
     },
     {
@@ -345,49 +383,11 @@
       }
     },
     {
-      "id": "bullpen",
-      "label": "Bullpen load",
-      "color": "#6d4c8d",
-      "impact_score": 0.7,
-      "impact_share": 0.01129,
-      "method_coverage": 4,
-      "primary_method": "shap",
-      "feature_count": 2,
-      "top_features": [
-        {
-          "feature": "home_minus_away_bullpen_ip_last_3",
-          "label": "bullpen ip last 3",
-          "side": "comparison",
-          "score": 0.366667,
-          "ranks": {
-            "gain": 27,
-            "split": 24
-          }
-        },
-        {
-          "feature": "away_bullpen_ip_last_3",
-          "label": "bullpen ip last 3",
-          "side": "away",
-          "score": 0.333333,
-          "ranks": {
-            "shap": 22,
-            "permutation": 30
-          }
-        }
-      ],
-      "method_scores": {
-        "gain": 0.133333,
-        "split": 0.233333,
-        "shap": 0.3,
-        "permutation": 0.033333
-      }
-    },
-    {
       "id": "schedule",
       "label": "Schedule",
       "color": "#65716b",
-      "impact_score": 0.266667,
-      "impact_share": 0.004301,
+      "impact_score": 0.3,
+      "impact_share": 0.004839,
       "method_coverage": 1,
       "primary_method": "permutation",
       "feature_count": 1,
@@ -396,9 +396,9 @@
           "feature": "day_of_week",
           "label": "day of week",
           "side": "neutral",
-          "score": 0.266667,
+          "score": 0.3,
           "ranks": {
-            "permutation": 23
+            "permutation": 22
           }
         }
       ],
@@ -406,7 +406,7 @@
         "gain": 0.0,
         "split": 0.0,
         "shap": 0.0,
-        "permutation": 0.266667
+        "permutation": 0.3
       }
     }
   ]

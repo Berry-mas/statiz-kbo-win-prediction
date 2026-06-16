@@ -16,7 +16,7 @@ from loguru import logger
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.inspection import permutation_importance
 
-from .constants import MODEL_REGISTRY_DIR
+from .constants import MODEL_REGISTRY_DIR, TEAM_CODES
 from .feature_matrix import prepare_model_matrix
 from .trainer import ModelTrainer
 
@@ -60,6 +60,7 @@ def visualize_lgbm_feature_effects(
     model: Any,
     X_valid: pd.DataFrame,
     y_valid: pd.Series | np.ndarray | None = None,
+    game_metadata: pd.DataFrame | None = None,
     output_dir: str | Path = "feature_analysis",
     top_n: int = 30,
     task_type: str = "classification",
@@ -185,6 +186,18 @@ def visualize_lgbm_feature_effects(
         json.dumps(family_summary, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+    game_explanations = _build_game_explanations(
+        shap_values=shap_values,
+        X_valid=X_valid,
+        models=models,
+        y_valid=y_valid,
+        game_metadata=game_metadata,
+    )
+    game_explanations_path = output_path / "feature_game_explanations.json"
+    game_explanations_path.write_text(
+        json.dumps(game_explanations, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
     manifest = {
         "schema_version": 1,
@@ -234,6 +247,7 @@ def visualize_lgbm_feature_effects(
         "network_path": network_path.name,
         "agreement_path": agreement_path.name,
         "family_summary_path": family_summary_path.name,
+        "game_explanations_path": game_explanations_path.name,
     }
     if permutation_plot is not None:
         manifest["sections"].append(
@@ -295,6 +309,7 @@ def run_saved_model_feature_analysis(
         model=models,
         X_valid=X_valid,
         y_valid=y_valid,
+        game_metadata=analysis_df,
         output_dir=version_output_dir,
         top_n=top_n,
         task_type="classification",
@@ -615,6 +630,9 @@ def _manifest_with_public_paths(
     web_manifest["agreement_path"] = public_path(web_manifest.get("agreement_path"))
     web_manifest["family_summary_path"] = public_path(
         web_manifest.get("family_summary_path")
+    )
+    web_manifest["game_explanations_path"] = public_path(
+        web_manifest.get("game_explanations_path")
     )
     return web_manifest
 
@@ -1013,3 +1031,164 @@ def _feature_relation_key(feature: str) -> str:
         if feature.startswith(prefix):
             return feature.removeprefix(prefix)
     return feature
+
+
+def _build_game_explanations(
+    shap_values: np.ndarray,
+    X_valid: pd.DataFrame,
+    models: list[Any],
+    y_valid: pd.Series | np.ndarray | None,
+    game_metadata: pd.DataFrame | None,
+    max_games: int = 12,
+    factors_per_side: int = 4,
+) -> dict[str, Any]:
+    probabilities = _predict_probability(models, X_valid)
+    explanation_strength = np.abs(shap_values).sum(axis=1)
+    selected_indices = np.argsort(-explanation_strength)[: min(max_games, len(X_valid))]
+    metadata = _aligned_game_metadata(game_metadata, X_valid)
+    labels = (
+        pd.Series(y_valid).reset_index(drop=True)
+        if y_valid is not None
+        else pd.Series([None] * len(X_valid))
+    )
+
+    games: list[dict[str, Any]] = []
+    for row_position in selected_indices:
+        position = int(row_position)
+        probability = float(probabilities[position])
+        home_factors, away_factors = _game_factor_groups(
+            shap_row=shap_values[position],
+            feature_row=X_valid.iloc[position],
+            factors_per_side=factors_per_side,
+        )
+        games.append(
+            {
+                **_game_metadata_record(metadata.iloc[position], position),
+                "home_win_probability": round(probability, 6),
+                "predicted_side": "home" if probability >= 0.5 else "away",
+                "actual_home_win": _optional_binary_label(labels.iloc[position]),
+                "confidence": round(abs(probability - 0.5) * 2, 6),
+                "explanation_strength": round(float(explanation_strength[position]), 6),
+                "top_home_factors": home_factors,
+                "top_away_factors": away_factors,
+            }
+        )
+
+    return {
+        "schema_version": 1,
+        "title": "Game explanation view",
+        "description": "Per-game SHAP factors that pushed the model toward home or away.",
+        "sample_size": int(len(X_valid)),
+        "display_count": len(games),
+        "class_label": "home_win",
+        "games": games,
+    }
+
+
+def _aligned_game_metadata(
+    game_metadata: pd.DataFrame | None,
+    X_valid: pd.DataFrame,
+) -> pd.DataFrame:
+    if game_metadata is None:
+        return pd.DataFrame(index=range(len(X_valid)))
+    return game_metadata.reset_index(drop=True).reindex(range(len(X_valid))).copy()
+
+
+def _game_factor_groups(
+    shap_row: np.ndarray,
+    feature_row: pd.Series,
+    factors_per_side: int,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    feature_names = list(feature_row.index)
+    ranked_indices = np.argsort(-np.abs(shap_row))
+    home_factors: list[dict[str, Any]] = []
+    away_factors: list[dict[str, Any]] = []
+
+    for feature_index in ranked_indices:
+        contribution = float(shap_row[int(feature_index)])
+        if contribution == 0:
+            continue
+        factor = _game_factor_record(
+            feature=feature_names[int(feature_index)],
+            contribution=contribution,
+            feature_value=feature_row.iloc[int(feature_index)],
+        )
+        if contribution > 0 and len(home_factors) < factors_per_side:
+            home_factors.append(factor)
+        elif contribution < 0 and len(away_factors) < factors_per_side:
+            away_factors.append(factor)
+        if (
+            len(home_factors) >= factors_per_side
+            and len(away_factors) >= factors_per_side
+        ):
+            break
+    return home_factors, away_factors
+
+
+def _game_factor_record(
+    feature: str,
+    contribution: float,
+    feature_value: Any,
+) -> dict[str, Any]:
+    family = _feature_family(feature)
+    return {
+        "feature": feature,
+        "label": _feature_node_label(feature),
+        "family": family,
+        "family_label": FEATURE_FAMILY_META[family]["label"],
+        "side": _feature_side(feature),
+        "contribution": round(contribution, 6),
+        "abs_contribution": round(abs(contribution), 6),
+        "feature_value": _json_scalar(feature_value),
+    }
+
+
+def _game_metadata_record(row: pd.Series, row_position: int) -> dict[str, Any]:
+    home_code = _optional_int_value(row.get("home_team_code"))
+    away_code = _optional_int_value(row.get("away_team_code"))
+    s_no = _optional_int_value(row.get("s_no"))
+    return {
+        "id": str(s_no) if s_no is not None else f"row_{row_position}",
+        "row_index": row_position,
+        "s_no": s_no,
+        "game_date": _optional_string_value(row.get("game_date")),
+        "home_team": _team_record(home_code),
+        "away_team": _team_record(away_code),
+    }
+
+
+def _team_record(code: int | None) -> dict[str, Any]:
+    return {
+        "code": code,
+        "name": TEAM_CODES.get(code, "Unknown") if code is not None else "Unknown",
+    }
+
+
+def _optional_binary_label(value: Any) -> int | None:
+    if value is None or pd.isna(value):
+        return None
+    return int(value)
+
+
+def _optional_int_value(value: Any) -> int | None:
+    if value is None or pd.isna(value):
+        return None
+    return int(value)
+
+
+def _optional_string_value(value: Any) -> str | None:
+    if value is None or pd.isna(value):
+        return None
+    return str(value)
+
+
+def _json_scalar(value: Any) -> float | int | str | None:
+    if value is None or pd.isna(value):
+        return None
+    if isinstance(value, np.integer):
+        return int(value)
+    if isinstance(value, np.floating):
+        return float(value)
+    if isinstance(value, int | float | str):
+        return value
+    return str(value)
