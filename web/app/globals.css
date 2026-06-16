@@ -1026,6 +1026,120 @@ tbody tr:last-child td {
   line-height: 1.48;
 }
 
+.family-summary-panel {
+  margin-bottom: 26px;
+}
+
+.family-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.family-card {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  min-height: 230px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 16px 36px rgba(21, 23, 22, 0.06);
+}
+
+.family-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.family-card-head > span {
+  width: 11px;
+  height: 42px;
+  flex: 0 0 11px;
+  border-radius: 999px;
+}
+
+.family-card-head div {
+  min-width: 0;
+}
+
+.family-card-head strong {
+  display: block;
+  overflow: hidden;
+  font-size: 1.04rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.family-card-head p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.family-impact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.family-impact strong {
+  font-size: 2.05rem;
+  line-height: 1;
+}
+
+.family-impact span,
+.family-meta-row span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.family-impact-bar {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7ebe6;
+}
+
+.family-impact-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.family-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 12px;
+}
+
+.family-feature-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.family-feature-list span {
+  max-width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f7f8f6;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.74rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .signal-network-panel {
   margin-bottom: 26px;
   padding: 18px;
@@ -1336,6 +1450,10 @@ code {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .family-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .feature-section-grid {
     grid-template-columns: 1fr;
   }
@@ -1361,7 +1479,8 @@ code {
   }
 
   .metric-grid,
-  .game-grid {
+  .game-grid,
+  .family-card-grid {
     grid-template-columns: 1fr;
   }
 

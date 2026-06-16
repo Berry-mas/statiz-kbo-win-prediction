@@ -40,6 +40,7 @@ type AnalysisManifest = {
   };
   network_path?: string | null;
   agreement_path?: string | null;
+  family_summary_path?: string | null;
 };
 
 type SignalMetric = {
@@ -103,6 +104,36 @@ type ImportanceAgreement = {
   rows: AgreementRow[];
 };
 
+type FeatureFamilyTopFeature = {
+  feature: string;
+  label: string;
+  side: string;
+  score: number;
+  ranks: Record<string, number>;
+};
+
+type FeatureFamilySummaryRow = {
+  id: string;
+  label: string;
+  color: string;
+  impact_score: number;
+  impact_share: number;
+  method_coverage: number;
+  primary_method: string;
+  feature_count: number;
+  top_features: FeatureFamilyTopFeature[];
+  method_scores: Record<string, number>;
+};
+
+type FeatureFamilySummary = {
+  schema_version: number;
+  title: string;
+  description: string;
+  methods: AgreementMethod[];
+  top_n: number;
+  families: FeatureFamilySummaryRow[];
+};
+
 const MANIFEST_FILE = path.join(
   process.cwd(),
   "public",
@@ -120,6 +151,9 @@ export default async function FeatureAnalysisPage() {
   const importanceAgreement = manifest
     ? await loadImportanceAgreement(manifest.agreement_path)
     : null;
+  const familySummary = manifest
+    ? await loadFeatureFamilySummary(manifest.family_summary_path)
+    : null;
 
   return (
     <main className="dashboard-shell">
@@ -135,6 +169,7 @@ export default async function FeatureAnalysisPage() {
 
       {manifest ? (
         <AnalysisContent
+          familySummary={familySummary}
           importanceAgreement={importanceAgreement}
           manifest={manifest}
           signalNetwork={signalNetwork}
@@ -153,6 +188,27 @@ async function loadManifest(): Promise<AnalysisManifest | null> {
   const parsed = JSON.parse(await readFile(MANIFEST_FILE, "utf8")) as unknown;
   if (!isManifest(parsed)) {
     throw new Error("Invalid feature analysis manifest.");
+  }
+  return parsed;
+}
+
+async function loadFeatureFamilySummary(
+  summaryPath: string | null | undefined,
+): Promise<FeatureFamilySummary | null> {
+  if (!summaryPath?.startsWith("/feature-analysis/")) {
+    return null;
+  }
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    summaryPath.replace(/^\//, ""),
+  );
+  if (!existsSync(filePath)) {
+    return null;
+  }
+  const parsed = JSON.parse(await readFile(filePath, "utf8")) as unknown;
+  if (!isFeatureFamilySummary(parsed)) {
+    throw new Error("Invalid feature family summary.");
   }
   return parsed;
 }
@@ -200,10 +256,12 @@ async function loadSignalNetwork(
 }
 
 function AnalysisContent({
+  familySummary,
   importanceAgreement,
   manifest,
   signalNetwork,
 }: {
+  familySummary: FeatureFamilySummary | null;
   importanceAgreement: ImportanceAgreement | null;
   manifest: AnalysisManifest;
   signalNetwork: FeatureSignalNetwork | null;
@@ -245,6 +303,8 @@ function AnalysisContent({
           feature caused a win or loss.
         </p>
       </section>
+
+      {familySummary ? <FeatureFamilySummaryPanel summary={familySummary} /> : null}
 
       {signalNetwork ? <FeatureSignalNetworkPanel network={signalNetwork} /> : null}
 
@@ -335,6 +395,61 @@ function AnalysisContent({
         </aside>
       </section>
     </>
+  );
+}
+
+function FeatureFamilySummaryPanel({
+  summary,
+}: {
+  summary: FeatureFamilySummary;
+}) {
+  const topFamilies = summary.families.slice(0, 6);
+  return (
+    <section className="family-summary-panel">
+      <div className="section-heading compact">
+        <div>
+          <p className="eyebrow">Feature family summary</p>
+          <p>Aggregated model interpretation signal by baseball context.</p>
+        </div>
+        <span className="network-count">{summary.families.length} families</span>
+      </div>
+      <div className="family-card-grid">
+        {topFamilies.map((family) => (
+          <article className="family-card" key={family.id}>
+            <div className="family-card-head">
+              <span style={{ background: family.color }} />
+              <div>
+                <strong>{family.label}</strong>
+                <p>{family.feature_count} ranked features</p>
+              </div>
+            </div>
+            <div className="family-impact">
+              <strong>{Math.round(family.impact_share * 100)}%</strong>
+              <span>impact share</span>
+            </div>
+            <div className="family-impact-bar">
+              <i
+                style={{
+                  background: family.color,
+                  width: `${Math.max(4, Math.round(family.impact_share * 100))}%`,
+                }}
+              />
+            </div>
+            <div className="family-meta-row">
+              <span>{family.method_coverage}/{summary.methods.length} methods</span>
+              <span>{formatMethodLabel(family.primary_method)} led</span>
+            </div>
+            <div className="family-feature-list">
+              {family.top_features.slice(0, 3).map((feature) => (
+                <span key={feature.feature} title={feature.feature}>
+                  {compactFamilyFeatureLabel(feature.label)}
+                </span>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -591,6 +706,16 @@ function isImportanceAgreement(value: unknown): value is ImportanceAgreement {
   );
 }
 
+function isFeatureFamilySummary(value: unknown): value is FeatureFamilySummary {
+  return (
+    isRecord(value) &&
+    value.schema_version === 1 &&
+    typeof value.title === "string" &&
+    Array.isArray(value.methods) &&
+    Array.isArray(value.families)
+  );
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -761,6 +886,24 @@ function formatFeatureSide(value: string): string {
     neutral: "Neutral signal",
   };
   return labels[value] ?? "Model signal";
+}
+
+function formatMethodLabel(value: string): string {
+  const labels: Record<string, string> = {
+    gain: "Gain",
+    split: "Split",
+    shap: "SHAP",
+    permutation: "Permutation",
+  };
+  return labels[value] ?? value;
+}
+
+function compactFamilyFeatureLabel(value: string): string {
+  const label = value
+    .replace(/\bprev\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return label.length > 28 ? `${label.slice(0, 25)}...` : label;
 }
 
 function formatTimestamp(value: string): { date: string; time: string } {

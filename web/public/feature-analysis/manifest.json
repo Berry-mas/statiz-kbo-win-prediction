@@ -554,5 +554,6 @@
     "sample_size": 97
   },
   "network_path": "/feature-analysis/feature_signal_network.json",
-  "agreement_path": "/feature-analysis/feature_agreement.json"
+  "agreement_path": "/feature-analysis/feature_agreement.json",
+  "family_summary_path": "/feature-analysis/feature_family_summary.json"
 }

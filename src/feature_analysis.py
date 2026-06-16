@@ -179,6 +179,12 @@ def visualize_lgbm_feature_effects(
         json.dumps(feature_agreement, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+    family_summary = _build_feature_family_summary(top_features, top_n)
+    family_summary_path = output_path / "feature_family_summary.json"
+    family_summary_path.write_text(
+        json.dumps(family_summary, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
     manifest = {
         "schema_version": 1,
@@ -227,6 +233,7 @@ def visualize_lgbm_feature_effects(
         "top_features": top_features,
         "network_path": network_path.name,
         "agreement_path": agreement_path.name,
+        "family_summary_path": family_summary_path.name,
     }
     if permutation_plot is not None:
         manifest["sections"].append(
@@ -606,7 +613,120 @@ def _manifest_with_public_paths(
         web_manifest["dependence_images"][key] = public_path(value)
     web_manifest["network_path"] = public_path(web_manifest.get("network_path"))
     web_manifest["agreement_path"] = public_path(web_manifest.get("agreement_path"))
+    web_manifest["family_summary_path"] = public_path(
+        web_manifest.get("family_summary_path")
+    )
     return web_manifest
+
+
+def _build_feature_family_summary(
+    top_features: dict[str, list[dict[str, Any]]],
+    top_n: int,
+) -> dict[str, Any]:
+    methods = [
+        {"id": "gain", "label": "Gain"},
+        {"id": "split", "label": "Split"},
+        {"id": "shap", "label": "SHAP"},
+        {"id": "permutation", "label": "Permutation"},
+    ]
+    family_rows: dict[str, dict[str, Any]] = {}
+
+    for method in methods:
+        method_id = method["id"]
+        for rank, row in enumerate(top_features.get(method_id, [])[:top_n], start=1):
+            feature = str(row.get("feature", "")).strip()
+            if not feature:
+                continue
+            family = _feature_family(feature)
+            family_meta = FEATURE_FAMILY_META[family]
+            score = (top_n - rank + 1) / top_n
+            family_record = family_rows.setdefault(
+                family,
+                {
+                    "id": family,
+                    "label": family_meta["label"],
+                    "color": family_meta["color"],
+                    "score": 0.0,
+                    "method_scores": {},
+                    "features": {},
+                },
+            )
+            family_record["score"] += score
+            family_record["method_scores"][method_id] = (
+                family_record["method_scores"].get(method_id, 0.0) + score
+            )
+            feature_record = family_record["features"].setdefault(
+                feature,
+                {
+                    "feature": feature,
+                    "label": _feature_node_label(feature),
+                    "side": _feature_side(feature),
+                    "score": 0.0,
+                    "ranks": {},
+                },
+            )
+            feature_record["score"] += score
+            feature_record["ranks"][method_id] = rank
+
+    total_score = sum(float(row["score"]) for row in family_rows.values())
+    families: list[dict[str, Any]] = []
+    for family_record in family_rows.values():
+        feature_records = sorted(
+            family_record["features"].values(),
+            key=lambda row: (-float(row["score"]), str(row["feature"])),
+        )
+        method_scores = {
+            method["id"]: round(
+                float(family_record["method_scores"].get(method["id"], 0.0)),
+                6,
+            )
+            for method in methods
+        }
+        primary_method = max(
+            method_scores.items(),
+            key=lambda item: (float(item[1]), item[0]),
+        )[0]
+        impact_share = (
+            float(family_record["score"]) / total_score if total_score > 0 else 0.0
+        )
+        families.append(
+            {
+                "id": family_record["id"],
+                "label": family_record["label"],
+                "color": family_record["color"],
+                "impact_score": round(float(family_record["score"]), 6),
+                "impact_share": round(impact_share, 6),
+                "method_coverage": sum(1 for score in method_scores.values() if score > 0),
+                "primary_method": primary_method,
+                "feature_count": len(feature_records),
+                "top_features": [
+                    {
+                        "feature": str(feature["feature"]),
+                        "label": str(feature["label"]),
+                        "side": str(feature["side"]),
+                        "score": round(float(feature["score"]), 6),
+                        "ranks": feature["ranks"],
+                    }
+                    for feature in feature_records[:5]
+                ],
+                "method_scores": method_scores,
+            }
+        )
+
+    families.sort(
+        key=lambda row: (
+            -float(row["impact_share"]),
+            _feature_family_sort_index(str(row["id"])),
+        )
+    )
+    return {
+        "schema_version": 1,
+        "title": "Feature family summary",
+        "description": "Aggregated model interpretation signal by baseball feature family.",
+        "methods": methods,
+        "top_n": top_n,
+        "families": families,
+    }
 
 
 def _build_importance_agreement(
@@ -818,6 +938,22 @@ def _feature_family(feature: str) -> str:
     if "day_of_week" in value:
         return "schedule"
     return "other"
+
+
+def _feature_family_sort_index(family: str) -> int:
+    order = [
+        "starter",
+        "lineup",
+        "recent_form",
+        "bullpen",
+        "team_context",
+        "schedule",
+        "other",
+    ]
+    try:
+        return order.index(family)
+    except ValueError:
+        return len(order)
 
 
 def _feature_side(feature: str) -> str:
