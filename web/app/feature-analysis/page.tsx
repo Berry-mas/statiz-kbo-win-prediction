@@ -208,9 +208,14 @@ export default async function FeatureAnalysisPage() {
           <p className="eyebrow">Model interpretation</p>
           <h1>Feature analysis</h1>
         </div>
-        <a className="quiet-link" href="/">
-          Dashboard
-        </a>
+        <div className="page-actions">
+          <a className="quiet-link" href="/">
+            Dashboard
+          </a>
+          <a className="quiet-link" href="/model-guide">
+            Model & feature guide
+          </a>
+        </div>
       </section>
 
       {manifest ? (
