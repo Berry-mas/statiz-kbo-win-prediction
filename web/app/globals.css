@@ -994,6 +994,17 @@ tbody tr:last-child td {
   text-underline-offset: 3px;
 }
 
+.ops-links,
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.ops-links {
+  margin-top: 10px;
+}
+
 .feature-page-heading {
   display: flex;
   align-items: flex-end;
@@ -1024,6 +1035,156 @@ tbody tr:last-child td {
   margin-bottom: 0;
   color: #614817;
   line-height: 1.48;
+}
+
+.guide-intro-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr);
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(247, 248, 246, 0.88)),
+    var(--surface);
+  box-shadow: 0 16px 36px rgba(21, 23, 22, 0.06);
+}
+
+.guide-intro-panel h2 {
+  margin-bottom: 10px;
+  font-size: 1.45rem;
+}
+
+.guide-intro-panel p {
+  max-width: 720px;
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.52;
+}
+
+.guide-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.guide-flow span {
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fbfcfb;
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.guide-flow span:not(:last-child)::after {
+  content: ">";
+  margin-left: 10px;
+  color: var(--muted);
+}
+
+.guide-section {
+  margin-bottom: 26px;
+}
+
+.guide-family-grid,
+.guide-rule-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.guide-family-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.guide-rule-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.guide-family-card,
+.guide-rule-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 16px 36px rgba(21, 23, 22, 0.06);
+}
+
+.guide-family-card {
+  display: grid;
+  gap: 12px;
+  min-height: 208px;
+}
+
+.guide-family-card strong,
+.guide-rule-card strong {
+  display: block;
+  font-size: 1.02rem;
+  line-height: 1.15;
+}
+
+.guide-family-card p,
+.guide-rule-card p {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.guide-family-card div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-self: end;
+}
+
+.guide-family-card span {
+  max-width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f7f8f6;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.73rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.guide-rule-card {
+  display: grid;
+  gap: 8px;
+}
+
+.guide-rule-card strong {
+  color: var(--green);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.95rem;
+}
+
+.guide-feature-table-wrap {
+  overflow-x: auto;
+}
+
+.guide-feature-table {
+  min-width: 980px;
+}
+
+.guide-feature-table th {
+  white-space: nowrap;
+}
+
+.guide-feature-table td:first-child strong {
+  display: block;
+  max-width: 270px;
+  overflow-wrap: anywhere;
+  font-size: 0.84rem;
 }
 
 .family-summary-panel {
@@ -1624,6 +1785,15 @@ code {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .guide-intro-panel,
+  .guide-family-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-flow {
+    justify-content: flex-start;
+  }
+
   .family-card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1659,6 +1829,7 @@ code {
   .metric-grid,
   .game-grid,
   .family-card-grid,
+  .guide-rule-grid,
   .game-factor-columns {
     grid-template-columns: 1fr;
   }

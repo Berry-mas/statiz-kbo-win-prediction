@@ -276,9 +276,14 @@ export default async function DashboardPage() {
                 <dd>{metrics.window.sample_size} games</dd>
               </div>
             </dl>
-            <a className="quiet-link" href="/feature-analysis">
-              Feature analysis
-            </a>
+            <div className="ops-links">
+              <a className="quiet-link" href="/feature-analysis">
+                Feature analysis
+              </a>
+              <a className="quiet-link" href="/model-guide">
+                Model & feature guide
+              </a>
+            </div>
           </article>
         </aside>
       </section>
