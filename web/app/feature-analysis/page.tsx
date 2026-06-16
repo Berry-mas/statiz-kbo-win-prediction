@@ -41,6 +41,7 @@ type AnalysisManifest = {
   network_path?: string | null;
   agreement_path?: string | null;
   family_summary_path?: string | null;
+  game_explanations_path?: string | null;
 };
 
 type SignalMetric = {
@@ -134,6 +135,48 @@ type FeatureFamilySummary = {
   families: FeatureFamilySummaryRow[];
 };
 
+type GameTeam = {
+  code: number | null;
+  name: string;
+};
+
+type GameExplanationFactor = {
+  feature: string;
+  label: string;
+  family: string;
+  family_label: string;
+  side: string;
+  contribution: number;
+  abs_contribution: number;
+  feature_value: number | string | null;
+};
+
+type GameExplanation = {
+  id: string;
+  row_index: number;
+  s_no: number | null;
+  game_date: string | null;
+  home_team: GameTeam;
+  away_team: GameTeam;
+  home_win_probability: number;
+  predicted_side: "home" | "away";
+  actual_home_win: number | null;
+  confidence: number;
+  explanation_strength: number;
+  top_home_factors: GameExplanationFactor[];
+  top_away_factors: GameExplanationFactor[];
+};
+
+type GameExplanations = {
+  schema_version: number;
+  title: string;
+  description: string;
+  sample_size: number;
+  display_count: number;
+  class_label: string;
+  games: GameExplanation[];
+};
+
 const MANIFEST_FILE = path.join(
   process.cwd(),
   "public",
@@ -154,6 +197,9 @@ export default async function FeatureAnalysisPage() {
   const familySummary = manifest
     ? await loadFeatureFamilySummary(manifest.family_summary_path)
     : null;
+  const gameExplanations = manifest
+    ? await loadGameExplanations(manifest.game_explanations_path)
+    : null;
 
   return (
     <main className="dashboard-shell">
@@ -170,6 +216,7 @@ export default async function FeatureAnalysisPage() {
       {manifest ? (
         <AnalysisContent
           familySummary={familySummary}
+          gameExplanations={gameExplanations}
           importanceAgreement={importanceAgreement}
           manifest={manifest}
           signalNetwork={signalNetwork}
@@ -209,6 +256,27 @@ async function loadFeatureFamilySummary(
   const parsed = JSON.parse(await readFile(filePath, "utf8")) as unknown;
   if (!isFeatureFamilySummary(parsed)) {
     throw new Error("Invalid feature family summary.");
+  }
+  return parsed;
+}
+
+async function loadGameExplanations(
+  explanationsPath: string | null | undefined,
+): Promise<GameExplanations | null> {
+  if (!explanationsPath?.startsWith("/feature-analysis/")) {
+    return null;
+  }
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    explanationsPath.replace(/^\//, ""),
+  );
+  if (!existsSync(filePath)) {
+    return null;
+  }
+  const parsed = JSON.parse(await readFile(filePath, "utf8")) as unknown;
+  if (!isGameExplanations(parsed)) {
+    throw new Error("Invalid game explanations.");
   }
   return parsed;
 }
@@ -257,11 +325,13 @@ async function loadSignalNetwork(
 
 function AnalysisContent({
   familySummary,
+  gameExplanations,
   importanceAgreement,
   manifest,
   signalNetwork,
 }: {
   familySummary: FeatureFamilySummary | null;
+  gameExplanations: GameExplanations | null;
   importanceAgreement: ImportanceAgreement | null;
   manifest: AnalysisManifest;
   signalNetwork: FeatureSignalNetwork | null;
@@ -305,6 +375,10 @@ function AnalysisContent({
       </section>
 
       {familySummary ? <FeatureFamilySummaryPanel summary={familySummary} /> : null}
+
+      {gameExplanations ? (
+        <GameExplanationPanel explanations={gameExplanations} />
+      ) : null}
 
       {signalNetwork ? <FeatureSignalNetworkPanel network={signalNetwork} /> : null}
 
@@ -450,6 +524,104 @@ function FeatureFamilySummaryPanel({
         ))}
       </div>
     </section>
+  );
+}
+
+function GameExplanationPanel({
+  explanations,
+}: {
+  explanations: GameExplanations;
+}) {
+  const games = explanations.games.slice(0, 8);
+  if (games.length === 0) {
+    return null;
+  }
+  return (
+    <section className="game-explanation-panel">
+      <div className="section-heading compact">
+        <div>
+          <p className="eyebrow">Game explanation view</p>
+          <p>
+            Per-game SHAP factors showing why the model leaned home or away for
+            high-signal matchups.
+          </p>
+        </div>
+        <span className="network-count">{explanations.display_count} games</span>
+      </div>
+      <div className="game-explanation-grid">
+        {games.map((game) => (
+          <article className="game-explanation-card" key={game.id}>
+            <div className="game-explanation-head">
+              <div>
+                <strong>
+                  {game.away_team.name} <span>at</span> {game.home_team.name}
+                </strong>
+                <p>{game.game_date ?? `row ${game.row_index + 1}`}</p>
+              </div>
+              <div className="game-explanation-probability">
+                <strong>{formatProbability(game.home_win_probability)}</strong>
+                <span>{game.predicted_side === "home" ? "Home lean" : "Away lean"}</span>
+              </div>
+            </div>
+            <div className="explanation-meter" aria-hidden="true">
+              <i
+                className="explanation-meter-away"
+                style={{ width: `${100 - game.home_win_probability * 100}%` }}
+              />
+              <i
+                className="explanation-meter-home"
+                style={{ width: `${game.home_win_probability * 100}%` }}
+              />
+            </div>
+            <div className="game-explanation-meta">
+              <span>{formatActualResult(game.actual_home_win)}</span>
+              <span>{Math.round(game.confidence * 100)}% confidence</span>
+              <span>{game.explanation_strength.toFixed(3)} SHAP load</span>
+            </div>
+            <div className="game-factor-columns">
+              <GameFactorList
+                factors={game.top_away_factors}
+                title="Toward away"
+                tone="away"
+              />
+              <GameFactorList
+                factors={game.top_home_factors}
+                title="Toward home"
+                tone="home"
+              />
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function GameFactorList({
+  factors,
+  title,
+  tone,
+}: {
+  factors: GameExplanationFactor[];
+  title: string;
+  tone: "away" | "home";
+}) {
+  return (
+    <div className={`game-factor-list game-factor-list-${tone}`}>
+      <span>{title}</span>
+      {factors.length > 0 ? (
+        factors.map((factor) => (
+          <div className="game-factor" key={`${title}-${factor.feature}`}>
+            <strong title={factor.feature}>{compactFamilyFeatureLabel(factor.label)}</strong>
+            <small>
+              {factor.family_label} / {formatContribution(factor.contribution)}
+            </small>
+          </div>
+        ))
+      ) : (
+        <div className="game-factor empty">No ranked factor</div>
+      )}
+    </div>
   );
 }
 
@@ -716,6 +888,15 @@ function isFeatureFamilySummary(value: unknown): value is FeatureFamilySummary {
   );
 }
 
+function isGameExplanations(value: unknown): value is GameExplanations {
+  return (
+    isRecord(value) &&
+    value.schema_version === 1 &&
+    typeof value.title === "string" &&
+    Array.isArray(value.games)
+  );
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -904,6 +1085,22 @@ function compactFamilyFeatureLabel(value: string): string {
     .replace(/\s+/g, " ")
     .trim();
   return label.length > 28 ? `${label.slice(0, 25)}...` : label;
+}
+
+function formatProbability(value: number): string {
+  return `${Math.round(value * 100)}%`;
+}
+
+function formatActualResult(value: number | null): string {
+  if (value === null) {
+    return "Result unavailable";
+  }
+  return value === 1 ? "Home won" : "Away won";
+}
+
+function formatContribution(value: number): string {
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(3)}`;
 }
 
 function formatTimestamp(value: string): { date: string; time: string } {

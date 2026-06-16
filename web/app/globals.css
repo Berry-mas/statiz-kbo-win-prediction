@@ -1140,6 +1140,180 @@ tbody tr:last-child td {
   white-space: nowrap;
 }
 
+.game-explanation-panel {
+  margin-bottom: 26px;
+}
+
+.game-explanation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.game-explanation-card {
+  display: grid;
+  gap: 13px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 16px 36px rgba(21, 23, 22, 0.06);
+}
+
+.game-explanation-head {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.game-explanation-head > div:first-child {
+  min-width: 0;
+}
+
+.game-explanation-head strong {
+  display: block;
+  overflow: hidden;
+  font-size: 1.02rem;
+  line-height: 1.14;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-explanation-head strong span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.game-explanation-head p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.game-explanation-probability {
+  flex: 0 0 auto;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.game-explanation-probability strong {
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.game-explanation-probability span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.explanation-meter {
+  display: flex;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7e5e4;
+}
+
+.explanation-meter i {
+  display: block;
+  height: 100%;
+}
+
+.explanation-meter-away {
+  background: #3b0764;
+}
+
+.explanation-meter-home {
+  background: #14b8a6;
+}
+
+.game-explanation-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.game-explanation-meta span {
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f7f8f6;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.game-factor-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.game-factor-list {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  min-width: 0;
+}
+
+.game-factor-list > span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.game-factor {
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfb;
+}
+
+.game-factor-list-away .game-factor {
+  border-color: rgba(59, 7, 100, 0.2);
+}
+
+.game-factor-list-home .game-factor {
+  border-color: rgba(20, 184, 166, 0.26);
+}
+
+.game-factor strong {
+  display: block;
+  overflow: hidden;
+  font-size: 0.82rem;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-factor small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.game-factor.empty {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
 .signal-network-panel {
   margin-bottom: 26px;
   padding: 18px;
@@ -1454,6 +1628,10 @@ code {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .game-explanation-grid {
+    grid-template-columns: 1fr;
+  }
+
   .feature-section-grid {
     grid-template-columns: 1fr;
   }
@@ -1480,7 +1658,8 @@ code {
 
   .metric-grid,
   .game-grid,
-  .family-card-grid {
+  .family-card-grid,
+  .game-factor-columns {
     grid-template-columns: 1fr;
   }
 
@@ -1504,6 +1683,15 @@ code {
 
   .feature-page-heading h1 {
     font-size: 2.4rem;
+  }
+
+  .game-explanation-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .game-explanation-probability {
+    text-align: left;
   }
 
   .signal-network-panel {

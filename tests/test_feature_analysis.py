@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 
 import lightgbm as lgb
 import numpy as np
@@ -29,6 +30,14 @@ def test_visualize_lgbm_feature_effects_writes_artifacts(tmp_path):
             "home_team_code": rng.integers(0, 4, size=80),
         }
     )
+    game_metadata = pd.DataFrame(
+        {
+            "s_no": np.arange(20250001, 20250081),
+            "game_date": ["2025-09-01"] * 80,
+            "home_team_code": [1001] * 80,
+            "away_team_code": [2002] * 80,
+        }
+    )
     y = ((x1 - 0.4 * x2) > 0).astype(int)
     dataset = lgb.Dataset(X, label=y)
     model = lgb.train(
@@ -46,6 +55,7 @@ def test_visualize_lgbm_feature_effects_writes_artifacts(tmp_path):
         model,
         X,
         y_valid=y,
+        game_metadata=game_metadata,
         output_dir=tmp_path / "analysis",
         top_n=2,
         dependence_features=["team_win_rate_ratio", "missing_feature"],
@@ -64,10 +74,19 @@ def test_visualize_lgbm_feature_effects_writes_artifacts(tmp_path):
     assert (analysis_dir / "feature_signal_network.json").exists()
     assert (analysis_dir / "feature_agreement.json").exists()
     assert (analysis_dir / "feature_family_summary.json").exists()
+    assert (analysis_dir / "feature_game_explanations.json").exists()
     assert "missing_feature" not in manifest["dependence_images"]
     assert manifest["network_path"] == "feature_signal_network.json"
     assert manifest["agreement_path"] == "feature_agreement.json"
     assert manifest["family_summary_path"] == "feature_family_summary.json"
+    assert manifest["game_explanations_path"] == "feature_game_explanations.json"
+
+    game_explanations = json.loads(
+        (analysis_dir / "feature_game_explanations.json").read_text(encoding="utf-8")
+    )
+    assert game_explanations["schema_version"] == 1
+    assert game_explanations["display_count"] > 0
+    assert game_explanations["games"][0]["home_team"]["name"] == "삼성"
 
 
 def test_publish_feature_analysis_to_web_rewrites_manifest_paths(tmp_path):
@@ -85,6 +104,9 @@ def test_publish_feature_analysis_to_web_rewrites_manifest_paths(tmp_path):
     )
     (analysis_dir / "feature_family_summary.json").write_text(
         '{"schema_version": 1, "families": []}', encoding="utf-8"
+    )
+    (analysis_dir / "feature_game_explanations.json").write_text(
+        '{"schema_version": 1, "games": []}', encoding="utf-8"
     )
     (analysis_dir / "manifest.json").write_text(
         """
@@ -104,7 +126,8 @@ def test_publish_feature_analysis_to_web_rewrites_manifest_paths(tmp_path):
           "dependence_images": {"x": "chart.png"},
           "network_path": "feature_signal_network.json",
           "agreement_path": "feature_agreement.json",
-          "family_summary_path": "feature_family_summary.json"
+          "family_summary_path": "feature_family_summary.json",
+          "game_explanations_path": "feature_game_explanations.json"
         }
         """,
         encoding="utf-8",
@@ -121,6 +144,7 @@ def test_publish_feature_analysis_to_web_rewrites_manifest_paths(tmp_path):
     assert "/feature-analysis/feature_signal_network.json" in manifest
     assert "/feature-analysis/feature_agreement.json" in manifest
     assert "/feature-analysis/feature_family_summary.json" in manifest
+    assert "/feature-analysis/feature_game_explanations.json" in manifest
     assert "source_model_dir" not in manifest
     assert (tmp_path / "public" / "feature-analysis" / "chart.png").exists()
     assert (
@@ -131,4 +155,7 @@ def test_publish_feature_analysis_to_web_rewrites_manifest_paths(tmp_path):
     ).exists()
     assert (
         tmp_path / "public" / "feature-analysis" / "feature_family_summary.json"
+    ).exists()
+    assert (
+        tmp_path / "public" / "feature-analysis" / "feature_game_explanations.json"
     ).exists()

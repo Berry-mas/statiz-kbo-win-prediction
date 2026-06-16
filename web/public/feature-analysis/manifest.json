@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-15T11:18:03.813886+00:00",
+  "generated_at": "2026-06-16T06:35:48.766175+00:00",
   "model_version": "lgbm_v008",
   "task_type": "classification",
   "sample_size": 97,
@@ -309,7 +309,7 @@
       },
       {
         "feature": "home_starter_whip",
-        "value": 0.017084322233579148
+        "value": 0.017084322233579145
       },
       {
         "feature": "home_lineup_prev_pa_sum",
@@ -321,7 +321,7 @@
       },
       {
         "feature": "home_minus_away_starter_whip",
-        "value": 0.012333654520143091
+        "value": 0.012333654520143088
       },
       {
         "feature": "home_minus_away_starter_starts",
@@ -329,7 +329,7 @@
       },
       {
         "feature": "home_minus_away_lineup_prev_war_sum",
-        "value": 0.011036329561736826
+        "value": 0.011036329561736828
       },
       {
         "feature": "home_games_played",
@@ -341,7 +341,7 @@
       },
       {
         "feature": "away_starter_np_last_game",
-        "value": 0.010190308095257047
+        "value": 0.010190308095257049
       },
       {
         "feature": "home_run_diff_last_5",
@@ -401,7 +401,7 @@
       },
       {
         "feature": "home_minus_away_lineup_prev_sb_sum",
-        "value": 0.005229425979738397
+        "value": 0.005229425979738398
       },
       {
         "feature": "away_lineup_prev_pa_sum",
@@ -413,7 +413,7 @@
       },
       {
         "feature": "away_starter_whip",
-        "value": 0.004707435463126939
+        "value": 0.004707435463126938
       },
       {
         "feature": "home_minus_away_starter_games",
@@ -486,11 +486,11 @@
         "value": 0.009278350515463973
       },
       {
-        "feature": "team_recent_win_rate_ratio",
+        "feature": "away_starter_whip",
         "value": 0.009278350515463963
       },
       {
-        "feature": "away_starter_whip",
+        "feature": "team_recent_win_rate_ratio",
         "value": 0.009278350515463963
       },
       {
@@ -506,11 +506,11 @@
         "value": 0.008247422680412408
       },
       {
-        "feature": "home_runs_for_pg",
+        "feature": "day_of_week",
         "value": 0.007216494845360877
       },
       {
-        "feature": "day_of_week",
+        "feature": "home_runs_for_pg",
         "value": 0.007216494845360877
       },
       {
@@ -518,11 +518,11 @@
         "value": 0.007216494845360855
       },
       {
-        "feature": "away_runs_for_pg",
+        "feature": "away_lineup_prev_stats_coverage",
         "value": 0.006185567010309323
       },
       {
-        "feature": "away_lineup_prev_stats_coverage",
+        "feature": "away_runs_for_pg",
         "value": 0.006185567010309323
       },
       {
@@ -534,15 +534,19 @@
         "value": 0.006185567010309323
       },
       {
-        "feature": "away_runs_against_pg",
+        "feature": "away_bullpen_ip_last_3",
         "value": 0.005154639175257769
       },
       {
-        "feature": "away_bullpen_ip_last_3",
+        "feature": "home_starter_np_last_game",
         "value": 0.005154639175257769
       }
     ]
   },
+  "network_path": "/feature-analysis/feature_signal_network.json",
+  "agreement_path": "/feature-analysis/feature_agreement.json",
+  "family_summary_path": "/feature-analysis/feature_family_summary.json",
+  "game_explanations_path": "/feature-analysis/feature_game_explanations.json",
   "years": [
     2023,
     2024,
@@ -552,8 +556,5 @@
     "type": "late_2025_analysis_sample",
     "start_date": "2025-09-01",
     "sample_size": 97
-  },
-  "network_path": "/feature-analysis/feature_signal_network.json",
-  "agreement_path": "/feature-analysis/feature_agreement.json",
-  "family_summary_path": "/feature-analysis/feature_family_summary.json"
+  }
 }

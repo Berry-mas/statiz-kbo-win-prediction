@@ -80,7 +80,7 @@
       "values": {
         "gain": 60.53068389892578,
         "split": 5.6,
-        "shap": 0.017084322233579148,
+        "shap": 0.017084322233579145,
         "permutation": 0.01546391752577323
       },
       "method_count": 4,
@@ -168,7 +168,7 @@
       "values": {
         "gain": 41.29536800384521,
         "split": 4.2,
-        "shap": 0.010190308095257047,
+        "shap": 0.010190308095257049,
         "permutation": 0.012371134020618601
       },
       "method_count": 4,
@@ -277,7 +277,7 @@
       "values": {
         "gain": 49.72309055328369,
         "split": 4.6,
-        "shap": 0.012333654520143091
+        "shap": 0.012333654520143088
       },
       "method_count": 3,
       "average_rank": 8.0,
@@ -431,7 +431,7 @@
       "values": {
         "gain": 33.39398374557495,
         "split": 2.8,
-        "shap": 0.011036329561736826
+        "shap": 0.011036329561736828
       },
       "method_count": 3,
       "average_rank": 18.667,
@@ -492,7 +492,7 @@
       "ranks": {
         "gain": 17,
         "split": 18,
-        "permutation": 25
+        "permutation": 26
       },
       "values": {
         "gain": 34.560607719421384,
@@ -500,8 +500,8 @@
         "permutation": 0.006185567010309323
       },
       "method_count": 3,
-      "average_rank": 20.0,
-      "consensus_score": 0.275,
+      "average_rank": 20.333,
+      "consensus_score": 0.266667,
       "missing_methods": [
         "shap"
       ]
@@ -585,7 +585,7 @@
       "values": {
         "gain": 29.7284818649292,
         "split": 3.0,
-        "shap": 0.005229425979738397
+        "shap": 0.005229425979738398
       },
       "method_count": 3,
       "average_rank": 25.667,
@@ -643,15 +643,15 @@
       "side": "away",
       "ranks": {
         "shap": 29,
-        "permutation": 18
+        "permutation": 17
       },
       "values": {
-        "shap": 0.004707435463126939,
+        "shap": 0.004707435463126938,
         "permutation": 0.009278350515463963
       },
       "method_count": 2,
-      "average_rank": 23.5,
-      "consensus_score": 0.125,
+      "average_rank": 23.0,
+      "consensus_score": 0.133333,
       "missing_methods": [
         "gain",
         "split"
