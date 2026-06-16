@@ -1,0 +1,937 @@
+{
+  "schema_version": 1,
+  "title": "Feature signal network",
+  "description": "Feature-family graph derived from published model interpretation rankings.",
+  "nodes": [
+    {
+      "id": "model_signal",
+      "kind": "model",
+      "label": "Home-win model",
+      "score": 1.0
+    },
+    {
+      "id": "family:lineup",
+      "kind": "family",
+      "label": "Lineup strength",
+      "family": "lineup",
+      "color": "#0d7a5f",
+      "score": 0.444872
+    },
+    {
+      "id": "family:recent_form",
+      "kind": "family",
+      "label": "Recent form",
+      "family": "recent_form",
+      "color": "#b57a16",
+      "score": 0.360256
+    },
+    {
+      "id": "family:starter",
+      "kind": "family",
+      "label": "Starter quality",
+      "family": "starter",
+      "color": "#2e607d",
+      "score": 1.0
+    },
+    {
+      "id": "family:team_context",
+      "kind": "family",
+      "label": "Team context",
+      "family": "team_context",
+      "color": "#a33b32",
+      "score": 0.169231
+    },
+    {
+      "id": "feature:home_minus_away_lineup_prev_pa_sum",
+      "kind": "feature",
+      "label": "lineup prev pa sum",
+      "feature": "home_minus_away_lineup_prev_pa_sum",
+      "family": "lineup",
+      "family_label": "Lineup strength",
+      "side": "comparison",
+      "score": 1.0,
+      "metrics": {
+        "gain": {
+          "rank": 2,
+          "value": 71.61667385101319
+        },
+        "split": {
+          "rank": 5,
+          "value": 5.2
+        },
+        "shap": {
+          "rank": 1,
+          "value": 0.03527010725341926
+        },
+        "permutation": {
+          "rank": 1,
+          "value": 0.054639175257732
+        }
+      }
+    },
+    {
+      "id": "feature:away_starter_fip_proxy",
+      "kind": "feature",
+      "label": "starter fip proxy",
+      "feature": "away_starter_fip_proxy",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "away",
+      "score": 0.965217,
+      "metrics": {
+        "gain": {
+          "rank": 1,
+          "value": 75.19690160751342
+        },
+        "split": {
+          "rank": 1,
+          "value": 6.4
+        },
+        "shap": {
+          "rank": 2,
+          "value": 0.022703082818413378
+        },
+        "permutation": {
+          "rank": 9,
+          "value": 0.013402061855670121
+        }
+      }
+    },
+    {
+      "id": "feature:home_starter_whip",
+      "kind": "feature",
+      "label": "starter whip",
+      "feature": "home_starter_whip",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "home",
+      "score": 0.93913,
+      "metrics": {
+        "gain": {
+          "rank": 4,
+          "value": 60.53068389892578
+        },
+        "split": {
+          "rank": 3,
+          "value": 5.6
+        },
+        "shap": {
+          "rank": 3,
+          "value": 0.017084322233579148
+        },
+        "permutation": {
+          "rank": 6,
+          "value": 0.01546391752577323
+        }
+      }
+    },
+    {
+      "id": "feature:home_run_diff_last_5",
+      "kind": "feature",
+      "label": "run diff last 5",
+      "feature": "home_run_diff_last_5",
+      "family": "recent_form",
+      "family_label": "Recent form",
+      "side": "home",
+      "score": 0.904348,
+      "metrics": {
+        "gain": {
+          "rank": 3,
+          "value": 66.8187801361084
+        },
+        "split": {
+          "rank": 2,
+          "value": 6.2
+        },
+        "shap": {
+          "rank": 12,
+          "value": 0.009355054654849449
+        },
+        "permutation": {
+          "rank": 3,
+          "value": 0.026804123711340257
+        }
+      }
+    },
+    {
+      "id": "feature:home_starter_fip_proxy",
+      "kind": "feature",
+      "label": "starter fip proxy",
+      "feature": "home_starter_fip_proxy",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "home",
+      "score": 0.878261,
+      "metrics": {
+        "gain": {
+          "rank": 8,
+          "value": 50.054595947265625
+        },
+        "split": {
+          "rank": 8,
+          "value": 4.6
+        },
+        "shap": {
+          "rank": 5,
+          "value": 0.013493803414723936
+        },
+        "permutation": {
+          "rank": 2,
+          "value": 0.03608247422680414
+        }
+      }
+    },
+    {
+      "id": "feature:home_lineup_prev_pa_sum",
+      "kind": "feature",
+      "label": "lineup prev pa sum",
+      "feature": "home_lineup_prev_pa_sum",
+      "family": "lineup",
+      "family_label": "Lineup strength",
+      "side": "home",
+      "score": 0.878261,
+      "metrics": {
+        "gain": {
+          "rank": 7,
+          "value": 51.546730041503906
+        },
+        "split": {
+          "rank": 7,
+          "value": 4.6
+        },
+        "shap": {
+          "rank": 4,
+          "value": 0.014664495261829419
+        },
+        "permutation": {
+          "rank": 5,
+          "value": 0.015463917525773242
+        }
+      }
+    },
+    {
+      "id": "feature:away_starter_np_last_game",
+      "kind": "feature",
+      "label": "starter np last game",
+      "feature": "away_starter_np_last_game",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "away",
+      "score": 0.686957,
+      "metrics": {
+        "gain": {
+          "rank": 12,
+          "value": 41.29536800384521
+        },
+        "split": {
+          "rank": 12,
+          "value": 4.2
+        },
+        "shap": {
+          "rank": 11,
+          "value": 0.010190308095257047
+        },
+        "permutation": {
+          "rank": 10,
+          "value": 0.012371134020618601
+        }
+      }
+    },
+    {
+      "id": "feature:home_runs_for_last_5",
+      "kind": "feature",
+      "label": "runs for last 5",
+      "feature": "home_runs_for_last_5",
+      "family": "recent_form",
+      "family_label": "Recent form",
+      "side": "home",
+      "score": 0.643478,
+      "metrics": {
+        "gain": {
+          "rank": 11,
+          "value": 41.46452417373657
+        },
+        "split": {
+          "rank": 11,
+          "value": 4.2
+        },
+        "shap": {
+          "rank": 14,
+          "value": 0.008438741500606573
+        },
+        "permutation": {
+          "rank": 14,
+          "value": 0.010309278350515493
+        }
+      }
+    },
+    {
+      "id": "feature:home_minus_away_lineup_prev_war_avg",
+      "kind": "feature",
+      "label": "lineup prev war avg",
+      "feature": "home_minus_away_lineup_prev_war_avg",
+      "family": "lineup",
+      "family_label": "Lineup strength",
+      "side": "comparison",
+      "score": 0.617391,
+      "metrics": {
+        "gain": {
+          "rank": 6,
+          "value": 52.38025617599487
+        },
+        "split": {
+          "rank": 10,
+          "value": 4.2
+        },
+        "shap": {
+          "rank": 13,
+          "value": 0.0087445607649438
+        },
+        "permutation": {
+          "rank": 24,
+          "value": 0.007216494845360855
+        }
+      }
+    },
+    {
+      "id": "feature:home_minus_away_starter_era_last_3",
+      "kind": "feature",
+      "label": "starter era last 3",
+      "feature": "home_minus_away_starter_era_last_3",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "comparison",
+      "score": 0.6,
+      "metrics": {
+        "gain": {
+          "rank": 5,
+          "value": 53.40405588150024
+        },
+        "split": {
+          "rank": 4,
+          "value": 5.4
+        },
+        "shap": {
+          "rank": 15,
+          "value": 0.0077770038916270354
+        }
+      }
+    },
+    {
+      "id": "feature:home_minus_away_starter_whip",
+      "kind": "feature",
+      "label": "starter whip",
+      "feature": "home_minus_away_starter_whip",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "comparison",
+      "score": 0.6,
+      "metrics": {
+        "gain": {
+          "rank": 9,
+          "value": 49.72309055328369
+        },
+        "split": {
+          "rank": 9,
+          "value": 4.6
+        },
+        "shap": {
+          "rank": 6,
+          "value": 0.012333654520143091
+        }
+      }
+    },
+    {
+      "id": "feature:home_minus_away_run_diff_last_5",
+      "kind": "feature",
+      "label": "run diff last 5",
+      "feature": "home_minus_away_run_diff_last_5",
+      "family": "recent_form",
+      "family_label": "Recent form",
+      "side": "comparison",
+      "score": 0.591304,
+      "metrics": {
+        "gain": {
+          "rank": 14,
+          "value": 41.013593673706055
+        },
+        "split": {
+          "rank": 15,
+          "value": 4.0
+        },
+        "shap": {
+          "rank": 23,
+          "value": 0.005798774464283515
+        },
+        "permutation": {
+          "rank": 4,
+          "value": 0.020618556701030976
+        }
+      }
+    },
+    {
+      "id": "feature:away_starter_fip_proxy_last_3",
+      "kind": "feature",
+      "label": "starter fip proxy last 3",
+      "feature": "away_starter_fip_proxy_last_3",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "away",
+      "score": 0.46087,
+      "metrics": {
+        "gain": {
+          "rank": 10,
+          "value": 45.03512001037598
+        },
+        "split": {
+          "rank": 6,
+          "value": 4.8
+        },
+        "shap": {
+          "rank": 24,
+          "value": 0.005459802332255093
+        }
+      }
+    },
+    {
+      "id": "feature:away_win_rate",
+      "kind": "feature",
+      "label": "win rate",
+      "feature": "away_win_rate",
+      "family": "team_context",
+      "family_label": "Team context",
+      "side": "away",
+      "score": 0.434783,
+      "metrics": {
+        "gain": {
+          "rank": 19,
+          "value": 33.67712230682373
+        },
+        "split": {
+          "rank": 17,
+          "value": 3.8
+        },
+        "permutation": {
+          "rank": 7,
+          "value": 0.014432989690721676
+        }
+      }
+    },
+    {
+      "id": "feature:home_minus_away_runs_for_pg",
+      "kind": "feature",
+      "label": "runs for pg",
+      "feature": "home_minus_away_runs_for_pg",
+      "family": "team_context",
+      "family_label": "Team context",
+      "side": "comparison",
+      "score": 0.426087,
+      "metrics": {
+        "gain": {
+          "rank": 15,
+          "value": 38.039803981781006
+        },
+        "split": {
+          "rank": 16,
+          "value": 3.8
+        },
+        "permutation": {
+          "rank": 13,
+          "value": 0.010309278350515505
+        }
+      }
+    },
+    {
+      "id": "feature:home_starter_fip_proxy_last_3",
+      "kind": "feature",
+      "label": "starter fip proxy last 3",
+      "feature": "home_starter_fip_proxy_last_3",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "home",
+      "score": 0.373913,
+      "metrics": {
+        "gain": {
+          "rank": 16,
+          "value": 37.08964204788208
+        },
+        "split": {
+          "rank": 14,
+          "value": 4.2
+        },
+        "shap": {
+          "rank": 20,
+          "value": 0.006174751741543329
+        }
+      }
+    },
+    {
+      "id": "feature:home_minus_away_starter_np_last_game",
+      "kind": "feature",
+      "label": "starter np last game",
+      "feature": "home_minus_away_starter_np_last_game",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "comparison",
+      "score": 0.365217,
+      "metrics": {
+        "gain": {
+          "rank": 13,
+          "value": 41.02476577758789
+        },
+        "split": {
+          "rank": 13,
+          "value": 4.2
+        },
+        "shap": {
+          "rank": 25,
+          "value": 0.0053931458662561695
+        }
+      }
+    },
+    {
+      "id": "feature:home_minus_away_starter_fip_proxy",
+      "kind": "feature",
+      "label": "starter fip proxy",
+      "feature": "home_minus_away_starter_fip_proxy",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "comparison",
+      "score": 0.33913,
+      "metrics": {
+        "gain": {
+          "rank": 24,
+          "value": 29.875669860839842
+        },
+        "shap": {
+          "rank": 10,
+          "value": 0.01036012866945831
+        },
+        "permutation": {
+          "rank": 20,
+          "value": 0.00927835051546394
+        }
+      }
+    },
+    {
+      "id": "feature:home_minus_away_lineup_prev_war_sum",
+      "kind": "feature",
+      "label": "lineup prev war sum",
+      "feature": "home_minus_away_lineup_prev_war_sum",
+      "family": "lineup",
+      "family_label": "Lineup strength",
+      "side": "comparison",
+      "score": 0.321739,
+      "metrics": {
+        "gain": {
+          "rank": 20,
+          "value": 33.39398374557495
+        },
+        "split": {
+          "rank": 28,
+          "value": 2.8
+        },
+        "shap": {
+          "rank": 8,
+          "value": 0.011036329561736826
+        }
+      }
+    },
+    {
+      "id": "feature:home_minus_away_runs_against_last_5",
+      "kind": "feature",
+      "label": "runs against last 5",
+      "feature": "home_minus_away_runs_against_last_5",
+      "family": "recent_form",
+      "family_label": "Recent form",
+      "side": "comparison",
+      "score": 0.304348,
+      "metrics": {
+        "gain": {
+          "rank": 18,
+          "value": 33.90486993789673
+        },
+        "split": {
+          "rank": 19,
+          "value": 3.6
+        },
+        "shap": {
+          "rank": 21,
+          "value": 0.0060410007309440895
+        }
+      }
+    },
+    {
+      "id": "feature:home_minus_away_starter_starts",
+      "kind": "feature",
+      "label": "starter starts",
+      "feature": "home_minus_away_starter_starts",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "comparison",
+      "score": 0.304348,
+      "metrics": {
+        "gain": {
+          "rank": 22,
+          "value": 30.672693824768068
+        },
+        "split": {
+          "rank": 29,
+          "value": 2.8
+        },
+        "shap": {
+          "rank": 7,
+          "value": 0.011862692230167518
+        }
+      }
+    },
+    {
+      "id": "feature:away_runs_for_pg",
+      "kind": "feature",
+      "label": "runs for pg",
+      "feature": "away_runs_for_pg",
+      "family": "team_context",
+      "family_label": "Team context",
+      "side": "away",
+      "score": 0.286957,
+      "metrics": {
+        "gain": {
+          "rank": 17,
+          "value": 34.560607719421384
+        },
+        "split": {
+          "rank": 18,
+          "value": 3.6
+        },
+        "permutation": {
+          "rank": 25,
+          "value": 0.006185567010309323
+        }
+      }
+    },
+    {
+      "id": "feature:away_starter_era",
+      "kind": "feature",
+      "label": "starter era",
+      "feature": "away_starter_era",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "away",
+      "score": 0.269565,
+      "metrics": {
+        "gain": {
+          "rank": 29,
+          "value": 28.53821039199829
+        },
+        "split": {
+          "rank": 22,
+          "value": 3.4
+        },
+        "permutation": {
+          "rank": 11,
+          "value": 0.01237113402061859
+        }
+      }
+    },
+    {
+      "id": "feature:home_minus_away_lineup_top4_prev_ops_pa_weighted",
+      "kind": "feature",
+      "label": "lineup top4 prev ops pa weighted",
+      "feature": "home_minus_away_lineup_top4_prev_ops_pa_weighted",
+      "family": "lineup",
+      "family_label": "Lineup strength",
+      "side": "comparison",
+      "score": 0.2,
+      "metrics": {
+        "permutation": {
+          "rank": 8,
+          "value": 0.013402061855670144
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "family:lineup",
+      "target": "feature:home_minus_away_lineup_prev_pa_sum",
+      "kind": "family_membership",
+      "weight": 1.0,
+      "label": "Lineup strength"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:away_starter_fip_proxy",
+      "kind": "family_membership",
+      "weight": 0.965217,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:home_starter_whip",
+      "kind": "family_membership",
+      "weight": 0.93913,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:recent_form",
+      "target": "feature:home_run_diff_last_5",
+      "kind": "family_membership",
+      "weight": 0.904348,
+      "label": "Recent form"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:home_starter_fip_proxy",
+      "kind": "family_membership",
+      "weight": 0.878261,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:lineup",
+      "target": "feature:home_lineup_prev_pa_sum",
+      "kind": "family_membership",
+      "weight": 0.878261,
+      "label": "Lineup strength"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:away_starter_np_last_game",
+      "kind": "family_membership",
+      "weight": 0.686957,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:recent_form",
+      "target": "feature:home_runs_for_last_5",
+      "kind": "family_membership",
+      "weight": 0.643478,
+      "label": "Recent form"
+    },
+    {
+      "source": "family:lineup",
+      "target": "feature:home_minus_away_lineup_prev_war_avg",
+      "kind": "family_membership",
+      "weight": 0.617391,
+      "label": "Lineup strength"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:home_minus_away_starter_era_last_3",
+      "kind": "family_membership",
+      "weight": 0.6,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:home_minus_away_starter_whip",
+      "kind": "family_membership",
+      "weight": 0.6,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:recent_form",
+      "target": "feature:home_minus_away_run_diff_last_5",
+      "kind": "family_membership",
+      "weight": 0.591304,
+      "label": "Recent form"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:away_starter_fip_proxy_last_3",
+      "kind": "family_membership",
+      "weight": 0.46087,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:team_context",
+      "target": "feature:away_win_rate",
+      "kind": "family_membership",
+      "weight": 0.434783,
+      "label": "Team context"
+    },
+    {
+      "source": "family:team_context",
+      "target": "feature:home_minus_away_runs_for_pg",
+      "kind": "family_membership",
+      "weight": 0.426087,
+      "label": "Team context"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:home_starter_fip_proxy_last_3",
+      "kind": "family_membership",
+      "weight": 0.373913,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:home_minus_away_starter_np_last_game",
+      "kind": "family_membership",
+      "weight": 0.365217,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:home_minus_away_starter_fip_proxy",
+      "kind": "family_membership",
+      "weight": 0.33913,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:lineup",
+      "target": "feature:home_minus_away_lineup_prev_war_sum",
+      "kind": "family_membership",
+      "weight": 0.321739,
+      "label": "Lineup strength"
+    },
+    {
+      "source": "family:recent_form",
+      "target": "feature:home_minus_away_runs_against_last_5",
+      "kind": "family_membership",
+      "weight": 0.304348,
+      "label": "Recent form"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:home_minus_away_starter_starts",
+      "kind": "family_membership",
+      "weight": 0.304348,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:team_context",
+      "target": "feature:away_runs_for_pg",
+      "kind": "family_membership",
+      "weight": 0.286957,
+      "label": "Team context"
+    },
+    {
+      "source": "family:starter",
+      "target": "feature:away_starter_era",
+      "kind": "family_membership",
+      "weight": 0.269565,
+      "label": "Starter quality"
+    },
+    {
+      "source": "family:lineup",
+      "target": "feature:home_minus_away_lineup_top4_prev_ops_pa_weighted",
+      "kind": "family_membership",
+      "weight": 0.2,
+      "label": "Lineup strength"
+    },
+    {
+      "source": "model_signal",
+      "target": "family:lineup",
+      "kind": "family_signal",
+      "weight": 0.444872,
+      "label": "Lineup strength"
+    },
+    {
+      "source": "model_signal",
+      "target": "family:recent_form",
+      "kind": "family_signal",
+      "weight": 0.360256,
+      "label": "Recent form"
+    },
+    {
+      "source": "model_signal",
+      "target": "family:starter",
+      "kind": "family_signal",
+      "weight": 1.0,
+      "label": "Starter quality"
+    },
+    {
+      "source": "model_signal",
+      "target": "family:team_context",
+      "kind": "family_signal",
+      "weight": 0.169231,
+      "label": "Team context"
+    },
+    {
+      "source": "feature:away_starter_fip_proxy",
+      "target": "feature:home_minus_away_starter_fip_proxy",
+      "kind": "home_away_relation",
+      "weight": 0.33913,
+      "label": "Home/away related signal"
+    },
+    {
+      "source": "feature:home_minus_away_starter_fip_proxy",
+      "target": "feature:home_starter_fip_proxy",
+      "kind": "home_away_relation",
+      "weight": 0.33913,
+      "label": "Home/away related signal"
+    },
+    {
+      "source": "feature:home_lineup_prev_pa_sum",
+      "target": "feature:home_minus_away_lineup_prev_pa_sum",
+      "kind": "home_away_relation",
+      "weight": 0.878261,
+      "label": "Home/away related signal"
+    },
+    {
+      "source": "feature:home_minus_away_starter_whip",
+      "target": "feature:home_starter_whip",
+      "kind": "home_away_relation",
+      "weight": 0.6,
+      "label": "Home/away related signal"
+    },
+    {
+      "source": "feature:away_starter_np_last_game",
+      "target": "feature:home_minus_away_starter_np_last_game",
+      "kind": "home_away_relation",
+      "weight": 0.365217,
+      "label": "Home/away related signal"
+    },
+    {
+      "source": "feature:home_minus_away_run_diff_last_5",
+      "target": "feature:home_run_diff_last_5",
+      "kind": "home_away_relation",
+      "weight": 0.591304,
+      "label": "Home/away related signal"
+    },
+    {
+      "source": "feature:away_starter_fip_proxy_last_3",
+      "target": "feature:home_starter_fip_proxy_last_3",
+      "kind": "home_away_relation",
+      "weight": 0.373913,
+      "label": "Home/away related signal"
+    },
+    {
+      "source": "feature:away_runs_for_pg",
+      "target": "feature:home_minus_away_runs_for_pg",
+      "kind": "home_away_relation",
+      "weight": 0.286957,
+      "label": "Home/away related signal"
+    }
+  ],
+  "families": {
+    "starter": {
+      "label": "Starter quality",
+      "color": "#2e607d"
+    },
+    "lineup": {
+      "label": "Lineup strength",
+      "color": "#0d7a5f"
+    },
+    "bullpen": {
+      "label": "Bullpen load",
+      "color": "#6d4c8d"
+    },
+    "recent_form": {
+      "label": "Recent form",
+      "color": "#b57a16"
+    },
+    "team_context": {
+      "label": "Team context",
+      "color": "#a33b32"
+    },
+    "schedule": {
+      "label": "Schedule",
+      "color": "#65716b"
+    },
+    "other": {
+      "label": "Other signals",
+      "color": "#151716"
+    }
+  }
+}

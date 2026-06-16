@@ -1,0 +1,413 @@
+{
+  "schema_version": 1,
+  "title": "Feature family summary",
+  "description": "Aggregated model interpretation signal by baseball feature family.",
+  "methods": [
+    {
+      "id": "gain",
+      "label": "Gain"
+    },
+    {
+      "id": "split",
+      "label": "Split"
+    },
+    {
+      "id": "shap",
+      "label": "SHAP"
+    },
+    {
+      "id": "permutation",
+      "label": "Permutation"
+    }
+  ],
+  "top_n": 30,
+  "families": [
+    {
+      "id": "starter",
+      "label": "Starter quality",
+      "color": "#2e607d",
+      "impact_score": 28.733333,
+      "impact_share": 0.463441,
+      "method_coverage": 4,
+      "primary_method": "split",
+      "feature_count": 18,
+      "top_features": [
+        {
+          "feature": "away_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "side": "away",
+          "score": 3.7,
+          "ranks": {
+            "gain": 1,
+            "split": 1,
+            "shap": 2,
+            "permutation": 9
+          }
+        },
+        {
+          "feature": "home_starter_whip",
+          "label": "starter whip",
+          "side": "home",
+          "score": 3.6,
+          "ranks": {
+            "gain": 4,
+            "split": 3,
+            "shap": 3,
+            "permutation": 6
+          }
+        },
+        {
+          "feature": "home_starter_fip_proxy",
+          "label": "starter fip proxy",
+          "side": "home",
+          "score": 3.366667,
+          "ranks": {
+            "gain": 8,
+            "split": 8,
+            "shap": 5,
+            "permutation": 2
+          }
+        },
+        {
+          "feature": "away_starter_np_last_game",
+          "label": "starter np last game",
+          "side": "away",
+          "score": 2.633333,
+          "ranks": {
+            "gain": 12,
+            "split": 12,
+            "shap": 11,
+            "permutation": 10
+          }
+        },
+        {
+          "feature": "home_minus_away_starter_era_last_3",
+          "label": "starter era last 3",
+          "side": "comparison",
+          "score": 2.3,
+          "ranks": {
+            "gain": 5,
+            "split": 4,
+            "shap": 15
+          }
+        }
+      ],
+      "method_scores": {
+        "gain": 7.866667,
+        "split": 8.1,
+        "shap": 7.6,
+        "permutation": 5.166667
+      }
+    },
+    {
+      "id": "lineup",
+      "label": "Lineup strength",
+      "color": "#0d7a5f",
+      "impact_score": 14.566667,
+      "impact_share": 0.234946,
+      "method_coverage": 4,
+      "primary_method": "permutation",
+      "feature_count": 11,
+      "top_features": [
+        {
+          "feature": "home_minus_away_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "side": "comparison",
+          "score": 3.833333,
+          "ranks": {
+            "gain": 2,
+            "split": 5,
+            "shap": 1,
+            "permutation": 1
+          }
+        },
+        {
+          "feature": "home_lineup_prev_pa_sum",
+          "label": "lineup prev pa sum",
+          "side": "home",
+          "score": 3.366667,
+          "ranks": {
+            "gain": 7,
+            "split": 7,
+            "shap": 4,
+            "permutation": 5
+          }
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_war_avg",
+          "label": "lineup prev war avg",
+          "side": "comparison",
+          "score": 2.366667,
+          "ranks": {
+            "gain": 6,
+            "split": 10,
+            "shap": 13,
+            "permutation": 24
+          }
+        },
+        {
+          "feature": "home_minus_away_lineup_prev_war_sum",
+          "label": "lineup prev war sum",
+          "side": "comparison",
+          "score": 1.233333,
+          "ranks": {
+            "gain": 20,
+            "split": 28,
+            "shap": 8
+          }
+        },
+        {
+          "feature": "home_minus_away_lineup_top4_prev_ops_pa_weighted",
+          "label": "lineup top4 prev ops pa weighted",
+          "side": "comparison",
+          "score": 0.766667,
+          "ranks": {
+            "permutation": 8
+          }
+        }
+      ],
+      "method_scores": {
+        "gain": 3.133333,
+        "split": 2.666667,
+        "shap": 4.066667,
+        "permutation": 4.7
+      }
+    },
+    {
+      "id": "recent_form",
+      "label": "Recent form",
+      "color": "#b57a16",
+      "impact_score": 11.033333,
+      "impact_share": 0.177957,
+      "method_coverage": 4,
+      "primary_method": "permutation",
+      "feature_count": 8,
+      "top_features": [
+        {
+          "feature": "home_run_diff_last_5",
+          "label": "run diff last 5",
+          "side": "home",
+          "score": 3.466667,
+          "ranks": {
+            "gain": 3,
+            "split": 2,
+            "shap": 12,
+            "permutation": 3
+          }
+        },
+        {
+          "feature": "home_runs_for_last_5",
+          "label": "runs for last 5",
+          "side": "home",
+          "score": 2.466667,
+          "ranks": {
+            "gain": 11,
+            "split": 11,
+            "shap": 14,
+            "permutation": 14
+          }
+        },
+        {
+          "feature": "home_minus_away_run_diff_last_5",
+          "label": "run diff last 5",
+          "side": "comparison",
+          "score": 2.266667,
+          "ranks": {
+            "gain": 14,
+            "split": 15,
+            "shap": 23,
+            "permutation": 4
+          }
+        },
+        {
+          "feature": "home_minus_away_runs_against_last_5",
+          "label": "runs against last 5",
+          "side": "comparison",
+          "score": 1.166667,
+          "ranks": {
+            "gain": 18,
+            "split": 19,
+            "shap": 21
+          }
+        },
+        {
+          "feature": "away_run_diff_last_5",
+          "label": "run diff last 5",
+          "side": "away",
+          "score": 0.7,
+          "ranks": {
+            "gain": 21,
+            "split": 20
+          }
+        }
+      ],
+      "method_scores": {
+        "gain": 2.933333,
+        "split": 2.933333,
+        "shap": 1.8,
+        "permutation": 3.366667
+      }
+    },
+    {
+      "id": "team_context",
+      "label": "Team context",
+      "color": "#a33b32",
+      "impact_score": 5.966667,
+      "impact_share": 0.096237,
+      "method_coverage": 4,
+      "primary_method": "permutation",
+      "feature_count": 9,
+      "top_features": [
+        {
+          "feature": "away_win_rate",
+          "label": "win rate",
+          "side": "away",
+          "score": 1.666667,
+          "ranks": {
+            "gain": 19,
+            "split": 17,
+            "permutation": 7
+          }
+        },
+        {
+          "feature": "home_minus_away_runs_for_pg",
+          "label": "runs for pg",
+          "side": "comparison",
+          "score": 1.633333,
+          "ranks": {
+            "gain": 15,
+            "split": 16,
+            "permutation": 13
+          }
+        },
+        {
+          "feature": "away_runs_for_pg",
+          "label": "runs for pg",
+          "side": "away",
+          "score": 1.1,
+          "ranks": {
+            "gain": 17,
+            "split": 18,
+            "permutation": 25
+          }
+        },
+        {
+          "feature": "away_team_code",
+          "label": "team code",
+          "side": "away",
+          "score": 0.466667,
+          "ranks": {
+            "shap": 17
+          }
+        },
+        {
+          "feature": "home_minus_away_runs_against_pg",
+          "label": "runs against pg",
+          "side": "comparison",
+          "score": 0.433333,
+          "ranks": {
+            "shap": 18
+          }
+        }
+      ],
+      "method_scores": {
+        "gain": 1.433333,
+        "split": 1.566667,
+        "shap": 1.0,
+        "permutation": 1.966667
+      }
+    },
+    {
+      "id": "other",
+      "label": "Other signals",
+      "color": "#151716",
+      "impact_score": 0.733333,
+      "impact_share": 0.011828,
+      "method_coverage": 1,
+      "primary_method": "shap",
+      "feature_count": 1,
+      "top_features": [
+        {
+          "feature": "home_games_played",
+          "label": "games played",
+          "side": "home",
+          "score": 0.733333,
+          "ranks": {
+            "shap": 9
+          }
+        }
+      ],
+      "method_scores": {
+        "gain": 0.0,
+        "split": 0.0,
+        "shap": 0.733333,
+        "permutation": 0.0
+      }
+    },
+    {
+      "id": "bullpen",
+      "label": "Bullpen load",
+      "color": "#6d4c8d",
+      "impact_score": 0.7,
+      "impact_share": 0.01129,
+      "method_coverage": 4,
+      "primary_method": "shap",
+      "feature_count": 2,
+      "top_features": [
+        {
+          "feature": "home_minus_away_bullpen_ip_last_3",
+          "label": "bullpen ip last 3",
+          "side": "comparison",
+          "score": 0.366667,
+          "ranks": {
+            "gain": 27,
+            "split": 24
+          }
+        },
+        {
+          "feature": "away_bullpen_ip_last_3",
+          "label": "bullpen ip last 3",
+          "side": "away",
+          "score": 0.333333,
+          "ranks": {
+            "shap": 22,
+            "permutation": 30
+          }
+        }
+      ],
+      "method_scores": {
+        "gain": 0.133333,
+        "split": 0.233333,
+        "shap": 0.3,
+        "permutation": 0.033333
+      }
+    },
+    {
+      "id": "schedule",
+      "label": "Schedule",
+      "color": "#65716b",
+      "impact_score": 0.266667,
+      "impact_share": 0.004301,
+      "method_coverage": 1,
+      "primary_method": "permutation",
+      "feature_count": 1,
+      "top_features": [
+        {
+          "feature": "day_of_week",
+          "label": "day of week",
+          "side": "neutral",
+          "score": 0.266667,
+          "ranks": {
+            "permutation": 23
+          }
+        }
+      ],
+      "method_scores": {
+        "gain": 0.0,
+        "split": 0.0,
+        "shap": 0.0,
+        "permutation": 0.266667
+      }
+    }
+  ]
+}

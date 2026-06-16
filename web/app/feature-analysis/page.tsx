@@ -38,6 +38,100 @@ type AnalysisManifest = {
     shap: TopFeature[];
     permutation: TopFeature[];
   };
+  network_path?: string | null;
+  agreement_path?: string | null;
+  family_summary_path?: string | null;
+};
+
+type SignalMetric = {
+  rank: number;
+  value: number;
+};
+
+type SignalNetworkNode = {
+  id: string;
+  kind: "model" | "family" | "feature";
+  label: string;
+  feature?: string;
+  family?: string;
+  family_label?: string;
+  side?: string;
+  score: number;
+  color?: string;
+  metrics?: Record<string, SignalMetric>;
+};
+
+type SignalNetworkEdge = {
+  source: string;
+  target: string;
+  kind: "family_signal" | "family_membership" | "home_away_relation";
+  weight: number;
+  label: string;
+};
+
+type FeatureSignalNetwork = {
+  schema_version: number;
+  title: string;
+  description: string;
+  nodes: SignalNetworkNode[];
+  edges: SignalNetworkEdge[];
+};
+
+type AgreementMethod = {
+  id: string;
+  label: string;
+};
+
+type AgreementRow = {
+  feature: string;
+  family: string;
+  family_label: string;
+  side: string;
+  ranks: Record<string, number>;
+  values: Record<string, number>;
+  method_count: number;
+  average_rank: number;
+  consensus_score: number;
+  missing_methods: string[];
+};
+
+type ImportanceAgreement = {
+  schema_version: number;
+  title: string;
+  description: string;
+  methods: AgreementMethod[];
+  top_n: number;
+  rows: AgreementRow[];
+};
+
+type FeatureFamilyTopFeature = {
+  feature: string;
+  label: string;
+  side: string;
+  score: number;
+  ranks: Record<string, number>;
+};
+
+type FeatureFamilySummaryRow = {
+  id: string;
+  label: string;
+  color: string;
+  impact_score: number;
+  impact_share: number;
+  method_coverage: number;
+  primary_method: string;
+  feature_count: number;
+  top_features: FeatureFamilyTopFeature[];
+  method_scores: Record<string, number>;
+};
+
+type FeatureFamilySummary = {
+  schema_version: number;
+  title: string;
+  description: string;
+  methods: AgreementMethod[];
+  top_n: number;
+  families: FeatureFamilySummaryRow[];
 };
 
 const MANIFEST_FILE = path.join(
@@ -51,6 +145,15 @@ export const dynamic = "force-static";
 
 export default async function FeatureAnalysisPage() {
   const manifest = await loadManifest();
+  const signalNetwork = manifest
+    ? await loadSignalNetwork(manifest.network_path)
+    : null;
+  const importanceAgreement = manifest
+    ? await loadImportanceAgreement(manifest.agreement_path)
+    : null;
+  const familySummary = manifest
+    ? await loadFeatureFamilySummary(manifest.family_summary_path)
+    : null;
 
   return (
     <main className="dashboard-shell">
@@ -64,7 +167,16 @@ export default async function FeatureAnalysisPage() {
         </a>
       </section>
 
-      {manifest ? <AnalysisContent manifest={manifest} /> : <MissingAnalysisState />}
+      {manifest ? (
+        <AnalysisContent
+          familySummary={familySummary}
+          importanceAgreement={importanceAgreement}
+          manifest={manifest}
+          signalNetwork={signalNetwork}
+        />
+      ) : (
+        <MissingAnalysisState />
+      )}
     </main>
   );
 }
@@ -80,7 +192,80 @@ async function loadManifest(): Promise<AnalysisManifest | null> {
   return parsed;
 }
 
-function AnalysisContent({ manifest }: { manifest: AnalysisManifest }) {
+async function loadFeatureFamilySummary(
+  summaryPath: string | null | undefined,
+): Promise<FeatureFamilySummary | null> {
+  if (!summaryPath?.startsWith("/feature-analysis/")) {
+    return null;
+  }
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    summaryPath.replace(/^\//, ""),
+  );
+  if (!existsSync(filePath)) {
+    return null;
+  }
+  const parsed = JSON.parse(await readFile(filePath, "utf8")) as unknown;
+  if (!isFeatureFamilySummary(parsed)) {
+    throw new Error("Invalid feature family summary.");
+  }
+  return parsed;
+}
+
+async function loadImportanceAgreement(
+  agreementPath: string | null | undefined,
+): Promise<ImportanceAgreement | null> {
+  if (!agreementPath?.startsWith("/feature-analysis/")) {
+    return null;
+  }
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    agreementPath.replace(/^\//, ""),
+  );
+  if (!existsSync(filePath)) {
+    return null;
+  }
+  const parsed = JSON.parse(await readFile(filePath, "utf8")) as unknown;
+  if (!isImportanceAgreement(parsed)) {
+    throw new Error("Invalid importance agreement matrix.");
+  }
+  return parsed;
+}
+
+async function loadSignalNetwork(
+  networkPath: string | null | undefined,
+): Promise<FeatureSignalNetwork | null> {
+  if (!networkPath?.startsWith("/feature-analysis/")) {
+    return null;
+  }
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    networkPath.replace(/^\//, ""),
+  );
+  if (!existsSync(filePath)) {
+    return null;
+  }
+  const parsed = JSON.parse(await readFile(filePath, "utf8")) as unknown;
+  if (!isSignalNetwork(parsed)) {
+    throw new Error("Invalid feature signal network.");
+  }
+  return parsed;
+}
+
+function AnalysisContent({
+  familySummary,
+  importanceAgreement,
+  manifest,
+  signalNetwork,
+}: {
+  familySummary: FeatureFamilySummary | null;
+  importanceAgreement: ImportanceAgreement | null;
+  manifest: AnalysisManifest;
+  signalNetwork: FeatureSignalNetwork | null;
+}) {
   const modelVersion = manifest.model_version ?? "n/a";
   const generatedAt = formatTimestamp(manifest.generated_at);
   const dependenceEntries = Object.entries(manifest.dependence_images);
@@ -118,6 +303,14 @@ function AnalysisContent({ manifest }: { manifest: AnalysisManifest }) {
           feature caused a win or loss.
         </p>
       </section>
+
+      {familySummary ? <FeatureFamilySummaryPanel summary={familySummary} /> : null}
+
+      {signalNetwork ? <FeatureSignalNetworkPanel network={signalNetwork} /> : null}
+
+      {importanceAgreement ? (
+        <ImportanceAgreementPanel agreement={importanceAgreement} />
+      ) : null}
 
       <section className="feature-section-grid">
         {manifest.sections.map((section) => (
@@ -205,6 +398,239 @@ function AnalysisContent({ manifest }: { manifest: AnalysisManifest }) {
   );
 }
 
+function FeatureFamilySummaryPanel({
+  summary,
+}: {
+  summary: FeatureFamilySummary;
+}) {
+  const topFamilies = summary.families.slice(0, 6);
+  return (
+    <section className="family-summary-panel">
+      <div className="section-heading compact">
+        <div>
+          <p className="eyebrow">Feature family summary</p>
+          <p>Aggregated model interpretation signal by baseball context.</p>
+        </div>
+        <span className="network-count">{summary.families.length} families</span>
+      </div>
+      <div className="family-card-grid">
+        {topFamilies.map((family) => (
+          <article className="family-card" key={family.id}>
+            <div className="family-card-head">
+              <span style={{ background: family.color }} />
+              <div>
+                <strong>{family.label}</strong>
+                <p>{family.feature_count} ranked features</p>
+              </div>
+            </div>
+            <div className="family-impact">
+              <strong>{Math.round(family.impact_share * 100)}%</strong>
+              <span>impact share</span>
+            </div>
+            <div className="family-impact-bar">
+              <i
+                style={{
+                  background: family.color,
+                  width: `${Math.max(4, Math.round(family.impact_share * 100))}%`,
+                }}
+              />
+            </div>
+            <div className="family-meta-row">
+              <span>{family.method_coverage}/{summary.methods.length} methods</span>
+              <span>{formatMethodLabel(family.primary_method)} led</span>
+            </div>
+            <div className="family-feature-list">
+              {family.top_features.slice(0, 3).map((feature) => (
+                <span key={feature.feature} title={feature.feature}>
+                  {compactFamilyFeatureLabel(feature.label)}
+                </span>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ImportanceAgreementPanel({
+  agreement,
+}: {
+  agreement: ImportanceAgreement;
+}) {
+  const strongRows = agreement.rows.filter((row) => row.method_count >= 3).length;
+  return (
+    <section className="agreement-panel">
+      <div className="section-heading compact">
+        <div>
+          <p className="eyebrow">Importance agreement</p>
+          <p>
+            Features that repeatedly rank high across gain, split, SHAP, and
+            permutation importance.
+          </p>
+        </div>
+        <span className="network-count">{strongRows} stable signals</span>
+      </div>
+      <div className="agreement-summary">
+        <strong>{agreement.rows.length}</strong>
+        <span>ranked features compared across {agreement.methods.length} methods</span>
+      </div>
+      <div className="agreement-table-wrap">
+        <table className="agreement-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Family</th>
+              {agreement.methods.map((method) => (
+                <th key={method.id}>{method.label}</th>
+              ))}
+              <th>Consensus</th>
+            </tr>
+          </thead>
+          <tbody>
+            {agreement.rows.slice(0, 18).map((row) => (
+              <tr key={row.feature}>
+                <td>
+                  <strong>{row.feature}</strong>
+                  <span>{formatFeatureSide(row.side)}</span>
+                </td>
+                <td>
+                  <span
+                    className="family-chip"
+                    style={{ borderColor: familyColor(row.family) }}
+                  >
+                    {row.family_label}
+                  </span>
+                </td>
+                {agreement.methods.map((method) => (
+                  <td key={method.id}>
+                    <AgreementRankCell
+                      rank={row.ranks[method.id]}
+                      topN={agreement.top_n}
+                    />
+                  </td>
+                ))}
+                <td>
+                  <div className="consensus-cell">
+                    <strong>{Math.round(row.consensus_score * 100)}%</strong>
+                    <span>{row.method_count}/{agreement.methods.length} methods</span>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function AgreementRankCell({
+  rank,
+  topN,
+}: {
+  rank: number | undefined;
+  topN: number;
+}) {
+  if (!rank) {
+    return <span className="agreement-rank missing">-</span>;
+  }
+  const intensity = Math.max(0.12, (topN - rank + 1) / topN);
+  return (
+    <span
+      className="agreement-rank"
+      style={{
+        backgroundColor: `rgba(13, 122, 95, ${0.12 + intensity * 0.5})`,
+      }}
+    >
+      #{rank}
+    </span>
+  );
+}
+
+function FeatureSignalNetworkPanel({ network }: { network: FeatureSignalNetwork }) {
+  const layout = buildNetworkLayout(network);
+  const familyNodes = network.nodes.filter((node) => node.kind === "family");
+  const featureCount = network.nodes.filter((node) => node.kind === "feature").length;
+
+  return (
+    <section className="signal-network-panel">
+      <div className="section-heading compact">
+        <div>
+          <p className="eyebrow">Feature signal network</p>
+          <p>
+            Top ranked model signals grouped by baseball context and connected by
+            home/away relationships.
+          </p>
+        </div>
+        <span className="network-count">{featureCount} features</span>
+      </div>
+      <div className="signal-network-canvas">
+        <svg
+          aria-label={network.title}
+          role="img"
+          viewBox={`0 0 ${layout.width} ${layout.height}`}
+        >
+          <desc>{network.description}</desc>
+          {network.edges.map((edge) => {
+            const source = layout.positions.get(edge.source);
+            const target = layout.positions.get(edge.target);
+            if (!source || !target) {
+              return null;
+            }
+            return (
+              <line
+                className={`network-edge network-edge-${edge.kind}`}
+                key={`${edge.source}-${edge.target}-${edge.kind}`}
+                strokeWidth={edgeStrokeWidth(edge)}
+                x1={source.x}
+                x2={target.x}
+                y1={source.y}
+                y2={target.y}
+              />
+            );
+          })}
+          {network.nodes.map((node) => {
+            const position = layout.positions.get(node.id);
+            if (!position) {
+              return null;
+            }
+            const radius = nodeRadius(node);
+            const label = nodeLabelPosition(node, position, radius, layout);
+            return (
+              <g className={`network-node network-node-${node.kind}`} key={node.id}>
+                <title>{nodeTitle(node)}</title>
+                <circle
+                  cx={position.x}
+                  cy={position.y}
+                  fill={nodeFill(node)}
+                  r={radius}
+                />
+                <text
+                  className="network-node-label"
+                  textAnchor={label.anchor}
+                  x={label.x}
+                  y={label.y}
+                >
+                  {visibleNodeLabel(node)}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      <div className="signal-network-legend">
+        {familyNodes.map((node) => (
+          <span key={node.id}>
+            <i style={{ background: nodeFill(node) }} />
+            {node.label}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function MissingAnalysisState() {
   return (
     <section className="empty-state">
@@ -260,8 +686,224 @@ function isManifest(value: unknown): value is AnalysisManifest {
   );
 }
 
+function isSignalNetwork(value: unknown): value is FeatureSignalNetwork {
+  return (
+    isRecord(value) &&
+    value.schema_version === 1 &&
+    typeof value.title === "string" &&
+    Array.isArray(value.nodes) &&
+    Array.isArray(value.edges)
+  );
+}
+
+function isImportanceAgreement(value: unknown): value is ImportanceAgreement {
+  return (
+    isRecord(value) &&
+    value.schema_version === 1 &&
+    typeof value.title === "string" &&
+    Array.isArray(value.methods) &&
+    Array.isArray(value.rows)
+  );
+}
+
+function isFeatureFamilySummary(value: unknown): value is FeatureFamilySummary {
+  return (
+    isRecord(value) &&
+    value.schema_version === 1 &&
+    typeof value.title === "string" &&
+    Array.isArray(value.methods) &&
+    Array.isArray(value.families)
+  );
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function buildNetworkLayout(network: FeatureSignalNetwork): {
+  width: number;
+  height: number;
+  positions: Map<string, { x: number; y: number }>;
+} {
+  const width = 1040;
+  const height = 620;
+  const center = { x: width / 2, y: height / 2 };
+  const positions = new Map<string, { x: number; y: number }>();
+  positions.set("model_signal", center);
+
+  const families = network.nodes.filter((node) => node.kind === "family");
+  const featureNodes = network.nodes.filter((node) => node.kind === "feature");
+  const familyRadius = 178;
+
+  families.forEach((family, index) => {
+    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / families.length;
+    const familyPosition = {
+      x: center.x + Math.cos(angle) * familyRadius,
+      y: center.y + Math.sin(angle) * familyRadius,
+    };
+    positions.set(family.id, familyPosition);
+
+    const members = featureNodes
+      .filter((node) => node.family === family.family)
+      .sort((a, b) => b.score - a.score || a.label.localeCompare(b.label));
+    const tangent = { x: -Math.sin(angle), y: Math.cos(angle) };
+    const outward = { x: Math.cos(angle), y: Math.sin(angle) };
+    const spread = Math.min(64, 380 / Math.max(members.length, 1));
+    members.forEach((feature, featureIndex) => {
+      const offset = featureIndex - (members.length - 1) / 2;
+      const x = familyPosition.x + outward.x * 124 + tangent.x * offset * spread;
+      const y = familyPosition.y + outward.y * 104 + tangent.y * offset * spread;
+      positions.set(feature.id, {
+        x: clamp(x, 86, width - 86),
+        y: clamp(y, 48, height - 48),
+      });
+    });
+  });
+
+  return { width, height, positions };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function nodeRadius(node: SignalNetworkNode): number {
+  if (node.kind === "model") {
+    return 34;
+  }
+  if (node.kind === "family") {
+    return 21 + node.score * 9;
+  }
+  return 8 + node.score * 8;
+}
+
+function nodeFill(node: SignalNetworkNode): string {
+  if (node.kind === "model") {
+    return "#151716";
+  }
+  return node.color ?? familyColor(node.family);
+}
+
+function familyColor(family: string | undefined): string {
+  const colors: Record<string, string> = {
+    starter: "#2e607d",
+    lineup: "#0d7a5f",
+    bullpen: "#6d4c8d",
+    recent_form: "#b57a16",
+    team_context: "#a33b32",
+    schedule: "#65716b",
+    other: "#151716",
+  };
+  return family ? colors[family] ?? colors.other : colors.other;
+}
+
+function edgeStrokeWidth(edge: SignalNetworkEdge): number {
+  if (edge.kind === "family_signal") {
+    return 1.6 + edge.weight * 3.8;
+  }
+  if (edge.kind === "home_away_relation") {
+    return 1.1;
+  }
+  return 0.8 + edge.weight * 2.4;
+}
+
+function labelAnchor(x: number, width: number): "start" | "middle" | "end" {
+  if (x < width * 0.35) {
+    return "start";
+  }
+  if (x > width * 0.65) {
+    return "end";
+  }
+  return "middle";
+}
+
+function labelX(x: number, radius: number, width: number): number {
+  const anchor = labelAnchor(x, width);
+  if (anchor === "start") {
+    return x + radius + 8;
+  }
+  if (anchor === "end") {
+    return x - radius - 8;
+  }
+  return x;
+}
+
+function nodeLabelPosition(
+  node: SignalNetworkNode,
+  position: { x: number; y: number },
+  radius: number,
+  layout: { width: number; height: number },
+): { x: number; y: number; anchor: "start" | "middle" | "end" } {
+  if (node.kind === "model") {
+    return { x: position.x, y: position.y + 4, anchor: "middle" };
+  }
+  if (node.kind === "family") {
+    const center = { x: layout.width / 2, y: layout.height / 2 };
+    const dx = position.x - center.x;
+    const dy = position.y - center.y;
+    const distance = Math.hypot(dx, dy) || 1;
+    const x = position.x - (dx / distance) * (radius + 18);
+    const y = position.y - (dy / distance) * (radius + 18) + 4;
+    return { x, y, anchor: labelAnchor(x, layout.width) };
+  }
+  return {
+    x: labelX(position.x, radius, layout.width),
+    y: position.y + 4,
+    anchor: labelAnchor(position.x, layout.width),
+  };
+}
+
+function visibleNodeLabel(node: SignalNetworkNode): string {
+  if (node.kind !== "feature") {
+    return node.label;
+  }
+  const familyWords = ["starter", "lineup", "bullpen"];
+  const label = node.label
+    .split(" ")
+    .filter((part) => !familyWords.includes(part))
+    .join(" ")
+    .replace(/\bprev\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return label.length > 22 ? `${label.slice(0, 19)}...` : label;
+}
+
+function nodeTitle(node: SignalNetworkNode): string {
+  if (node.kind !== "feature") {
+    return node.label;
+  }
+  const metricText = Object.entries(node.metrics ?? {})
+    .map(([metric, value]) => `${metric} #${value.rank}`)
+    .join(", ");
+  return `${node.feature ?? node.label} | ${node.family_label ?? "Signal"} | ${metricText}`;
+}
+
+function formatFeatureSide(value: string): string {
+  const labels: Record<string, string> = {
+    home: "Home-side signal",
+    away: "Away-side signal",
+    comparison: "Home-away comparison",
+    neutral: "Neutral signal",
+  };
+  return labels[value] ?? "Model signal";
+}
+
+function formatMethodLabel(value: string): string {
+  const labels: Record<string, string> = {
+    gain: "Gain",
+    split: "Split",
+    shap: "SHAP",
+    permutation: "Permutation",
+  };
+  return labels[value] ?? value;
+}
+
+function compactFamilyFeatureLabel(value: string): string {
+  const label = value
+    .replace(/\bprev\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return label.length > 28 ? `${label.slice(0, 25)}...` : label;
 }
 
 function formatTimestamp(value: string): { date: string; time: string } {
