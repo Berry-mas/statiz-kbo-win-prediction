@@ -553,5 +553,6 @@
     "start_date": "2025-09-01",
     "sample_size": 97
   },
-  "network_path": "/feature-analysis/feature_signal_network.json"
+  "network_path": "/feature-analysis/feature_signal_network.json",
+  "agreement_path": "/feature-analysis/feature_agreement.json"
 }

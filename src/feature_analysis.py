@@ -173,6 +173,12 @@ def visualize_lgbm_feature_effects(
         json.dumps(feature_network, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+    feature_agreement = _build_importance_agreement(top_features, top_n)
+    agreement_path = output_path / "feature_agreement.json"
+    agreement_path.write_text(
+        json.dumps(feature_agreement, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
     manifest = {
         "schema_version": 1,
@@ -220,6 +226,7 @@ def visualize_lgbm_feature_effects(
         "dependence_images": dependence_images,
         "top_features": top_features,
         "network_path": network_path.name,
+        "agreement_path": agreement_path.name,
     }
     if permutation_plot is not None:
         manifest["sections"].append(
@@ -598,7 +605,78 @@ def _manifest_with_public_paths(
     for key, value in list(web_manifest.get("dependence_images", {}).items()):
         web_manifest["dependence_images"][key] = public_path(value)
     web_manifest["network_path"] = public_path(web_manifest.get("network_path"))
+    web_manifest["agreement_path"] = public_path(web_manifest.get("agreement_path"))
     return web_manifest
+
+
+def _build_importance_agreement(
+    top_features: dict[str, list[dict[str, Any]]],
+    top_n: int,
+) -> dict[str, Any]:
+    methods = [
+        {"id": "gain", "label": "Gain"},
+        {"id": "split", "label": "Split"},
+        {"id": "shap", "label": "SHAP"},
+        {"id": "permutation", "label": "Permutation"},
+    ]
+    feature_rows: dict[str, dict[str, Any]] = {}
+    for method in methods:
+        method_id = method["id"]
+        for rank, row in enumerate(top_features.get(method_id, [])[:top_n], start=1):
+            feature = str(row.get("feature", "")).strip()
+            if not feature:
+                continue
+            record = feature_rows.setdefault(
+                feature,
+                {
+                    "feature": feature,
+                    "family": _feature_family(feature),
+                    "family_label": FEATURE_FAMILY_META[_feature_family(feature)][
+                        "label"
+                    ],
+                    "side": _feature_side(feature),
+                    "ranks": {},
+                    "values": {},
+                },
+            )
+            record["ranks"][method_id] = rank
+            record["values"][method_id] = float(row.get("value", 0.0))
+
+    rows: list[dict[str, Any]] = []
+    for record in feature_rows.values():
+        ranks = record["ranks"]
+        method_count = len(ranks)
+        rank_score = sum((top_n - int(rank) + 1) / top_n for rank in ranks.values())
+        consensus_score = rank_score / len(methods)
+        average_rank = sum(int(rank) for rank in ranks.values()) / method_count
+        missing_methods = [method["id"] for method in methods if method["id"] not in ranks]
+        rows.append(
+            {
+                **record,
+                "method_count": method_count,
+                "average_rank": round(average_rank, 3),
+                "consensus_score": round(consensus_score, 6),
+                "missing_methods": missing_methods,
+            }
+        )
+
+    rows.sort(
+        key=lambda row: (
+            -int(row["method_count"]),
+            -float(row["consensus_score"]),
+            float(row["average_rank"]),
+            str(row["feature"]),
+        )
+    )
+
+    return {
+        "schema_version": 1,
+        "title": "Importance agreement matrix",
+        "description": "Feature ranks compared across LightGBM gain, split, SHAP, and permutation importance.",
+        "methods": methods,
+        "top_n": top_n,
+        "rows": rows[: min(top_n, 30)],
+    }
 
 
 def _build_feature_signal_network(

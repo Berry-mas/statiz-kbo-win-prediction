@@ -1,0 +1,682 @@
+{
+  "schema_version": 1,
+  "title": "Importance agreement matrix",
+  "description": "Feature ranks compared across LightGBM gain, split, SHAP, and permutation importance.",
+  "methods": [
+    {
+      "id": "gain",
+      "label": "Gain"
+    },
+    {
+      "id": "split",
+      "label": "Split"
+    },
+    {
+      "id": "shap",
+      "label": "SHAP"
+    },
+    {
+      "id": "permutation",
+      "label": "Permutation"
+    }
+  ],
+  "top_n": 30,
+  "rows": [
+    {
+      "feature": "home_minus_away_lineup_prev_pa_sum",
+      "family": "lineup",
+      "family_label": "Lineup strength",
+      "side": "comparison",
+      "ranks": {
+        "gain": 2,
+        "split": 5,
+        "shap": 1,
+        "permutation": 1
+      },
+      "values": {
+        "gain": 71.61667385101319,
+        "split": 5.2,
+        "shap": 0.03527010725341926,
+        "permutation": 0.054639175257732
+      },
+      "method_count": 4,
+      "average_rank": 2.25,
+      "consensus_score": 0.958333,
+      "missing_methods": []
+    },
+    {
+      "feature": "away_starter_fip_proxy",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "away",
+      "ranks": {
+        "gain": 1,
+        "split": 1,
+        "shap": 2,
+        "permutation": 9
+      },
+      "values": {
+        "gain": 75.19690160751342,
+        "split": 6.4,
+        "shap": 0.022703082818413378,
+        "permutation": 0.013402061855670121
+      },
+      "method_count": 4,
+      "average_rank": 3.25,
+      "consensus_score": 0.925,
+      "missing_methods": []
+    },
+    {
+      "feature": "home_starter_whip",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "home",
+      "ranks": {
+        "gain": 4,
+        "split": 3,
+        "shap": 3,
+        "permutation": 6
+      },
+      "values": {
+        "gain": 60.53068389892578,
+        "split": 5.6,
+        "shap": 0.017084322233579148,
+        "permutation": 0.01546391752577323
+      },
+      "method_count": 4,
+      "average_rank": 4.0,
+      "consensus_score": 0.9,
+      "missing_methods": []
+    },
+    {
+      "feature": "home_run_diff_last_5",
+      "family": "recent_form",
+      "family_label": "Recent form",
+      "side": "home",
+      "ranks": {
+        "gain": 3,
+        "split": 2,
+        "shap": 12,
+        "permutation": 3
+      },
+      "values": {
+        "gain": 66.8187801361084,
+        "split": 6.2,
+        "shap": 0.009355054654849449,
+        "permutation": 0.026804123711340257
+      },
+      "method_count": 4,
+      "average_rank": 5.0,
+      "consensus_score": 0.866667,
+      "missing_methods": []
+    },
+    {
+      "feature": "home_lineup_prev_pa_sum",
+      "family": "lineup",
+      "family_label": "Lineup strength",
+      "side": "home",
+      "ranks": {
+        "gain": 7,
+        "split": 7,
+        "shap": 4,
+        "permutation": 5
+      },
+      "values": {
+        "gain": 51.546730041503906,
+        "split": 4.6,
+        "shap": 0.014664495261829419,
+        "permutation": 0.015463917525773242
+      },
+      "method_count": 4,
+      "average_rank": 5.75,
+      "consensus_score": 0.841667,
+      "missing_methods": []
+    },
+    {
+      "feature": "home_starter_fip_proxy",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "home",
+      "ranks": {
+        "gain": 8,
+        "split": 8,
+        "shap": 5,
+        "permutation": 2
+      },
+      "values": {
+        "gain": 50.054595947265625,
+        "split": 4.6,
+        "shap": 0.013493803414723936,
+        "permutation": 0.03608247422680414
+      },
+      "method_count": 4,
+      "average_rank": 5.75,
+      "consensus_score": 0.841667,
+      "missing_methods": []
+    },
+    {
+      "feature": "away_starter_np_last_game",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "away",
+      "ranks": {
+        "gain": 12,
+        "split": 12,
+        "shap": 11,
+        "permutation": 10
+      },
+      "values": {
+        "gain": 41.29536800384521,
+        "split": 4.2,
+        "shap": 0.010190308095257047,
+        "permutation": 0.012371134020618601
+      },
+      "method_count": 4,
+      "average_rank": 11.25,
+      "consensus_score": 0.658333,
+      "missing_methods": []
+    },
+    {
+      "feature": "home_runs_for_last_5",
+      "family": "recent_form",
+      "family_label": "Recent form",
+      "side": "home",
+      "ranks": {
+        "gain": 11,
+        "split": 11,
+        "shap": 14,
+        "permutation": 14
+      },
+      "values": {
+        "gain": 41.46452417373657,
+        "split": 4.2,
+        "shap": 0.008438741500606573,
+        "permutation": 0.010309278350515493
+      },
+      "method_count": 4,
+      "average_rank": 12.5,
+      "consensus_score": 0.616667,
+      "missing_methods": []
+    },
+    {
+      "feature": "home_minus_away_lineup_prev_war_avg",
+      "family": "lineup",
+      "family_label": "Lineup strength",
+      "side": "comparison",
+      "ranks": {
+        "gain": 6,
+        "split": 10,
+        "shap": 13,
+        "permutation": 24
+      },
+      "values": {
+        "gain": 52.38025617599487,
+        "split": 4.2,
+        "shap": 0.0087445607649438,
+        "permutation": 0.007216494845360855
+      },
+      "method_count": 4,
+      "average_rank": 13.25,
+      "consensus_score": 0.591667,
+      "missing_methods": []
+    },
+    {
+      "feature": "home_minus_away_run_diff_last_5",
+      "family": "recent_form",
+      "family_label": "Recent form",
+      "side": "comparison",
+      "ranks": {
+        "gain": 14,
+        "split": 15,
+        "shap": 23,
+        "permutation": 4
+      },
+      "values": {
+        "gain": 41.013593673706055,
+        "split": 4.0,
+        "shap": 0.005798774464283515,
+        "permutation": 0.020618556701030976
+      },
+      "method_count": 4,
+      "average_rank": 14.0,
+      "consensus_score": 0.566667,
+      "missing_methods": []
+    },
+    {
+      "feature": "home_minus_away_starter_era_last_3",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "comparison",
+      "ranks": {
+        "gain": 5,
+        "split": 4,
+        "shap": 15
+      },
+      "values": {
+        "gain": 53.40405588150024,
+        "split": 5.4,
+        "shap": 0.0077770038916270354
+      },
+      "method_count": 3,
+      "average_rank": 8.0,
+      "consensus_score": 0.575,
+      "missing_methods": [
+        "permutation"
+      ]
+    },
+    {
+      "feature": "home_minus_away_starter_whip",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "comparison",
+      "ranks": {
+        "gain": 9,
+        "split": 9,
+        "shap": 6
+      },
+      "values": {
+        "gain": 49.72309055328369,
+        "split": 4.6,
+        "shap": 0.012333654520143091
+      },
+      "method_count": 3,
+      "average_rank": 8.0,
+      "consensus_score": 0.575,
+      "missing_methods": [
+        "permutation"
+      ]
+    },
+    {
+      "feature": "away_starter_fip_proxy_last_3",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "away",
+      "ranks": {
+        "gain": 10,
+        "split": 6,
+        "shap": 24
+      },
+      "values": {
+        "gain": 45.03512001037598,
+        "split": 4.8,
+        "shap": 0.005459802332255093
+      },
+      "method_count": 3,
+      "average_rank": 13.333,
+      "consensus_score": 0.441667,
+      "missing_methods": [
+        "permutation"
+      ]
+    },
+    {
+      "feature": "away_win_rate",
+      "family": "team_context",
+      "family_label": "Team context",
+      "side": "away",
+      "ranks": {
+        "gain": 19,
+        "split": 17,
+        "permutation": 7
+      },
+      "values": {
+        "gain": 33.67712230682373,
+        "split": 3.8,
+        "permutation": 0.014432989690721676
+      },
+      "method_count": 3,
+      "average_rank": 14.333,
+      "consensus_score": 0.416667,
+      "missing_methods": [
+        "shap"
+      ]
+    },
+    {
+      "feature": "home_minus_away_runs_for_pg",
+      "family": "team_context",
+      "family_label": "Team context",
+      "side": "comparison",
+      "ranks": {
+        "gain": 15,
+        "split": 16,
+        "permutation": 13
+      },
+      "values": {
+        "gain": 38.039803981781006,
+        "split": 3.8,
+        "permutation": 0.010309278350515505
+      },
+      "method_count": 3,
+      "average_rank": 14.667,
+      "consensus_score": 0.408333,
+      "missing_methods": [
+        "shap"
+      ]
+    },
+    {
+      "feature": "home_starter_fip_proxy_last_3",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "home",
+      "ranks": {
+        "gain": 16,
+        "split": 14,
+        "shap": 20
+      },
+      "values": {
+        "gain": 37.08964204788208,
+        "split": 4.2,
+        "shap": 0.006174751741543329
+      },
+      "method_count": 3,
+      "average_rank": 16.667,
+      "consensus_score": 0.358333,
+      "missing_methods": [
+        "permutation"
+      ]
+    },
+    {
+      "feature": "home_minus_away_starter_np_last_game",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "comparison",
+      "ranks": {
+        "gain": 13,
+        "split": 13,
+        "shap": 25
+      },
+      "values": {
+        "gain": 41.02476577758789,
+        "split": 4.2,
+        "shap": 0.0053931458662561695
+      },
+      "method_count": 3,
+      "average_rank": 17.0,
+      "consensus_score": 0.35,
+      "missing_methods": [
+        "permutation"
+      ]
+    },
+    {
+      "feature": "home_minus_away_starter_fip_proxy",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "comparison",
+      "ranks": {
+        "gain": 24,
+        "shap": 10,
+        "permutation": 20
+      },
+      "values": {
+        "gain": 29.875669860839842,
+        "shap": 0.01036012866945831,
+        "permutation": 0.00927835051546394
+      },
+      "method_count": 3,
+      "average_rank": 18.0,
+      "consensus_score": 0.325,
+      "missing_methods": [
+        "split"
+      ]
+    },
+    {
+      "feature": "home_minus_away_lineup_prev_war_sum",
+      "family": "lineup",
+      "family_label": "Lineup strength",
+      "side": "comparison",
+      "ranks": {
+        "gain": 20,
+        "split": 28,
+        "shap": 8
+      },
+      "values": {
+        "gain": 33.39398374557495,
+        "split": 2.8,
+        "shap": 0.011036329561736826
+      },
+      "method_count": 3,
+      "average_rank": 18.667,
+      "consensus_score": 0.308333,
+      "missing_methods": [
+        "permutation"
+      ]
+    },
+    {
+      "feature": "home_minus_away_runs_against_last_5",
+      "family": "recent_form",
+      "family_label": "Recent form",
+      "side": "comparison",
+      "ranks": {
+        "gain": 18,
+        "split": 19,
+        "shap": 21
+      },
+      "values": {
+        "gain": 33.90486993789673,
+        "split": 3.6,
+        "shap": 0.0060410007309440895
+      },
+      "method_count": 3,
+      "average_rank": 19.333,
+      "consensus_score": 0.291667,
+      "missing_methods": [
+        "permutation"
+      ]
+    },
+    {
+      "feature": "home_minus_away_starter_starts",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "comparison",
+      "ranks": {
+        "gain": 22,
+        "split": 29,
+        "shap": 7
+      },
+      "values": {
+        "gain": 30.672693824768068,
+        "split": 2.8,
+        "shap": 0.011862692230167518
+      },
+      "method_count": 3,
+      "average_rank": 19.333,
+      "consensus_score": 0.291667,
+      "missing_methods": [
+        "permutation"
+      ]
+    },
+    {
+      "feature": "away_runs_for_pg",
+      "family": "team_context",
+      "family_label": "Team context",
+      "side": "away",
+      "ranks": {
+        "gain": 17,
+        "split": 18,
+        "permutation": 25
+      },
+      "values": {
+        "gain": 34.560607719421384,
+        "split": 3.6,
+        "permutation": 0.006185567010309323
+      },
+      "method_count": 3,
+      "average_rank": 20.0,
+      "consensus_score": 0.275,
+      "missing_methods": [
+        "shap"
+      ]
+    },
+    {
+      "feature": "away_starter_era",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "away",
+      "ranks": {
+        "gain": 29,
+        "split": 22,
+        "permutation": 11
+      },
+      "values": {
+        "gain": 28.53821039199829,
+        "split": 3.4,
+        "permutation": 0.01237113402061859
+      },
+      "method_count": 3,
+      "average_rank": 20.667,
+      "consensus_score": 0.258333,
+      "missing_methods": [
+        "shap"
+      ]
+    },
+    {
+      "feature": "away_starter_era_last_3",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "away",
+      "ranks": {
+        "gain": 23,
+        "split": 21,
+        "permutation": 27
+      },
+      "values": {
+        "gain": 30.440859699249266,
+        "split": 3.4,
+        "permutation": 0.006185567010309323
+      },
+      "method_count": 3,
+      "average_rank": 23.667,
+      "consensus_score": 0.183333,
+      "missing_methods": [
+        "shap"
+      ]
+    },
+    {
+      "feature": "home_minus_away_starter_fip_proxy_last_3",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "comparison",
+      "ranks": {
+        "gain": 28,
+        "split": 26,
+        "shap": 19
+      },
+      "values": {
+        "gain": 28.89426193237305,
+        "split": 3.0,
+        "shap": 0.006266075408629322
+      },
+      "method_count": 3,
+      "average_rank": 24.333,
+      "consensus_score": 0.166667,
+      "missing_methods": [
+        "permutation"
+      ]
+    },
+    {
+      "feature": "home_minus_away_lineup_prev_sb_sum",
+      "family": "lineup",
+      "family_label": "Lineup strength",
+      "side": "comparison",
+      "ranks": {
+        "gain": 26,
+        "split": 25,
+        "shap": 26
+      },
+      "values": {
+        "gain": 29.7284818649292,
+        "split": 3.0,
+        "shap": 0.005229425979738397
+      },
+      "method_count": 3,
+      "average_rank": 25.667,
+      "consensus_score": 0.133333,
+      "missing_methods": [
+        "permutation"
+      ]
+    },
+    {
+      "feature": "away_run_diff_last_5",
+      "family": "recent_form",
+      "family_label": "Recent form",
+      "side": "away",
+      "ranks": {
+        "gain": 21,
+        "split": 20
+      },
+      "values": {
+        "gain": 33.37644186019897,
+        "split": 3.4
+      },
+      "method_count": 2,
+      "average_rank": 20.5,
+      "consensus_score": 0.175,
+      "missing_methods": [
+        "shap",
+        "permutation"
+      ]
+    },
+    {
+      "feature": "away_lineup_prev_pa_sum",
+      "family": "lineup",
+      "family_label": "Lineup strength",
+      "side": "away",
+      "ranks": {
+        "shap": 27,
+        "permutation": 15
+      },
+      "values": {
+        "shap": 0.004804151429381734,
+        "permutation": 0.009278350515463985
+      },
+      "method_count": 2,
+      "average_rank": 21.0,
+      "consensus_score": 0.166667,
+      "missing_methods": [
+        "gain",
+        "split"
+      ]
+    },
+    {
+      "feature": "away_starter_whip",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "away",
+      "ranks": {
+        "shap": 29,
+        "permutation": 18
+      },
+      "values": {
+        "shap": 0.004707435463126939,
+        "permutation": 0.009278350515463963
+      },
+      "method_count": 2,
+      "average_rank": 23.5,
+      "consensus_score": 0.125,
+      "missing_methods": [
+        "gain",
+        "split"
+      ]
+    },
+    {
+      "feature": "home_starter_era",
+      "family": "starter",
+      "family_label": "Starter quality",
+      "side": "home",
+      "ranks": {
+        "gain": 25,
+        "split": 23
+      },
+      "values": {
+        "gain": 29.874356079101563,
+        "split": 3.2
+      },
+      "method_count": 2,
+      "average_rank": 24.0,
+      "consensus_score": 0.116667,
+      "missing_methods": [
+        "shap",
+        "permutation"
+      ]
+    }
+  ]
+}

@@ -39,6 +39,7 @@ type AnalysisManifest = {
     permutation: TopFeature[];
   };
   network_path?: string | null;
+  agreement_path?: string | null;
 };
 
 type SignalMetric = {
@@ -75,6 +76,33 @@ type FeatureSignalNetwork = {
   edges: SignalNetworkEdge[];
 };
 
+type AgreementMethod = {
+  id: string;
+  label: string;
+};
+
+type AgreementRow = {
+  feature: string;
+  family: string;
+  family_label: string;
+  side: string;
+  ranks: Record<string, number>;
+  values: Record<string, number>;
+  method_count: number;
+  average_rank: number;
+  consensus_score: number;
+  missing_methods: string[];
+};
+
+type ImportanceAgreement = {
+  schema_version: number;
+  title: string;
+  description: string;
+  methods: AgreementMethod[];
+  top_n: number;
+  rows: AgreementRow[];
+};
+
 const MANIFEST_FILE = path.join(
   process.cwd(),
   "public",
@@ -88,6 +116,9 @@ export default async function FeatureAnalysisPage() {
   const manifest = await loadManifest();
   const signalNetwork = manifest
     ? await loadSignalNetwork(manifest.network_path)
+    : null;
+  const importanceAgreement = manifest
+    ? await loadImportanceAgreement(manifest.agreement_path)
     : null;
 
   return (
@@ -103,7 +134,11 @@ export default async function FeatureAnalysisPage() {
       </section>
 
       {manifest ? (
-        <AnalysisContent manifest={manifest} signalNetwork={signalNetwork} />
+        <AnalysisContent
+          importanceAgreement={importanceAgreement}
+          manifest={manifest}
+          signalNetwork={signalNetwork}
+        />
       ) : (
         <MissingAnalysisState />
       )}
@@ -118,6 +153,27 @@ async function loadManifest(): Promise<AnalysisManifest | null> {
   const parsed = JSON.parse(await readFile(MANIFEST_FILE, "utf8")) as unknown;
   if (!isManifest(parsed)) {
     throw new Error("Invalid feature analysis manifest.");
+  }
+  return parsed;
+}
+
+async function loadImportanceAgreement(
+  agreementPath: string | null | undefined,
+): Promise<ImportanceAgreement | null> {
+  if (!agreementPath?.startsWith("/feature-analysis/")) {
+    return null;
+  }
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    agreementPath.replace(/^\//, ""),
+  );
+  if (!existsSync(filePath)) {
+    return null;
+  }
+  const parsed = JSON.parse(await readFile(filePath, "utf8")) as unknown;
+  if (!isImportanceAgreement(parsed)) {
+    throw new Error("Invalid importance agreement matrix.");
   }
   return parsed;
 }
@@ -144,9 +200,11 @@ async function loadSignalNetwork(
 }
 
 function AnalysisContent({
+  importanceAgreement,
   manifest,
   signalNetwork,
 }: {
+  importanceAgreement: ImportanceAgreement | null;
   manifest: AnalysisManifest;
   signalNetwork: FeatureSignalNetwork | null;
 }) {
@@ -189,6 +247,10 @@ function AnalysisContent({
       </section>
 
       {signalNetwork ? <FeatureSignalNetworkPanel network={signalNetwork} /> : null}
+
+      {importanceAgreement ? (
+        <ImportanceAgreementPanel agreement={importanceAgreement} />
+      ) : null}
 
       <section className="feature-section-grid">
         {manifest.sections.map((section) => (
@@ -273,6 +335,101 @@ function AnalysisContent({
         </aside>
       </section>
     </>
+  );
+}
+
+function ImportanceAgreementPanel({
+  agreement,
+}: {
+  agreement: ImportanceAgreement;
+}) {
+  const strongRows = agreement.rows.filter((row) => row.method_count >= 3).length;
+  return (
+    <section className="agreement-panel">
+      <div className="section-heading compact">
+        <div>
+          <p className="eyebrow">Importance agreement</p>
+          <p>
+            Features that repeatedly rank high across gain, split, SHAP, and
+            permutation importance.
+          </p>
+        </div>
+        <span className="network-count">{strongRows} stable signals</span>
+      </div>
+      <div className="agreement-summary">
+        <strong>{agreement.rows.length}</strong>
+        <span>ranked features compared across {agreement.methods.length} methods</span>
+      </div>
+      <div className="agreement-table-wrap">
+        <table className="agreement-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Family</th>
+              {agreement.methods.map((method) => (
+                <th key={method.id}>{method.label}</th>
+              ))}
+              <th>Consensus</th>
+            </tr>
+          </thead>
+          <tbody>
+            {agreement.rows.slice(0, 18).map((row) => (
+              <tr key={row.feature}>
+                <td>
+                  <strong>{row.feature}</strong>
+                  <span>{formatFeatureSide(row.side)}</span>
+                </td>
+                <td>
+                  <span
+                    className="family-chip"
+                    style={{ borderColor: familyColor(row.family) }}
+                  >
+                    {row.family_label}
+                  </span>
+                </td>
+                {agreement.methods.map((method) => (
+                  <td key={method.id}>
+                    <AgreementRankCell
+                      rank={row.ranks[method.id]}
+                      topN={agreement.top_n}
+                    />
+                  </td>
+                ))}
+                <td>
+                  <div className="consensus-cell">
+                    <strong>{Math.round(row.consensus_score * 100)}%</strong>
+                    <span>{row.method_count}/{agreement.methods.length} methods</span>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function AgreementRankCell({
+  rank,
+  topN,
+}: {
+  rank: number | undefined;
+  topN: number;
+}) {
+  if (!rank) {
+    return <span className="agreement-rank missing">-</span>;
+  }
+  const intensity = Math.max(0.12, (topN - rank + 1) / topN);
+  return (
+    <span
+      className="agreement-rank"
+      style={{
+        backgroundColor: `rgba(13, 122, 95, ${0.12 + intensity * 0.5})`,
+      }}
+    >
+      #{rank}
+    </span>
   );
 }
 
@@ -421,6 +578,16 @@ function isSignalNetwork(value: unknown): value is FeatureSignalNetwork {
     typeof value.title === "string" &&
     Array.isArray(value.nodes) &&
     Array.isArray(value.edges)
+  );
+}
+
+function isImportanceAgreement(value: unknown): value is ImportanceAgreement {
+  return (
+    isRecord(value) &&
+    value.schema_version === 1 &&
+    typeof value.title === "string" &&
+    Array.isArray(value.methods) &&
+    Array.isArray(value.rows)
   );
 }
 
@@ -584,6 +751,16 @@ function nodeTitle(node: SignalNetworkNode): string {
     .map(([metric, value]) => `${metric} #${value.rank}`)
     .join(", ");
   return `${node.feature ?? node.label} | ${node.family_label ?? "Signal"} | ${metricText}`;
+}
+
+function formatFeatureSide(value: string): string {
+  const labels: Record<string, string> = {
+    home: "Home-side signal",
+    away: "Away-side signal",
+    comparison: "Home-away comparison",
+    neutral: "Neutral signal",
+  };
+  return labels[value] ?? "Model signal";
 }
 
 function formatTimestamp(value: string): { date: string; time: string } {
