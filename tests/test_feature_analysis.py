@@ -61,7 +61,9 @@ def test_visualize_lgbm_feature_effects_writes_artifacts(tmp_path):
     assert (analysis_dir / "lgbm_gain_top2.png").exists()
     assert (analysis_dir / "shap_summary.png").exists()
     assert (analysis_dir / "dependence_team_win_rate_ratio.png").exists()
+    assert (analysis_dir / "feature_signal_network.json").exists()
     assert "missing_feature" not in manifest["dependence_images"]
+    assert manifest["network_path"] == "feature_signal_network.json"
 
 
 def test_publish_feature_analysis_to_web_rewrites_manifest_paths(tmp_path):
@@ -70,6 +72,9 @@ def test_publish_feature_analysis_to_web_rewrites_manifest_paths(tmp_path):
     (analysis_dir / "chart.png").write_bytes(b"image")
     (analysis_dir / "importance.csv").write_text(
         "feature,value\nx,1\n", encoding="utf-8"
+    )
+    (analysis_dir / "feature_signal_network.json").write_text(
+        '{"schema_version": 1, "nodes": [], "edges": []}', encoding="utf-8"
     )
     (analysis_dir / "manifest.json").write_text(
         """
@@ -86,7 +91,8 @@ def test_publish_feature_analysis_to_web_rewrites_manifest_paths(tmp_path):
             }
           ],
           "csv_paths": {"gain": "importance.csv"},
-          "dependence_images": {"x": "chart.png"}
+          "dependence_images": {"x": "chart.png"},
+          "network_path": "feature_signal_network.json"
         }
         """,
         encoding="utf-8",
@@ -100,5 +106,9 @@ def test_publish_feature_analysis_to_web_rewrites_manifest_paths(tmp_path):
     manifest = manifest_path.read_text(encoding="utf-8")
     assert "/feature-analysis/chart.png" in manifest
     assert "/feature-analysis/importance.csv" in manifest
+    assert "/feature-analysis/feature_signal_network.json" in manifest
     assert "source_model_dir" not in manifest
     assert (tmp_path / "public" / "feature-analysis" / "chart.png").exists()
+    assert (
+        tmp_path / "public" / "feature-analysis" / "feature_signal_network.json"
+    ).exists()

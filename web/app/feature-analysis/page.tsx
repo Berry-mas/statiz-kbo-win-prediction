@@ -38,6 +38,41 @@ type AnalysisManifest = {
     shap: TopFeature[];
     permutation: TopFeature[];
   };
+  network_path?: string | null;
+};
+
+type SignalMetric = {
+  rank: number;
+  value: number;
+};
+
+type SignalNetworkNode = {
+  id: string;
+  kind: "model" | "family" | "feature";
+  label: string;
+  feature?: string;
+  family?: string;
+  family_label?: string;
+  side?: string;
+  score: number;
+  color?: string;
+  metrics?: Record<string, SignalMetric>;
+};
+
+type SignalNetworkEdge = {
+  source: string;
+  target: string;
+  kind: "family_signal" | "family_membership" | "home_away_relation";
+  weight: number;
+  label: string;
+};
+
+type FeatureSignalNetwork = {
+  schema_version: number;
+  title: string;
+  description: string;
+  nodes: SignalNetworkNode[];
+  edges: SignalNetworkEdge[];
 };
 
 const MANIFEST_FILE = path.join(
@@ -51,6 +86,9 @@ export const dynamic = "force-static";
 
 export default async function FeatureAnalysisPage() {
   const manifest = await loadManifest();
+  const signalNetwork = manifest
+    ? await loadSignalNetwork(manifest.network_path)
+    : null;
 
   return (
     <main className="dashboard-shell">
@@ -64,7 +102,11 @@ export default async function FeatureAnalysisPage() {
         </a>
       </section>
 
-      {manifest ? <AnalysisContent manifest={manifest} /> : <MissingAnalysisState />}
+      {manifest ? (
+        <AnalysisContent manifest={manifest} signalNetwork={signalNetwork} />
+      ) : (
+        <MissingAnalysisState />
+      )}
     </main>
   );
 }
@@ -80,7 +122,34 @@ async function loadManifest(): Promise<AnalysisManifest | null> {
   return parsed;
 }
 
-function AnalysisContent({ manifest }: { manifest: AnalysisManifest }) {
+async function loadSignalNetwork(
+  networkPath: string | null | undefined,
+): Promise<FeatureSignalNetwork | null> {
+  if (!networkPath?.startsWith("/feature-analysis/")) {
+    return null;
+  }
+  const filePath = path.join(
+    process.cwd(),
+    "public",
+    networkPath.replace(/^\//, ""),
+  );
+  if (!existsSync(filePath)) {
+    return null;
+  }
+  const parsed = JSON.parse(await readFile(filePath, "utf8")) as unknown;
+  if (!isSignalNetwork(parsed)) {
+    throw new Error("Invalid feature signal network.");
+  }
+  return parsed;
+}
+
+function AnalysisContent({
+  manifest,
+  signalNetwork,
+}: {
+  manifest: AnalysisManifest;
+  signalNetwork: FeatureSignalNetwork | null;
+}) {
   const modelVersion = manifest.model_version ?? "n/a";
   const generatedAt = formatTimestamp(manifest.generated_at);
   const dependenceEntries = Object.entries(manifest.dependence_images);
@@ -118,6 +187,8 @@ function AnalysisContent({ manifest }: { manifest: AnalysisManifest }) {
           feature caused a win or loss.
         </p>
       </section>
+
+      {signalNetwork ? <FeatureSignalNetworkPanel network={signalNetwork} /> : null}
 
       <section className="feature-section-grid">
         {manifest.sections.map((section) => (
@@ -205,6 +276,89 @@ function AnalysisContent({ manifest }: { manifest: AnalysisManifest }) {
   );
 }
 
+function FeatureSignalNetworkPanel({ network }: { network: FeatureSignalNetwork }) {
+  const layout = buildNetworkLayout(network);
+  const familyNodes = network.nodes.filter((node) => node.kind === "family");
+  const featureCount = network.nodes.filter((node) => node.kind === "feature").length;
+
+  return (
+    <section className="signal-network-panel">
+      <div className="section-heading compact">
+        <div>
+          <p className="eyebrow">Feature signal network</p>
+          <p>
+            Top ranked model signals grouped by baseball context and connected by
+            home/away relationships.
+          </p>
+        </div>
+        <span className="network-count">{featureCount} features</span>
+      </div>
+      <div className="signal-network-canvas">
+        <svg
+          aria-label={network.title}
+          role="img"
+          viewBox={`0 0 ${layout.width} ${layout.height}`}
+        >
+          <desc>{network.description}</desc>
+          {network.edges.map((edge) => {
+            const source = layout.positions.get(edge.source);
+            const target = layout.positions.get(edge.target);
+            if (!source || !target) {
+              return null;
+            }
+            return (
+              <line
+                className={`network-edge network-edge-${edge.kind}`}
+                key={`${edge.source}-${edge.target}-${edge.kind}`}
+                strokeWidth={edgeStrokeWidth(edge)}
+                x1={source.x}
+                x2={target.x}
+                y1={source.y}
+                y2={target.y}
+              />
+            );
+          })}
+          {network.nodes.map((node) => {
+            const position = layout.positions.get(node.id);
+            if (!position) {
+              return null;
+            }
+            const radius = nodeRadius(node);
+            const label = nodeLabelPosition(node, position, radius, layout);
+            return (
+              <g className={`network-node network-node-${node.kind}`} key={node.id}>
+                <title>{nodeTitle(node)}</title>
+                <circle
+                  cx={position.x}
+                  cy={position.y}
+                  fill={nodeFill(node)}
+                  r={radius}
+                />
+                <text
+                  className="network-node-label"
+                  textAnchor={label.anchor}
+                  x={label.x}
+                  y={label.y}
+                >
+                  {visibleNodeLabel(node)}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      <div className="signal-network-legend">
+        {familyNodes.map((node) => (
+          <span key={node.id}>
+            <i style={{ background: nodeFill(node) }} />
+            {node.label}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function MissingAnalysisState() {
   return (
     <section className="empty-state">
@@ -260,8 +414,176 @@ function isManifest(value: unknown): value is AnalysisManifest {
   );
 }
 
+function isSignalNetwork(value: unknown): value is FeatureSignalNetwork {
+  return (
+    isRecord(value) &&
+    value.schema_version === 1 &&
+    typeof value.title === "string" &&
+    Array.isArray(value.nodes) &&
+    Array.isArray(value.edges)
+  );
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function buildNetworkLayout(network: FeatureSignalNetwork): {
+  width: number;
+  height: number;
+  positions: Map<string, { x: number; y: number }>;
+} {
+  const width = 1040;
+  const height = 620;
+  const center = { x: width / 2, y: height / 2 };
+  const positions = new Map<string, { x: number; y: number }>();
+  positions.set("model_signal", center);
+
+  const families = network.nodes.filter((node) => node.kind === "family");
+  const featureNodes = network.nodes.filter((node) => node.kind === "feature");
+  const familyRadius = 178;
+
+  families.forEach((family, index) => {
+    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / families.length;
+    const familyPosition = {
+      x: center.x + Math.cos(angle) * familyRadius,
+      y: center.y + Math.sin(angle) * familyRadius,
+    };
+    positions.set(family.id, familyPosition);
+
+    const members = featureNodes
+      .filter((node) => node.family === family.family)
+      .sort((a, b) => b.score - a.score || a.label.localeCompare(b.label));
+    const tangent = { x: -Math.sin(angle), y: Math.cos(angle) };
+    const outward = { x: Math.cos(angle), y: Math.sin(angle) };
+    const spread = Math.min(64, 380 / Math.max(members.length, 1));
+    members.forEach((feature, featureIndex) => {
+      const offset = featureIndex - (members.length - 1) / 2;
+      const x = familyPosition.x + outward.x * 124 + tangent.x * offset * spread;
+      const y = familyPosition.y + outward.y * 104 + tangent.y * offset * spread;
+      positions.set(feature.id, {
+        x: clamp(x, 86, width - 86),
+        y: clamp(y, 48, height - 48),
+      });
+    });
+  });
+
+  return { width, height, positions };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function nodeRadius(node: SignalNetworkNode): number {
+  if (node.kind === "model") {
+    return 34;
+  }
+  if (node.kind === "family") {
+    return 21 + node.score * 9;
+  }
+  return 8 + node.score * 8;
+}
+
+function nodeFill(node: SignalNetworkNode): string {
+  if (node.kind === "model") {
+    return "#151716";
+  }
+  return node.color ?? familyColor(node.family);
+}
+
+function familyColor(family: string | undefined): string {
+  const colors: Record<string, string> = {
+    starter: "#2e607d",
+    lineup: "#0d7a5f",
+    bullpen: "#6d4c8d",
+    recent_form: "#b57a16",
+    team_context: "#a33b32",
+    schedule: "#65716b",
+    other: "#151716",
+  };
+  return family ? colors[family] ?? colors.other : colors.other;
+}
+
+function edgeStrokeWidth(edge: SignalNetworkEdge): number {
+  if (edge.kind === "family_signal") {
+    return 1.6 + edge.weight * 3.8;
+  }
+  if (edge.kind === "home_away_relation") {
+    return 1.1;
+  }
+  return 0.8 + edge.weight * 2.4;
+}
+
+function labelAnchor(x: number, width: number): "start" | "middle" | "end" {
+  if (x < width * 0.35) {
+    return "start";
+  }
+  if (x > width * 0.65) {
+    return "end";
+  }
+  return "middle";
+}
+
+function labelX(x: number, radius: number, width: number): number {
+  const anchor = labelAnchor(x, width);
+  if (anchor === "start") {
+    return x + radius + 8;
+  }
+  if (anchor === "end") {
+    return x - radius - 8;
+  }
+  return x;
+}
+
+function nodeLabelPosition(
+  node: SignalNetworkNode,
+  position: { x: number; y: number },
+  radius: number,
+  layout: { width: number; height: number },
+): { x: number; y: number; anchor: "start" | "middle" | "end" } {
+  if (node.kind === "model") {
+    return { x: position.x, y: position.y + 4, anchor: "middle" };
+  }
+  if (node.kind === "family") {
+    const center = { x: layout.width / 2, y: layout.height / 2 };
+    const dx = position.x - center.x;
+    const dy = position.y - center.y;
+    const distance = Math.hypot(dx, dy) || 1;
+    const x = position.x - (dx / distance) * (radius + 18);
+    const y = position.y - (dy / distance) * (radius + 18) + 4;
+    return { x, y, anchor: labelAnchor(x, layout.width) };
+  }
+  return {
+    x: labelX(position.x, radius, layout.width),
+    y: position.y + 4,
+    anchor: labelAnchor(position.x, layout.width),
+  };
+}
+
+function visibleNodeLabel(node: SignalNetworkNode): string {
+  if (node.kind !== "feature") {
+    return node.label;
+  }
+  const familyWords = ["starter", "lineup", "bullpen"];
+  const label = node.label
+    .split(" ")
+    .filter((part) => !familyWords.includes(part))
+    .join(" ")
+    .replace(/\bprev\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return label.length > 22 ? `${label.slice(0, 19)}...` : label;
+}
+
+function nodeTitle(node: SignalNetworkNode): string {
+  if (node.kind !== "feature") {
+    return node.label;
+  }
+  const metricText = Object.entries(node.metrics ?? {})
+    .map(([metric, value]) => `${metric} #${value.rank}`)
+    .join(", ");
+  return `${node.feature ?? node.label} | ${node.family_label ?? "Signal"} | ${metricText}`;
 }
 
 function formatTimestamp(value: string): { date: string; time: string } {

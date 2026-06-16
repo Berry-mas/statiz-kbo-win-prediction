@@ -553,5 +553,5 @@
     "start_date": "2025-09-01",
     "sample_size": 97
   },
-  "source_model_dir": "artifacts/model_registry/lgbm_v008"
+  "network_path": "/feature-analysis/feature_signal_network.json"
 }
