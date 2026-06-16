@@ -205,14 +205,23 @@ export default async function FeatureAnalysisPage() {
     <main className="dashboard-shell">
       <section className="feature-page-heading">
         <div>
-          <p className="eyebrow">Model interpretation</p>
-          <h1>Feature analysis</h1>
+          <p className="eyebrow" data-en="Model interpretation" data-ko="모델 해석">
+            Model interpretation
+          </p>
+          <h1 data-en="Feature analysis" data-ko="Feature 분석">
+            Feature analysis
+          </h1>
         </div>
         <div className="page-actions">
-          <a className="quiet-link" href="/">
+          <a className="quiet-link" data-en="Dashboard" data-ko="대시보드" href="/">
             Dashboard
           </a>
-          <a className="quiet-link" href="/model-guide">
+          <a
+            className="quiet-link"
+            data-en="Model & feature guide"
+            data-ko="모델/변수 설명"
+            href="/model-guide"
+          >
             Model & feature guide
           </a>
         </div>
@@ -344,35 +353,43 @@ function AnalysisContent({
   const modelVersion = manifest.model_version ?? "n/a";
   const generatedAt = formatTimestamp(manifest.generated_at);
   const dependenceEntries = Object.entries(manifest.dependence_images);
+  const windowLabel = formatWindowLabels(manifest.analysis_window);
 
   return (
     <>
       <section className="metric-grid" aria-label="Feature analysis summary">
         <article className="metric-card">
-          <span>Model</span>
+          <span data-en="Model" data-ko="모델">Model</span>
           <strong>{modelVersion}</strong>
           <p>{formatYears(manifest.years)}</p>
         </article>
         <article className="metric-card">
-          <span>Sample</span>
+          <span data-en="Sample" data-ko="샘플">Sample</span>
           <strong>{manifest.sample_size}</strong>
-          <p>{formatWindow(manifest.analysis_window)}</p>
+          <p data-en={windowLabel.en} data-ko={windowLabel.ko}>
+            {windowLabel.en}
+          </p>
         </article>
         <article className="metric-card">
-          <span>Generated</span>
+          <span data-en="Generated" data-ko="생성 시각">Generated</span>
           <strong>{generatedAt.date}</strong>
           <p>{generatedAt.time}</p>
         </article>
         <article className="metric-card">
-          <span>Top N</span>
+          <span data-en="Top N" data-ko="상위 N개">Top N</span>
           <strong>{manifest.top_n}</strong>
           <p>{manifest.task_type}</p>
         </article>
       </section>
 
       <section className="feature-note">
-        <strong>Interpretation guardrail</strong>
-        <p>
+        <strong data-en="Interpretation guardrail" data-ko="해석 주의사항">
+          Interpretation guardrail
+        </strong>
+        <p
+          data-en="Feature importance and SHAP impact are not causality. Read them as the features the model used strongly for prediction, not as proof that a feature caused a win or loss."
+          data-ko="Feature importance와 SHAP 영향도는 인과관계가 아님. 어떤 변수가 승패의 원인인지가 아니라 모델이 예측에 강하게 사용한 신호로 해석해야 함."
+        >
           Feature importance and SHAP impact are not causality. Read them as the
           features the model used strongly for prediction, not as proof that a
           feature caused a win or loss.
@@ -396,9 +413,9 @@ function AnalysisContent({
           <article className="feature-section" key={section.id}>
             <div className="section-heading compact">
               <div>
-                <p className="eyebrow">{section.title}</p>
-                <p>{section.description}</p>
-              </div>
+              <p className="eyebrow">{section.title}</p>
+              <p>{section.description}</p>
+            </div>
               {section.csv_path ? (
                 <a className="quiet-link" href={section.csv_path}>
                   CSV
@@ -416,8 +433,15 @@ function AnalysisContent({
         <section className="feature-section">
           <div className="section-heading compact">
             <div>
-              <p className="eyebrow">SHAP dependence</p>
-              <p>Selected feature-level contribution patterns.</p>
+              <p className="eyebrow" data-en="SHAP dependence" data-ko="SHAP 의존성">
+                SHAP dependence
+              </p>
+              <p
+                data-en="Selected feature-level contribution patterns."
+                data-ko="선택 변수별 기여도 패턴."
+              >
+                Selected feature-level contribution patterns.
+              </p>
             </div>
           </div>
           <div className="feature-section-grid">
@@ -435,7 +459,9 @@ function AnalysisContent({
         <article className="section-panel">
           <div className="section-heading compact">
             <div>
-              <p className="eyebrow">Top features</p>
+                <p className="eyebrow" data-en="Top features" data-ko="상위 변수">
+                  Top features
+                </p>
             </div>
           </div>
           <TopFeatureTable rows={manifest.top_features.shap} valueLabel="Mean |SHAP|" />
@@ -445,7 +471,9 @@ function AnalysisContent({
           <article className="section-panel">
             <div className="section-heading compact">
               <div>
-                <p className="eyebrow">Downloads</p>
+                <p className="eyebrow" data-en="Downloads" data-ko="다운로드">
+                  Downloads
+                </p>
               </div>
             </div>
             <div className="download-list">
@@ -462,7 +490,9 @@ function AnalysisContent({
           <article className="section-panel">
             <div className="section-heading compact">
               <div>
-                <p className="eyebrow">Method notes</p>
+                <p className="eyebrow" data-en="Method notes" data-ko="방법론 메모">
+                  Method notes
+                </p>
               </div>
             </div>
             <ul className="method-list">
@@ -487,25 +517,48 @@ function FeatureFamilySummaryPanel({
     <section className="family-summary-panel">
       <div className="section-heading compact">
         <div>
-          <p className="eyebrow">Feature family summary</p>
-          <p>Aggregated model interpretation signal by baseball context.</p>
+          <p
+            className="eyebrow"
+            data-en="Feature family summary"
+            data-ko="변수 묶음 요약"
+          >
+            Feature family summary
+          </p>
+          <p
+            data-en="Aggregated model interpretation signal by baseball context."
+            data-ko="야구 맥락별로 묶은 모델 해석 신호."
+          >
+            Aggregated model interpretation signal by baseball context.
+          </p>
         </div>
-        <span className="network-count">{summary.families.length} families</span>
+        <span className="network-count">
+          {summary.families.length}{" "}
+          <span data-en="families" data-ko="묶음">
+            families
+          </span>
+        </span>
       </div>
       <div className="family-card-grid">
         {topFamilies.map((family) => (
           <article className="family-card" key={family.id}>
             <div className="family-card-head">
-              <span style={{ background: family.color }} />
-              <div>
-                <strong>{family.label}</strong>
-                <p>{family.feature_count} ranked features</p>
+                <span style={{ background: family.color }} />
+                <div>
+                  <strong>{family.label}</strong>
+                  <p>
+                    {family.feature_count}{" "}
+                    <span data-en="ranked features" data-ko="순위 변수">
+                      ranked features
+                    </span>
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="family-impact">
-              <strong>{Math.round(family.impact_share * 100)}%</strong>
-              <span>impact share</span>
-            </div>
+              <div className="family-impact">
+                <strong>{Math.round(family.impact_share * 100)}%</strong>
+                <span data-en="impact share" data-ko="영향 비중">
+                  impact share
+                </span>
+              </div>
             <div className="family-impact-bar">
               <i
                 style={{
@@ -515,8 +568,18 @@ function FeatureFamilySummaryPanel({
               />
             </div>
             <div className="family-meta-row">
-              <span>{family.method_coverage}/{summary.methods.length} methods</span>
-              <span>{formatMethodLabel(family.primary_method)} led</span>
+              <span>
+                {family.method_coverage}/{summary.methods.length}{" "}
+                <span data-en="methods" data-ko="방법">
+                  methods
+                </span>
+              </span>
+              <span>
+                {formatMethodLabel(family.primary_method)}{" "}
+                <span data-en="led" data-ko="기준 우세">
+                  led
+                </span>
+              </span>
             </div>
             <div className="family-feature-list">
               {family.top_features.slice(0, 3).map((feature) => (
@@ -545,13 +608,27 @@ function GameExplanationPanel({
     <section className="game-explanation-panel">
       <div className="section-heading compact">
         <div>
-          <p className="eyebrow">Game explanation view</p>
-          <p>
+          <p
+            className="eyebrow"
+            data-en="Game explanation view"
+            data-ko="경기별 설명"
+          >
+            Game explanation view
+          </p>
+          <p
+            data-en="Per-game SHAP factors showing why the model leaned home or away for high-signal matchups."
+            data-ko="모델이 특정 경기에서 홈/원정 어느 쪽으로 기울었는지 보여주는 경기별 SHAP 요인."
+          >
             Per-game SHAP factors showing why the model leaned home or away for
             high-signal matchups.
           </p>
         </div>
-        <span className="network-count">{explanations.display_count} games</span>
+        <span className="network-count">
+          {explanations.display_count}{" "}
+          <span data-en="games" data-ko="경기">
+            games
+          </span>
+        </span>
       </div>
       <div className="game-explanation-grid">
         {games.map((game) => (
@@ -559,13 +636,22 @@ function GameExplanationPanel({
             <div className="game-explanation-head">
               <div>
                 <strong>
-                  {game.away_team.name} <span>at</span> {game.home_team.name}
+                  {game.away_team.name}{" "}
+                  <span data-en="at" data-ko="vs">
+                    at
+                  </span>{" "}
+                  {game.home_team.name}
                 </strong>
                 <p>{game.game_date ?? `row ${game.row_index + 1}`}</p>
               </div>
               <div className="game-explanation-probability">
                 <strong>{formatProbability(game.home_win_probability)}</strong>
-                <span>{game.predicted_side === "home" ? "Home lean" : "Away lean"}</span>
+                <span
+                  data-en={game.predicted_side === "home" ? "Home lean" : "Away lean"}
+                  data-ko={game.predicted_side === "home" ? "홈 우세" : "원정 우세"}
+                >
+                  {game.predicted_side === "home" ? "Home lean" : "Away lean"}
+                </span>
               </div>
             </div>
             <div className="explanation-meter" aria-hidden="true">
@@ -579,19 +665,36 @@ function GameExplanationPanel({
               />
             </div>
             <div className="game-explanation-meta">
-              <span>{formatActualResult(game.actual_home_win)}</span>
-              <span>{Math.round(game.confidence * 100)}% confidence</span>
-              <span>{game.explanation_strength.toFixed(3)} SHAP load</span>
+              <span
+                data-en={actualResultLabel(game.actual_home_win).en}
+                data-ko={actualResultLabel(game.actual_home_win).ko}
+              >
+                {actualResultLabel(game.actual_home_win).en}
+              </span>
+              <span>
+                {Math.round(game.confidence * 100)}%{" "}
+                <span data-en="confidence" data-ko="확신도">
+                  confidence
+                </span>
+              </span>
+              <span>
+                {game.explanation_strength.toFixed(3)}{" "}
+                <span data-en="SHAP load" data-ko="SHAP 설명량">
+                  SHAP load
+                </span>
+              </span>
             </div>
             <div className="game-factor-columns">
               <GameFactorList
                 factors={game.top_away_factors}
                 title="Toward away"
+                titleKo="원정 쪽 요인"
                 tone="away"
               />
               <GameFactorList
                 factors={game.top_home_factors}
                 title="Toward home"
+                titleKo="홈 쪽 요인"
                 tone="home"
               />
             </div>
@@ -605,15 +708,19 @@ function GameExplanationPanel({
 function GameFactorList({
   factors,
   title,
+  titleKo,
   tone,
 }: {
   factors: GameExplanationFactor[];
   title: string;
+  titleKo: string;
   tone: "away" | "home";
 }) {
   return (
     <div className={`game-factor-list game-factor-list-${tone}`}>
-      <span>{title}</span>
+      <span data-en={title} data-ko={titleKo}>
+        {title}
+      </span>
       {factors.length > 0 ? (
         factors.map((factor) => (
           <div className="game-factor" key={`${title}-${factor.feature}`}>
@@ -624,7 +731,9 @@ function GameFactorList({
           </div>
         ))
       ) : (
-        <div className="game-factor empty">No ranked factor</div>
+        <div className="game-factor empty" data-en="No ranked factor" data-ko="순위 요인 없음">
+          No ranked factor
+        </div>
       )}
     </div>
   );
@@ -640,28 +749,47 @@ function ImportanceAgreementPanel({
     <section className="agreement-panel">
       <div className="section-heading compact">
         <div>
-          <p className="eyebrow">Importance agreement</p>
-          <p>
+          <p
+            className="eyebrow"
+            data-en="Importance agreement"
+            data-ko="중요도 합의"
+          >
+            Importance agreement
+          </p>
+          <p
+            data-en="Features that repeatedly rank high across gain, split, SHAP, and permutation importance."
+            data-ko="gain, split, SHAP, permutation 중요도에서 반복적으로 높게 나온 변수."
+          >
             Features that repeatedly rank high across gain, split, SHAP, and
             permutation importance.
           </p>
         </div>
-        <span className="network-count">{strongRows} stable signals</span>
+        <span className="network-count">
+          {strongRows}{" "}
+          <span data-en="stable signals" data-ko="안정 신호">
+            stable signals
+          </span>
+        </span>
       </div>
       <div className="agreement-summary">
         <strong>{agreement.rows.length}</strong>
-        <span>ranked features compared across {agreement.methods.length} methods</span>
+        <span
+          data-en={`ranked features compared across ${agreement.methods.length} methods`}
+          data-ko={`${agreement.methods.length}개 방법 기준으로 비교한 순위 변수`}
+        >
+          ranked features compared across {agreement.methods.length} methods
+        </span>
       </div>
       <div className="agreement-table-wrap">
         <table className="agreement-table">
           <thead>
             <tr>
-              <th>Feature</th>
-              <th>Family</th>
+              <th data-en="Feature" data-ko="변수">Feature</th>
+              <th data-en="Family" data-ko="묶음">Family</th>
               {agreement.methods.map((method) => (
                 <th key={method.id}>{method.label}</th>
               ))}
-              <th>Consensus</th>
+              <th data-en="Consensus" data-ko="합의도">Consensus</th>
             </tr>
           </thead>
           <tbody>
@@ -690,7 +818,12 @@ function ImportanceAgreementPanel({
                 <td>
                   <div className="consensus-cell">
                     <strong>{Math.round(row.consensus_score * 100)}%</strong>
-                    <span>{row.method_count}/{agreement.methods.length} methods</span>
+                    <span>
+                      {row.method_count}/{agreement.methods.length}{" "}
+                      <span data-en="methods" data-ko="방법">
+                        methods
+                      </span>
+                    </span>
                   </div>
                 </td>
               </tr>
@@ -734,13 +867,27 @@ function FeatureSignalNetworkPanel({ network }: { network: FeatureSignalNetwork 
     <section className="signal-network-panel">
       <div className="section-heading compact">
         <div>
-          <p className="eyebrow">Feature signal network</p>
-          <p>
+          <p
+            className="eyebrow"
+            data-en="Feature signal network"
+            data-ko="변수 신호 네트워크"
+          >
+            Feature signal network
+          </p>
+          <p
+            data-en="Top ranked model signals grouped by baseball context and connected by home/away relationships."
+            data-ko="상위 모델 신호를 야구 맥락별로 묶고 홈/원정 관계로 연결한 네트워크."
+          >
             Top ranked model signals grouped by baseball context and connected by
             home/away relationships.
           </p>
         </div>
-        <span className="network-count">{featureCount} features</span>
+        <span className="network-count">
+          {featureCount}{" "}
+          <span data-en="features" data-ko="변수">
+            features
+          </span>
+        </span>
       </div>
       <div className="signal-network-canvas">
         <svg
@@ -811,8 +958,16 @@ function FeatureSignalNetworkPanel({ network }: { network: FeatureSignalNetwork 
 function MissingAnalysisState() {
   return (
     <section className="empty-state">
-      <strong>Feature analysis has not been published yet</strong>
-      <p>
+      <strong
+        data-en="Feature analysis has not been published yet"
+        data-ko="Feature 분석이 아직 게시되지 않음"
+      >
+        Feature analysis has not been published yet
+      </strong>
+      <p
+        data-en="Generate it with scripts/evaluate_model.py --feature-analysis --publish-web. The page will show charts and CSV links after web/public/feature-analysis/manifest.json exists."
+        data-ko="scripts/evaluate_model.py --feature-analysis --publish-web 명령으로 생성하면 web/public/feature-analysis/manifest.json이 생긴 뒤 차트와 CSV 링크가 표시됨."
+      >
         Generate it with <code>scripts/evaluate_model.py --feature-analysis --publish-web</code>.
         The page will show charts and CSV links after
         <code> web/public/feature-analysis/manifest.json</code> exists.
@@ -829,14 +984,22 @@ function TopFeatureTable({
   valueLabel: string;
 }) {
   if (rows.length === 0) {
-    return <div className="empty-state">No top feature rows were published.</div>;
+    return (
+      <div
+        className="empty-state"
+        data-en="No top feature rows were published."
+        data-ko="게시된 상위 변수 행이 없음."
+      >
+        No top feature rows were published.
+      </div>
+    );
   }
   return (
     <div className="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>Feature</th>
+            <th data-en="Feature" data-ko="변수">Feature</th>
             <th>{valueLabel}</th>
           </tr>
         </thead>
@@ -1096,11 +1259,11 @@ function formatProbability(value: number): string {
   return `${Math.round(value * 100)}%`;
 }
 
-function formatActualResult(value: number | null): string {
+function actualResultLabel(value: number | null): { en: string; ko: string } {
   if (value === null) {
-    return "Result unavailable";
+    return { en: "Result unavailable", ko: "결과 없음" };
   }
-  return value === 1 ? "Home won" : "Away won";
+  return value === 1 ? { en: "Home won", ko: "홈 승" } : { en: "Away won", ko: "원정 승" };
 }
 
 function formatContribution(value: number): string {
@@ -1130,13 +1293,29 @@ function formatYears(years?: number[]): string {
 }
 
 function formatWindow(window?: AnalysisManifest["analysis_window"]): string {
+  return formatWindowLabels(window).en;
+}
+
+function formatWindowLabels(window?: AnalysisManifest["analysis_window"]): {
+  en: string;
+  ko: string;
+} {
   if (!window) {
-    return "analysis rows";
+    return { en: "analysis rows", ko: "분석 행" };
   }
   if (window.start_date) {
-    return `${window.type} from ${window.start_date}`;
+    if (window.type === "late_2025_analysis_sample") {
+      return {
+        en: `2025 late-season holdout from ${window.start_date}`,
+        ko: `2025년 후반 검증 구간, ${window.start_date} 이후`,
+      };
+    }
+    return {
+      en: `${window.type} from ${window.start_date}`,
+      ko: `${window.type}, ${window.start_date} 이후`,
+    };
   }
-  return window.type;
+  return { en: window.type, ko: window.type };
 }
 
 function formatDownloadLabel(value: string): string {

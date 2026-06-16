@@ -6,6 +6,7 @@ export type DatePagerPage = {
   key: string;
   label: string;
   detail: string;
+  detailKo?: string;
   content: ReactNode;
 };
 
@@ -31,7 +32,9 @@ export function DatePager({ ariaLabel, pages }: DatePagerProps) {
       <div className="date-pager-bar">
         <div className="date-pager-current">
           <strong>{activePage.label}</strong>
-          <span>{activePage.detail}</span>
+          <span data-en={activePage.detail} data-ko={activePage.detailKo}>
+            {activePage.detail}
+          </span>
         </div>
         {hasMultiplePages ? (
           <div className="date-pager-controls" aria-label={pageSummary}>
@@ -40,6 +43,8 @@ export function DatePager({ ariaLabel, pages }: DatePagerProps) {
               disabled={activePageIndex === 0}
               onClick={() => setPageIndex((current) => Math.max(current - 1, 0))}
               type="button"
+              data-en="Prev"
+              data-ko="이전"
             >
               Prev
             </button>
@@ -51,6 +56,8 @@ export function DatePager({ ariaLabel, pages }: DatePagerProps) {
               disabled={activePageIndex === pages.length - 1}
               onClick={() => setPageIndex((current) => Math.min(current + 1, pages.length - 1))}
               type="button"
+              data-en="Next"
+              data-ko="다음"
             >
               Next
             </button>

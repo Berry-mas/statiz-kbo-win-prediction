@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+import { LanguageToggle } from "./language-toggle";
+
 const SITE_URL = "https://y-wins-kbo-forecast.vercel.app";
 const SITE_TITLE = "Y-wins KBO Forecast";
 const SITE_DESCRIPTION = "KBO submitted forecast dashboard with game cards, finalized ledger, and model metrics.";
@@ -39,7 +41,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <LanguageToggle />
+        {children}
+      </body>
     </html>
   );
 }

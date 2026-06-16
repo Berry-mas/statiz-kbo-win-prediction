@@ -54,7 +54,7 @@ export function ManualSubmitPanel() {
         <span className={`status-dot status-${state.status}`} aria-label={state.status} />
       </div>
       <label>
-        Password
+        <span data-en="Password" data-ko="비밀번호">Password</span>
         <input
           autoComplete="current-password"
           onChange={(event) => setToken(event.target.value)}
@@ -64,7 +64,7 @@ export function ManualSubmitPanel() {
         />
       </label>
       <label>
-        Date
+        <span data-en="Date" data-ko="날짜">Date</span>
         <input
           onChange={(event) => setDate(event.target.value)}
           pattern="\d{4}-\d{2}-\d{2}"
@@ -73,10 +73,31 @@ export function ManualSubmitPanel() {
           value={date}
         />
       </label>
-      <button disabled={state.status === "pending" || token.length === 0} type="submit">
+      <button
+        data-en={state.status === "pending" ? "Submitting" : "Submit Now"}
+        data-ko={state.status === "pending" ? "제출 중" : "지금 제출"}
+        disabled={state.status === "pending" || token.length === 0}
+        type="submit"
+      >
         {state.status === "pending" ? "Submitting" : "Submit Now"}
       </button>
-      <p className={`manual-submit-state state-${state.status}`}>{state.message}</p>
+      <p
+        className={`manual-submit-state state-${state.status}`}
+        data-en={state.message}
+        data-ko={translateSubmitMessage(state.message)}
+      >
+        {state.message}
+      </p>
     </form>
   );
+}
+
+function translateSubmitMessage(message: string): string {
+  const labels: Record<string, string> = {
+    Dispatching: "제출 요청 중",
+    "Queued on submit server": "제출 서버에 예약됨",
+    Ready: "준비 완료",
+    "Request failed": "요청 실패",
+  };
+  return labels[message] ?? message;
 }

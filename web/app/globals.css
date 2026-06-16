@@ -36,9 +36,40 @@ body {
   letter-spacing: 0;
 }
 
+html[data-language="ko"] body {
+  word-break: keep-all;
+}
+
 button,
 input {
   letter-spacing: 0;
+}
+
+.language-toggle {
+  position: fixed;
+  z-index: 20;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border: 1px solid rgba(13, 122, 95, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 24px rgba(21, 23, 22, 0.1);
+  color: var(--green);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.language-toggle:hover {
+  border-color: rgba(13, 122, 95, 0.48);
+  background: var(--surface);
+  color: var(--ink);
 }
 
 .dashboard-shell {
