@@ -12,6 +12,7 @@ Statiz 승부예측 대회를 위한 KBO 경기 홈팀 승률 예측 및 제출 
 - 서버 자동화: `systemd` service/timer 기반 `auto-submit` 및 공개 결과 publish 실행
 - 공개 대시보드: https://y-wins-kbo-forecast.vercel.app
 - 모델 해석 페이지: https://y-wins-kbo-forecast.vercel.app/feature-analysis
+- 모델/변수 설명 페이지: https://y-wins-kbo-forecast.vercel.app/model-guide
 - Vercel root directory: `web`
 - 실제 제출 gate: 서버 환경파일의 명시적 flag로 제어함
 - 수동 제출: Vercel 대시보드 버튼이 GitHub Actions를 거쳐 등록 IP 서버에서 실행함
@@ -181,6 +182,8 @@ Next.js 앱은 `web/` 기준으로 Vercel에 배포함.
 - 경기 카드: 제출일 기준 페이지네이션, `M.D` 날짜 표기, 팀 matchup 중앙 배치, 선발투수는 각 팀 확률 아래 표시
 - Finalized ledger: final/cancelled 경기만 날짜별 페이지네이션 표시
 - Feature analysis: `web/public/feature-analysis/manifest.json` 기반 모델 해석 차트와 CSV 링크 표시
+- Model guide: 모델 target, feature family, naming rule, 상위 SHAP feature 설명 표시
+- 언어 토글: 기본 영어 UI, 우상단 버튼으로 한국어/영어 전환 및 브라우저 저장
 - Hit/Miss/Accuracy: 실제 제출 확률인 `submitted_prob` 기준 계산
 - Cancelled: 정확도 계산에서 제외, 카드/ledger 결과는 `Cancelled`로 표시
 - 운영 패널 game date: `YYYY.MM.DD` 형식 표시
