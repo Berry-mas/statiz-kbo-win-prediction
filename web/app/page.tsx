@@ -868,10 +868,6 @@ function statusLabels(status: string): { en: string; ko: string } {
   return labels[status] ?? { en: status, ko: status };
 }
 
-function statusLabel(status: string): string {
-  return statusLabels(status).en;
-}
-
 function formatDate(value: string): string {
   const parts = new Intl.DateTimeFormat("en-US", {
     month: "numeric",

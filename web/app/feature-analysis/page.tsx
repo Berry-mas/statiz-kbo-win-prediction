@@ -793,41 +793,46 @@ function ImportanceAgreementPanel({
             </tr>
           </thead>
           <tbody>
-            {agreement.rows.slice(0, 18).map((row) => (
-              <tr key={row.feature}>
-                <td>
-                  <strong>{row.feature}</strong>
-                  <span>{formatFeatureSide(row.side)}</span>
-                </td>
-                <td>
-                  <span
-                    className="family-chip"
-                    style={{ borderColor: familyColor(row.family) }}
-                  >
-                    {row.family_label}
-                  </span>
-                </td>
-                {agreement.methods.map((method) => (
-                  <td key={method.id}>
-                    <AgreementRankCell
-                      rank={row.ranks[method.id]}
-                      topN={agreement.top_n}
-                    />
-                  </td>
-                ))}
-                <td>
-                  <div className="consensus-cell">
-                    <strong>{Math.round(row.consensus_score * 100)}%</strong>
-                    <span>
-                      {row.method_count}/{agreement.methods.length}{" "}
-                      <span data-en="methods" data-ko="방법">
-                        methods
-                      </span>
+            {agreement.rows.slice(0, 18).map((row) => {
+              const sideLabel = featureSideLabel(row.side);
+              return (
+                <tr key={row.feature}>
+                  <td>
+                    <strong>{row.feature}</strong>
+                    <span data-en={sideLabel.en} data-ko={sideLabel.ko}>
+                      {sideLabel.en}
                     </span>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td>
+                    <span
+                      className="family-chip"
+                      style={{ borderColor: familyColor(row.family) }}
+                    >
+                      {row.family_label}
+                    </span>
+                  </td>
+                  {agreement.methods.map((method) => (
+                    <td key={method.id}>
+                      <AgreementRankCell
+                        rank={row.ranks[method.id]}
+                        topN={agreement.top_n}
+                      />
+                    </td>
+                  ))}
+                  <td>
+                    <div className="consensus-cell">
+                      <strong>{Math.round(row.consensus_score * 100)}%</strong>
+                      <span>
+                        {row.method_count}/{agreement.methods.length}{" "}
+                        <span data-en="methods" data-ko="방법">
+                          methods
+                        </span>
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -1227,14 +1232,14 @@ function nodeTitle(node: SignalNetworkNode): string {
   return `${node.feature ?? node.label} | ${node.family_label ?? "Signal"} | ${metricText}`;
 }
 
-function formatFeatureSide(value: string): string {
-  const labels: Record<string, string> = {
-    home: "Home-side signal",
-    away: "Away-side signal",
-    comparison: "Home-away comparison",
-    neutral: "Neutral signal",
+function featureSideLabel(value: string): { en: string; ko: string } {
+  const labels: Record<string, { en: string; ko: string }> = {
+    home: { en: "Home-side signal", ko: "홈팀 신호" },
+    away: { en: "Away-side signal", ko: "원정팀 신호" },
+    comparison: { en: "Home-away comparison", ko: "홈-원정 비교" },
+    neutral: { en: "Neutral signal", ko: "중립 신호" },
   };
-  return labels[value] ?? "Model signal";
+  return labels[value] ?? { en: "Model signal", ko: "모델 신호" };
 }
 
 function formatMethodLabel(value: string): string {
@@ -1290,10 +1295,6 @@ function formatTimestamp(value: string): { date: string; time: string } {
 
 function formatYears(years?: number[]): string {
   return years && years.length > 0 ? years.join(", ") : "training years";
-}
-
-function formatWindow(window?: AnalysisManifest["analysis_window"]): string {
-  return formatWindowLabels(window).en;
 }
 
 function formatWindowLabels(window?: AnalysisManifest["analysis_window"]): {

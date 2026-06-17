@@ -436,10 +436,6 @@ function buildModelFacts(manifest: AnalysisManifest | null): ModelFact[] {
   ];
 }
 
-function formatWindow(window?: AnalysisManifest["analysis_window"]): string {
-  return formatWindowLabels(window).en;
-}
-
 function formatWindowLabels(window?: AnalysisManifest["analysis_window"]): {
   en: string;
   ko: string;
