@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-20T07:31:04.909626+00:00",
+  "generated_at": "2026-06-20T08:00:53.697013+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "두산",
           "logo_key": "doosan"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260362,
@@ -63,7 +63,7 @@
           "name": "롯데",
           "logo_key": "lotte"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260363,
@@ -75,7 +75,7 @@
           "name": "KIA",
           "logo_key": "kia"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260364,
@@ -87,7 +87,7 @@
           "name": "삼성",
           "logo_key": "samsung"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260365,
@@ -99,7 +99,7 @@
           "name": "SSG",
           "logo_key": "ssg"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -121,7 +121,7 @@
             "name": "두산",
             "logo_key": "doosan"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260362,
@@ -133,7 +133,7 @@
             "name": "롯데",
             "logo_key": "lotte"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260363,
@@ -145,7 +145,7 @@
             "name": "KIA",
             "logo_key": "kia"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260364,
@@ -157,7 +157,7 @@
             "name": "삼성",
             "logo_key": "samsung"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260365,
@@ -169,7 +169,7 @@
             "name": "SSG",
             "logo_key": "ssg"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -534,7 +534,7 @@
       },
       "home_sp_name": "김준원",
       "away_sp_name": "해치",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-06-20T16:31:04.868931+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -561,7 +561,7 @@
       },
       "home_sp_name": "왕옌청",
       "away_sp_name": "장찬희",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-06-20T16:30:59.871084+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -588,7 +588,7 @@
       },
       "home_sp_name": "배제성",
       "away_sp_name": "황동하",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-06-20T16:30:54.864717+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -615,7 +615,7 @@
       },
       "home_sp_name": "로젠버그",
       "away_sp_name": "나균안",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-06-20T16:30:49.872548+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -642,7 +642,7 @@
       },
       "home_sp_name": "임찬규",
       "away_sp_name": "곽빈",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-06-20T16:30:44.891156+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
