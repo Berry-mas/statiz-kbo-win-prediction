@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-21T08:00:34.004176+00:00",
+  "generated_at": "2026-06-21T08:07:38.800191+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -15,7 +15,7 @@
   },
   "model_version": "lgbm_v008",
   "summary": {
-    "published_results": 31,
+    "published_results": 32,
     "recent_submissions": 6,
     "recent_games": 40,
     "latest_submission_at": "2026-06-21T16:30:40.077116+09:00",
@@ -51,7 +51,7 @@
           "name": "롯데",
           "logo_key": "lotte"
         },
-        "game_status": "in_progress"
+        "game_status": "final"
       },
       {
         "s_no": 20260366,
@@ -121,7 +121,7 @@
             "name": "롯데",
             "logo_key": "lotte"
           },
-          "game_status": "in_progress"
+          "game_status": "final"
         },
         {
           "s_no": 20260366,
@@ -642,18 +642,18 @@
       },
       "home_sp_name": "배동현",
       "away_sp_name": "비슬리",
-      "game_status": "in_progress",
+      "game_status": "final",
       "submitted_at": "2026-06-21T13:31:05.317029+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 47.29,
-      "predicted_winner": null,
+      "predicted_winner": "away",
       "scheduler": null,
-      "home_score": null,
-      "away_score": null,
-      "actual_winner": null,
-      "correct": null
+      "home_score": 3,
+      "away_score": 6,
+      "actual_winner": "away",
+      "correct": true
     },
     {
       "s_no": 20260365,
@@ -1608,10 +1608,32 @@
       "sample_size": 20
     },
     "accuracy": 0.65,
-    "log_loss": 0.6805,
-    "brier": 0.2437
+    "log_loss": 0.6809,
+    "brier": 0.2439
   },
   "results": [
+    {
+      "s_no": 20260367,
+      "game_date": "2026-06-21",
+      "game_time": "14:00:00",
+      "home_team": {
+        "name": "키움",
+        "logo_key": "kiwoom"
+      },
+      "away_team": {
+        "name": "롯데",
+        "logo_key": "lotte"
+      },
+      "home_score": 3,
+      "away_score": 6,
+      "home_win_probability": 47.29,
+      "predicted_winner": "away",
+      "actual_winner": "away",
+      "correct": true,
+      "model_version": "lgbm_v008",
+      "submitted_at": "2026-06-21T13:31:05.317029+09:00",
+      "submission_source": "auto"
+    },
     {
       "s_no": 20260365,
       "game_date": "2026-06-20",
