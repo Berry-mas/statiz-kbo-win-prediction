@@ -313,7 +313,7 @@ export default async function DashboardPage() {
                 <dd>{formatNumber(metrics.brier)}</dd>
               </div>
               <div>
-                <dt data-en="Window" data-ko="구간">Window</dt>
+                <dt data-en="Graded games" data-ko="평가 경기">Graded games</dt>
                 <dd>
                   {metrics.window.sample_size}{" "}
                   <span data-en="games" data-ko="경기">
