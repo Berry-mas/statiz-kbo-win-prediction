@@ -40,12 +40,26 @@ type ModelFact = {
   detailKo: string;
 };
 
+type PipelineStep = {
+  label: string;
+  labelKo: string;
+  href?: string;
+};
+
 const MANIFEST_FILE = path.join(
   process.cwd(),
   "public",
   "feature-analysis",
   "manifest.json",
 );
+
+const PIPELINE_STEPS: PipelineStep[] = [
+  { label: "Schedule", labelKo: "일정" },
+  { label: "Team stats", labelKo: "팀 지표", href: "/team-stats" },
+  { label: "Lineup", labelKo: "라인업", href: "/lineup" },
+  { label: "LightGBM", labelKo: "LightGBM", href: "/lightgbm" },
+  { label: "Probability", labelKo: "확률" },
+];
 
 const FEATURE_FAMILIES: FeatureFamily[] = [
   {
@@ -162,10 +176,25 @@ export default async function ModelGuidePage() {
           </p>
         </div>
         <div className="guide-flow" aria-label="Model pipeline">
-          {["Schedule", "Team stats", "Lineup", "LightGBM", "Probability"].map(
-            (step) => (
-              <span data-en={step} data-ko={pipelineStepKo(step)} key={step}>
-                {step}
+          {PIPELINE_STEPS.map((step) =>
+            step.href ? (
+              <a
+                className="guide-flow-link"
+                data-en={step.label}
+                data-ko={step.labelKo}
+                href={step.href}
+                key={step.label}
+              >
+                {step.label}
+              </a>
+            ) : (
+              <span
+                className="guide-flow-static"
+                data-en={step.label}
+                data-ko={step.labelKo}
+                key={step.label}
+              >
+                {step.label}
               </span>
             ),
           )}
@@ -636,17 +665,6 @@ function featureMeaning(feature: string): { en: string; ko: string } {
     en: sentenceCase(parts.join("; ")),
     ko: `${partsKo.join("; ")}.`,
   };
-}
-
-function pipelineStepKo(step: string): string {
-  const labels: Record<string, string> = {
-    Schedule: "일정",
-    "Team stats": "팀 지표",
-    Lineup: "라인업",
-    LightGBM: "LightGBM",
-    Probability: "확률",
-  };
-  return labels[step] ?? step;
 }
 
 function sentenceCase(value: string): string {

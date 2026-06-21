@@ -183,6 +183,9 @@ Next.js 앱은 `web/` 기준으로 Vercel에 배포함.
 - Finalized ledger: final/cancelled 경기만 날짜별 페이지네이션 표시
 - Feature analysis: `web/public/feature-analysis/manifest.json` 기반 모델 해석 차트와 CSV 링크 표시
 - Model guide: 모델 target, feature family, naming rule, 상위 SHAP feature 설명 표시
+- Team stats: 최근 공개 제출 경기 기준 팀 전적, 평균 득실, 모델 확률 요약 표시
+- Lineup: 공개 제출 경기의 선발투수와 스케줄러 라인업 준비 상태 표시
+- LightGBM: gradient boosting tree 흐름, 중요도 차트, 상위 gain feature 설명 표시
 - 언어 토글: 기본 영어 UI, 우상단 버튼으로 한국어/영어 전환 및 브라우저 저장
 - Hit/Miss/Accuracy: 실제 제출 확률인 `submitted_prob` 기준 계산
 - Cancelled: 정확도 계산에서 제외, 카드/ledger 결과는 `Cancelled`로 표시
