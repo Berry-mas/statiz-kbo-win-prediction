@@ -16,6 +16,7 @@ type TeamSummary = {
   finalizedGames: number;
   wins: number;
   losses: number;
+  draws: number;
   runsFor: number;
   runsAgainst: number;
   probabilityTotal: number;
@@ -119,7 +120,7 @@ export default async function TeamStatsPage() {
                 <div>
                   <strong>{summary.team.name}</strong>
                   <span>
-                    {summary.wins}-{summary.losses} · {formatRate(winRate(summary))}
+                    {formatRecord(summary)} · {formatRate(winRate(summary))}
                   </span>
                 </div>
               </div>
@@ -184,7 +185,7 @@ export default async function TeamStatsPage() {
                       <strong>{summary.team.name}</strong>
                     </span>
                   </td>
-                  <td>{summary.wins}-{summary.losses}</td>
+                  <td>{formatRecord(summary)}</td>
                   <td>{formatRate(winRate(summary))}</td>
                   <td>{formatNumber(averageRunsFor(summary))}</td>
                   <td>{formatNumber(averageRunsAgainst(summary))}</td>
@@ -247,8 +248,10 @@ function updateTeamSummary(
     summary.runsAgainst += side === "home" ? game.away_score : game.home_score;
     if (game.actual_winner === side) {
       summary.wins += 1;
-    } else {
+    } else if (game.actual_winner !== null) {
       summary.losses += 1;
+    } else {
+      summary.draws += 1;
     }
   }
   summaries.set(team.logo_key, summary);
@@ -261,6 +264,7 @@ function createTeamSummary(team: TeamInfo): TeamSummary {
     finalizedGames: 0,
     wins: 0,
     losses: 0,
+    draws: 0,
     runsFor: 0,
     runsAgainst: 0,
     probabilityTotal: 0,
@@ -271,7 +275,14 @@ function createTeamSummary(team: TeamInfo): TeamSummary {
 }
 
 function winRate(summary: TeamSummary): number | null {
-  return summary.finalizedGames === 0 ? null : summary.wins / summary.finalizedGames;
+  const decisions = summary.wins + summary.losses;
+  return decisions === 0 ? null : summary.wins / decisions;
+}
+
+function formatRecord(summary: TeamSummary): string {
+  return summary.draws > 0
+    ? `${summary.wins}-${summary.losses}-${summary.draws}`
+    : `${summary.wins}-${summary.losses}`;
 }
 
 function winRateValue(summary: TeamSummary): number {

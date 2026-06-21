@@ -18,6 +18,8 @@ import pandas as pd
 from loguru import logger
 
 from .constants import (
+    FINAL_GAME_STATES,
+    GAME_STATE_CANCELLED,
     GAMES_CSV,
     PREDICTION_LOG_CSV,
     PUBLIC_RESULTS_JSON,
@@ -221,7 +223,7 @@ def _build_public_rows(
 ) -> list[dict[str, Any]]:
     """Join logs with final scores and keep only public-safe rows."""
     finalized = games[
-        (games["game_state"] == 3)
+        games["game_state"].isin(FINAL_GAME_STATES)
         & games["target_home_win"].notna()
         & games["home_score"].notna()
         & games["away_score"].notna()
@@ -378,7 +380,7 @@ def _recent_game_row(row: pd.Series, as_of: datetime) -> dict[str, Any]:
     away_sp_name = _optional_string(
         row.get("away_sp_name_scheduler", row.get("away_sp_name"))
     )
-    is_final = _is_final_game(row)
+    is_final = _is_completed_game(row)
     return {
         "s_no": _optional_int(row.get("s_no")),
         "game_date": _optional_string(row.get("game_date_game", row.get("game_date"))),
@@ -408,13 +410,27 @@ def _recent_game_row(row: pd.Series, as_of: datetime) -> dict[str, Any]:
 
 
 def _result_fields(row: pd.Series, probability: float | None) -> dict[str, Any]:
-    actual_home_win = float(row["target_home_win"]) == 1.0
-    predicted_home_win = bool(probability is not None and probability > 50.0)
+    home_score = _optional_int(row.get("home_score"))
+    away_score = _optional_int(row.get("away_score"))
+    if home_score is None or away_score is None:
+        return _empty_result_fields()
+    if home_score == away_score:
+        return {
+            "home_score": home_score,
+            "away_score": away_score,
+            "actual_winner": None,
+            "correct": None,
+        }
+
+    actual_winner = "home" if home_score > away_score else "away"
+    predicted_winner = _winner_from_probability(probability)
     return {
-        "home_score": _optional_int(row.get("home_score")),
-        "away_score": _optional_int(row.get("away_score")),
-        "actual_winner": "home" if actual_home_win else "away",
-        "correct": predicted_home_win == actual_home_win,
+        "home_score": home_score,
+        "away_score": away_score,
+        "actual_winner": actual_winner,
+        "correct": predicted_winner == actual_winner
+        if predicted_winner is not None
+        else None,
     }
 
 
@@ -602,11 +618,11 @@ def _team_public(code: int | None) -> dict[str, str]:
 
 def _public_game_status(row: pd.Series, as_of: datetime) -> str:
     state = _optional_int(row.get("game_state"))
-    if state == 3:
+    if state in FINAL_GAME_STATES:
         return "final"
     if state == 2:
         return "in_progress"
-    if state in {4, 5}:
+    if state == GAME_STATE_CANCELLED:
         return "cancelled"
     starts_at = _game_starts_at(row)
     if starts_at is not None and as_of.astimezone(KST) >= starts_at:
@@ -626,10 +642,9 @@ def _game_starts_at(row: pd.Series) -> datetime | None:
     return starts_at.replace(tzinfo=KST)
 
 
-def _is_final_game(row: pd.Series) -> bool:
+def _is_completed_game(row: pd.Series) -> bool:
     return (
-        _optional_int(row.get("game_state")) == 3
-        and _optional_float(row.get("target_home_win")) is not None
+        _optional_int(row.get("game_state")) in FINAL_GAME_STATES
         and _optional_int(row.get("home_score")) is not None
         and _optional_int(row.get("away_score")) is not None
     )

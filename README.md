@@ -188,7 +188,9 @@ Next.js 앱은 `web/` 기준으로 Vercel에 배포함.
 - LightGBM: gradient boosting tree 흐름, 중요도 차트, 상위 gain feature 설명 표시
 - 언어 토글: 기본 영어 UI, 우상단 버튼으로 한국어/영어 전환 및 브라우저 저장
 - Hit/Miss/Accuracy: 실제 제출 확률인 `submitted_prob` 기준 계산
-- Cancelled: 정확도 계산에서 제외, 카드/ledger 결과는 `Cancelled`로 표시
+- 강우 콜드: 공식 종료 경기로 점수와 Hit/Miss 표시
+- 무승부: 최종 점수와 `Excluded` 표시, 정확도 계산에서 제외
+- Cancelled: 실제 취소 경기만 표시하고 정확도 계산에서 제외
 - 운영 패널 game date: `YYYY.MM.DD` 형식 표시
 
 수동 제출 버튼은 Vercel API route가 GitHub Actions workflow dispatch를 호출하고, workflow가 등록 IP 서버에서 제출 스크립트를 실행하는 구조임. 대회 제출 API는 브라우저/Vercel에서 직접 호출하지 않음.

@@ -84,12 +84,12 @@ uv run python -m src.main auto-submit \
 `web/public/results.json`의 확정 결과 목록은 아래 조건을 모두 만족하는 경기만 포함한다.
 
 - clean games row가 존재한다.
-- `game_state == 3`
+- `game_state`가 종료 상태임 (`3=정상 종료`, `5=강우 콜드 종료`).
 - 홈/원정 점수가 있다.
 - `target_home_win`이 있다.
 - 실제 제출 로그에서 `submitted=True`인 row가 있다.
 
-진행 중 경기와 경기 전 경기는 제출 요약과 제출 percent를 공개할 수 있다. Hit/Miss 결과는 확정 경기만 공개한다. 취소 경기, dry-run 전용 payload, API 응답 원문은 공개하지 않는다.
+진행 중 경기와 경기 전 경기는 제출 요약과 제출 percent를 공개할 수 있다. Hit/Miss 결과는 승패가 확정된 경기만 공개한다. 무승부는 점수와 `Excluded` 상태를 표시하되 모델 지표에서 제외한다. 취소 경기, dry-run 전용 payload, API 응답 원문은 공개하지 않는다.
 
 ## 열린 질문
 

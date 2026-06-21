@@ -17,8 +17,8 @@ import pandas as pd
 from loguru import logger
 
 from .constants import (
+    FINAL_GAME_STATES,
     GAME_STATE_CANCELLED,
-    GAME_STATE_FINISHED,
     GAMES_CSV,
     LINEUP_SNAPSHOT_CSV,
     RAW_DIR,
@@ -94,11 +94,12 @@ class DataCleaner:
                 for g in games:
                     game_state = g.get("state")
                     is_cancelled = game_state == GAME_STATE_CANCELLED
+                    is_final = game_state in FINAL_GAME_STATES
 
                     home_score = g.get("homeScore")
                     away_score = g.get("awayScore")
 
-                    if is_cancelled or game_state != GAME_STATE_FINISHED:
+                    if is_cancelled or not is_final:
                         target = float("nan")
                     elif home_score is None or away_score is None:
                         target = float("nan")

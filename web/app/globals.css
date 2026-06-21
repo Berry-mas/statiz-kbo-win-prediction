@@ -747,6 +747,11 @@ h3 {
   color: var(--red);
 }
 
+.badge-excluded {
+  background: var(--gold-soft);
+  color: var(--gold);
+}
+
 .badge-neutral {
   background: var(--blue-soft);
   color: var(--blue);

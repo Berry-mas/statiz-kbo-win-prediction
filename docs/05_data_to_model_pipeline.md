@@ -66,7 +66,7 @@ raw JSON → clean CSV 변환. 4개 테이블 생성.
 | home_team_code | 홈팀 코드 | `homeTeam` |
 | away_team_code | 원정팀 코드 | `awayTeam` |
 | home_score / away_score | 최종 점수 | `homeScore`, `awayScore` |
-| game_state | 경기 상태 (1=전/3=종료/4=취소) | `s_state` |
+| game_state | 경기 상태 (1=전/3=종료/4=취소/5=강우 콜드 종료) | `s_state` |
 | game_type | 1=정규/2=더블헤더1차/3=더블헤더2차 | `gameType` |
 | is_cancelled | 취소 여부 | game_state==4 |
 | **target_home_win** | **정답 레이블** | home_score > away_score → 1.0, < → 0.0, 취소/무 → NaN |

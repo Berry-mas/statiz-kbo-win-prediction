@@ -53,6 +53,9 @@ GAME_STATE_IN_PROGRESS = 2  # 경기 중
 GAME_STATE_FINISHED = 3  # 경기 종료
 GAME_STATE_CANCELLED = 4  # 경기 취소
 GAME_STATE_RAINOUT_COLD = 5  # 강우 콜드
+FINAL_GAME_STATES: frozenset[int] = frozenset(
+    {GAME_STATE_FINISHED, GAME_STATE_RAINOUT_COLD}
+)
 
 # teamRecord API parameter values
 TEAM_RECORD_BATTING = "batting"

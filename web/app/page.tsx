@@ -534,10 +534,12 @@ function LedgerTable({ games }: { games: RecentGame[] }) {
                   <span className="venue">{game.submission_source ?? "auto"}</span>
                 </td>
                 <td className="score">
-                  {game.game_status === "cancelled" || game.away_score === null || game.home_score === null ? (
+                  {hasFinalScore(game) ? (
+                    `${game.away_score}-${game.home_score}`
+                  ) : game.game_status === "cancelled" ? (
                     <span data-en="Cancelled" data-ko="취소">Cancelled</span>
                   ) : (
-                    `${game.away_score}-${game.home_score}`
+                    <span data-en="Pending" data-ko="대기">Pending</span>
                   )}
                 </td>
                 <td>
@@ -551,7 +553,7 @@ function LedgerTable({ games }: { games: RecentGame[] }) {
                       : "n/a"}
                 </td>
                 <td>
-                  <OutcomeBadge correct={game.correct} status={game.game_status} />
+                  <OutcomeBadge game={game} />
                 </td>
               </tr>
             );
@@ -636,12 +638,16 @@ function GameCard({ game, featured = false }: { game: RecentGame; featured?: boo
           </span>{" "}
           {formatTimestamp(game.submitted_at)}
         </span>
-        {game.game_status === "final" && game.away_score !== null && game.home_score !== null ? (
+        {game.game_status === "final" && hasFinalScore(game) ? (
           <strong>
             {game.away_score}-{game.home_score} ·{" "}
-            <span data-en={game.correct ? "Hit" : "Miss"} data-ko={game.correct ? "적중" : "오답"}>
-              {game.correct ? "Hit" : "Miss"}
-            </span>
+            {isDraw(game) ? (
+              <span data-en="Excluded" data-ko="평가 제외">Excluded</span>
+            ) : (
+              <span data-en={game.correct ? "Hit" : "Miss"} data-ko={game.correct ? "적중" : "오답"}>
+                {game.correct ? "Hit" : "Miss"}
+              </span>
+            )}
           </strong>
         ) : game.game_status === "cancelled" ? (
           <strong data-en="Cancelled" data-ko="취소">Cancelled</strong>
@@ -733,15 +739,22 @@ function formatProbabilityLabel(value: number): string {
   return `${value.toFixed(2)}%`;
 }
 
-function OutcomeBadge({ correct, status }: { correct: boolean | null; status?: RecentGame["game_status"] }) {
-  if (status === "cancelled") {
+function OutcomeBadge({ game }: { game: RecentGame }) {
+  if (isDraw(game)) {
+    return (
+      <span className="badge badge-excluded" data-en="Excluded" data-ko="평가 제외">
+        Excluded
+      </span>
+    );
+  }
+  if (game.game_status === "cancelled") {
     return (
       <span className="badge badge-neutral" data-en="Cancelled" data-ko="취소">
         Cancelled
       </span>
     );
   }
-  if (correct === null) {
+  if (game.correct === null) {
     return (
       <span className="badge badge-neutral" data-en="Pending" data-ko="대기">
         Pending
@@ -750,13 +763,23 @@ function OutcomeBadge({ correct, status }: { correct: boolean | null; status?: R
   }
   return (
     <span
-      className={`badge ${correct ? "badge-good" : "badge-bad"}`}
-      data-en={correct ? "Hit" : "Miss"}
-      data-ko={correct ? "적중" : "오답"}
+      className={`badge ${game.correct ? "badge-good" : "badge-bad"}`}
+      data-en={game.correct ? "Hit" : "Miss"}
+      data-ko={game.correct ? "적중" : "오답"}
     >
-      {correct ? "Hit" : "Miss"}
+      {game.correct ? "Hit" : "Miss"}
     </span>
   );
+}
+
+function hasFinalScore(
+  game: RecentGame,
+): game is RecentGame & { home_score: number; away_score: number } {
+  return game.home_score !== null && game.away_score !== null;
+}
+
+function isDraw(game: RecentGame): boolean {
+  return hasFinalScore(game) && game.home_score === game.away_score;
 }
 
 function StatusPill({ status }: { status: string }) {

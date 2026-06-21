@@ -222,6 +222,56 @@ def test_public_game_status_uses_game_time_when_schedule_state_is_stale() -> Non
     )
 
 
+def test_rain_shortened_game_is_final_and_graded() -> None:
+    row = pd.Series(
+        {
+            "s_no": 20260360,
+            "game_date": "2026-06-19",
+            "game_state": 5,
+            "home_team_code": 11001,
+            "away_team_code": 9002,
+            "home_score": 9,
+            "away_score": 3,
+            "target_home_win": 1.0,
+            "home_win_probability": 48.36,
+        }
+    )
+
+    result = public_results._recent_game_row(row, datetime.now(tz=UTC))
+
+    assert result["game_status"] == "final"
+    assert result["home_score"] == 9
+    assert result["away_score"] == 3
+    assert result["predicted_winner"] == "away"
+    assert result["actual_winner"] == "home"
+    assert result["correct"] is False
+
+
+def test_draw_publishes_score_without_model_grade() -> None:
+    row = pd.Series(
+        {
+            "s_no": 20260359,
+            "game_date": "2026-06-19",
+            "game_state": 3,
+            "home_team_code": 7002,
+            "away_team_code": 1001,
+            "home_score": 3,
+            "away_score": 3,
+            "target_home_win": float("nan"),
+            "home_win_probability": 48.89,
+        }
+    )
+
+    result = public_results._recent_game_row(row, datetime.now(tz=UTC))
+
+    assert result["game_status"] == "final"
+    assert result["home_score"] == 3
+    assert result["away_score"] == 3
+    assert result["predicted_winner"] == "away"
+    assert result["actual_winner"] is None
+    assert result["correct"] is None
+
+
 def test_recent_game_date_limit_keeps_whole_dates() -> None:
     merged = pd.DataFrame(
         [
