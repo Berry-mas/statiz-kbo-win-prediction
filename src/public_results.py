@@ -29,8 +29,7 @@ from .constants import (
 )
 from .submission_log import read_submission_log
 
-SCHEMA_VERSION = 2
-METRIC_WINDOW = 20
+SCHEMA_VERSION = 3
 RECENT_SUBMISSION_LIMIT = 6
 RECENT_GAME_DATE_LIMIT: int | None = None
 KST = ZoneInfo("Asia/Seoul")
@@ -51,13 +50,13 @@ TEAM_LOGO_KEYS: dict[int, str] = {
 
 def export_public_results(
     output_path: str = PUBLIC_RESULTS_JSON,
-    limit: int = 50,
+    limit: int | None = None,
 ) -> dict[str, Any]:
     """Export finalized submitted prediction results for the public dashboard.
 
     Args:
         output_path: Destination JSON path.
-        limit: Maximum number of recent finalized games to include.
+        limit: Optional maximum number of recent finalized games to include.
 
     Returns:
         The JSON-compatible payload written to disk.
@@ -104,7 +103,7 @@ def export_public_results(
         RECENT_SUBMISSION_LIMIT,
         generated_at,
     )
-    metrics = _build_model_metrics(rows, METRIC_WINDOW)
+    metrics = _build_model_metrics(rows)
     latest_submission = recent_submissions[0] if recent_submissions else None
     latest_model_version = _latest_model_version(rows, recent_games, latest_predictions)
 
@@ -219,7 +218,7 @@ def _build_public_rows(
     games: pd.DataFrame,
     predictions: pd.DataFrame,
     submissions: pd.DataFrame,
-    limit: int,
+    limit: int | None,
 ) -> list[dict[str, Any]]:
     """Join logs with final scores and keep only public-safe rows."""
     finalized = games[
@@ -263,7 +262,9 @@ def _build_public_rows(
     if merged.empty:
         return []
 
-    merged = merged.sort_values(["game_date", "s_no"], ascending=False).head(limit)
+    merged = merged.sort_values(["game_date", "s_no"], ascending=False)
+    if limit is not None:
+        merged = merged.head(max(limit, 0))
     return [_public_result_row(row) for _, row in merged.iterrows()]
 
 
@@ -541,13 +542,11 @@ def _build_manual_workflow_summary(submissions: pd.DataFrame) -> dict[str, Any]:
     }
 
 
-def _build_model_metrics(
-    finalized_rows: list[dict[str, Any]], window_size: int
-) -> dict[str, Any]:
-    rows = finalized_rows[:window_size]
+def _build_model_metrics(finalized_rows: list[dict[str, Any]]) -> dict[str, Any]:
+    rows = finalized_rows
     sample_size = len(rows)
     if sample_size == 0:
-        return _empty_model_metrics(window_size)
+        return _empty_model_metrics()
 
     correct = sum(1 for row in rows if row["correct"])
     losses: list[float] = []
@@ -567,8 +566,8 @@ def _build_model_metrics(
 
     return {
         "window": {
-            "type": "recent_finalized_submitted_games",
-            "requested": window_size,
+            "type": "all_finalized_submitted_games",
+            "requested": None,
             "sample_size": sample_size,
         },
         "accuracy": round(correct / sample_size, 4),
@@ -577,11 +576,11 @@ def _build_model_metrics(
     }
 
 
-def _empty_model_metrics(window_size: int) -> dict[str, Any]:
+def _empty_model_metrics() -> dict[str, Any]:
     return {
         "window": {
-            "type": "recent_finalized_submitted_games",
-            "requested": window_size,
+            "type": "all_finalized_submitted_games",
+            "requested": None,
             "sample_size": 0,
         },
         "accuracy": None,

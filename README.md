@@ -187,7 +187,7 @@ Next.js 앱은 `web/` 기준으로 Vercel에 배포함.
 - Lineup: 공개 제출 경기의 선발투수와 스케줄러 라인업 준비 상태 표시
 - LightGBM: gradient boosting tree 흐름, 중요도 차트, 상위 gain feature 설명 표시
 - 언어 토글: 기본 영어 UI, 우상단 버튼으로 한국어/영어 전환 및 브라우저 저장
-- Hit/Miss/Accuracy: 실제 제출 확률인 `submitted_prob` 기준 계산
+- Hit/Miss/Accuracy: 취소·무승부를 제외한 전체 제출 확정 경기와 실제 `submitted_prob` 기준 계산
 - 강우 콜드: 공식 종료 경기로 점수와 Hit/Miss 표시
 - 무승부: 최종 점수와 `Excluded` 표시, 정확도 계산에서 제외
 - Cancelled: 실제 취소 경기만 표시하고 정확도 계산에서 제외

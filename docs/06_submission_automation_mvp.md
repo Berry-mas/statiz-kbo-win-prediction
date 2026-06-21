@@ -91,6 +91,8 @@ uv run python -m src.main auto-submit \
 
 진행 중 경기와 경기 전 경기는 제출 요약과 제출 percent를 공개할 수 있다. Hit/Miss 결과는 승패가 확정된 경기만 공개한다. 무승부는 점수와 `Excluded` 상태를 표시하되 모델 지표에서 제외한다. 취소 경기, dry-run 전용 payload, API 응답 원문은 공개하지 않는다.
 
+Accuracy, LogLoss, Brier는 최근 구간이 아니라 취소·무승부를 제외한 전체 제출 확정 경기를 누적해 계산한다.
+
 ## 열린 질문
 
 - Discord 외 별도 장애 알림 채널이 필요한지

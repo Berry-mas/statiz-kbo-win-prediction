@@ -91,7 +91,7 @@ type ManualWorkflow = {
 type ModelMetrics = {
   window: {
     type: string;
-    requested: number;
+    requested: number | null;
     sample_size: number;
   };
   accuracy: number | null;
@@ -132,7 +132,7 @@ export default async function DashboardPage() {
   const results = sortResults(data.results);
   const recentGames = data.recent_games ?? [];
   const ledgerGames = recentGames.filter((game) => game.game_status === "final" || game.game_status === "cancelled");
-  const metrics = data.model_metrics ?? buildModelMetrics(results, 20);
+  const metrics = data.model_metrics ?? buildModelMetrics(results);
   const metricCards = buildMetricCards(results, recentGames, metrics);
   const latestSubmission = data.latest_submission ?? null;
   const modelVersion = data.model_version ?? results[0]?.model_version ?? "n/a";
@@ -218,9 +218,9 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <span className="policy-chip">
-                {metrics.window.sample_size}/{metrics.window.requested}{" "}
-                <span data-en="metric window" data-ko="지표 구간">
-                  metric window
+                {metrics.window.sample_size}{" "}
+                <span data-en="graded games" data-ko="평가 경기">
+                  graded games
                 </span>
               </span>
             </div>
@@ -363,7 +363,7 @@ function normalizeDashboardData(data: DashboardData): DashboardData {
     ...data,
     results: sortResults(data.results),
     recent_games: data.recent_games ?? [],
-    model_metrics: data.model_metrics ?? buildModelMetrics(data.results, 20),
+    model_metrics: data.model_metrics ?? buildModelMetrics(data.results),
   };
 }
 
@@ -398,34 +398,34 @@ function buildMetricCards(results: PublicResult[], recentGames: RecentGame[], me
       label: "Accuracy",
       labelKo: "정확도",
       value: formatRate(metrics.accuracy),
-      detail: `${metrics.window.sample_size} finalized games`,
-      detailKo: `확정 경기 ${metrics.window.sample_size}개`,
+      detail: `${metrics.window.sample_size} graded games`,
+      detailKo: `평가 경기 ${metrics.window.sample_size}개`,
       tone: "good",
     },
     {
       label: "LogLoss",
       labelKo: "로그손실",
       value: formatNumber(metrics.log_loss),
-      detail: "Recent finalized submissions",
-      detailKo: "최근 확정 제출 기준",
+      detail: "All graded submissions",
+      detailKo: "전체 평가 제출 기준",
       tone: "neutral",
     },
     {
       label: "Open submitted",
       labelKo: "미확정 제출",
       value: String(openSubmitted),
-      detail: `${results.length} finalized public rows`,
-      detailKo: `공개 확정 행 ${results.length}개`,
+      detail: `${results.length} graded public rows`,
+      detailKo: `공개 평가 행 ${results.length}개`,
       tone: openSubmitted > 0 ? "warn" : "neutral",
     },
   ];
 }
 
-function buildModelMetrics(results: PublicResult[], requested: number): ModelMetrics {
-  const window = sortResults(results).slice(0, requested);
+function buildModelMetrics(results: PublicResult[]): ModelMetrics {
+  const window = sortResults(results);
   if (window.length === 0) {
     return {
-      window: { type: "recent_finalized_submitted_games", requested, sample_size: 0 },
+      window: { type: "all_finalized_submitted_games", requested: null, sample_size: 0 },
       accuracy: null,
       log_loss: null,
       brier: null,
@@ -448,7 +448,7 @@ function buildModelMetrics(results: PublicResult[], requested: number): ModelMet
   );
 
   return {
-    window: { type: "recent_finalized_submitted_games", requested, sample_size: window.length },
+    window: { type: "all_finalized_submitted_games", requested: null, sample_size: window.length },
     accuracy: correct / window.length,
     log_loss: logLoss,
     brier,

@@ -120,7 +120,7 @@ def test_export_public_results_includes_only_finalized_submitted_games(
 
     payload = public_results.export_public_results(str(output_json))
 
-    assert payload["schema_version"] == 2
+    assert payload["schema_version"] == 3
     assert payload["model_version"] == "lgbm_test"
     assert len(payload["results"]) == 1
     assert payload["results"][0]["s_no"] == 20260001
@@ -135,6 +135,10 @@ def test_export_public_results_includes_only_finalized_submitted_games(
     assert payload["manual_workflow"]["submitted_games"] == 1
     assert payload["latest_submission"]["source"] == "manual"
     assert payload["model_metrics"]["window"]["sample_size"] == 1
+    assert payload["model_metrics"]["window"]["type"] == (
+        "all_finalized_submitted_games"
+    )
+    assert payload["model_metrics"]["window"]["requested"] is None
     assert payload["model_metrics"]["accuracy"] == 1.0
     assert payload["recent_games"][0]["probability_published"] is True
     assert payload["recent_games"][0]["home_win_probability"] == 57.12
@@ -286,3 +290,23 @@ def test_recent_game_date_limit_keeps_whole_dates() -> None:
     limited = public_results._limit_recent_game_dates(merged, 2)
 
     assert limited["s_no"].tolist() == [1, 2, 3, 4]
+
+
+def test_model_metrics_use_all_finalized_submitted_games() -> None:
+    rows = [
+        {
+            "home_win_probability": 60.0,
+            "actual_winner": "home" if index < 13 else "away",
+            "correct": index < 13,
+        }
+        for index in range(25)
+    ]
+
+    metrics = public_results._build_model_metrics(rows)
+
+    assert metrics["window"] == {
+        "type": "all_finalized_submitted_games",
+        "requested": None,
+        "sample_size": 25,
+    }
+    assert metrics["accuracy"] == 0.52
