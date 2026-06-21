@@ -1,6 +1,6 @@
 {
-  "schema_version": 2,
-  "generated_at": "2026-06-21T13:07:46.110988+00:00",
+  "schema_version": 3,
+  "generated_at": "2026-06-21T13:21:56.446259+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -20,9 +20,9 @@
     "recent_games": 40,
     "latest_submission_at": "2026-06-21T16:30:40.077116+09:00",
     "metrics_window": {
-      "type": "recent_finalized_submitted_games",
-      "requested": 20,
-      "sample_size": 20
+      "type": "all_finalized_submitted_games",
+      "requested": null,
+      "sample_size": 37
     }
   },
   "manual_workflow": {
@@ -1603,13 +1603,13 @@
   ],
   "model_metrics": {
     "window": {
-      "type": "recent_finalized_submitted_games",
-      "requested": 20,
-      "sample_size": 20
+      "type": "all_finalized_submitted_games",
+      "requested": null,
+      "sample_size": 37
     },
-    "accuracy": 0.5,
-    "log_loss": 0.7001,
-    "brier": 0.2535
+    "accuracy": 0.6757,
+    "log_loss": 0.6681,
+    "brier": 0.2375
   },
   "results": [
     {
