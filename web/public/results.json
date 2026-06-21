@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-06-21T04:31:05.359477+00:00",
+  "generated_at": "2026-06-21T05:00:33.573315+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "롯데",
           "logo_key": "lotte"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -73,7 +73,7 @@
             "name": "롯데",
             "logo_key": "lotte"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -438,7 +438,7 @@
       },
       "home_sp_name": "배동현",
       "away_sp_name": "비슬리",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-06-21T13:31:05.317029+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
