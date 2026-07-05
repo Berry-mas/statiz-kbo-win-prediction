@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-07-05T09:00:45.934293+00:00",
+  "generated_at": "2026-07-05T09:37:23.848612+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -99,7 +99,7 @@
           "name": "NC",
           "logo_key": "nc"
         },
-        "game_status": "in_progress"
+        "game_status": "cancelled"
       }
     ]
   },
@@ -169,7 +169,7 @@
             "name": "NC",
             "logo_key": "nc"
           },
-          "game_status": "in_progress"
+          "game_status": "cancelled"
         }
       ]
     },
@@ -534,7 +534,7 @@
       },
       "home_sp_name": "김태형",
       "away_sp_name": "테일러",
-      "game_status": "in_progress",
+      "game_status": "cancelled",
       "submitted_at": "2026-07-05T17:30:54.356126+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
