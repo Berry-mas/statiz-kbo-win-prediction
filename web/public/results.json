@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-07-17T09:00:18.227634+00:00",
+  "generated_at": "2026-07-17T09:37:49.682879+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -87,7 +87,7 @@
           "name": "롯데",
           "logo_key": "lotte"
         },
-        "game_status": "in_progress"
+        "game_status": "cancelled"
       },
       {
         "s_no": 20260455,
@@ -157,7 +157,7 @@
             "name": "롯데",
             "logo_key": "lotte"
           },
-          "game_status": "in_progress"
+          "game_status": "cancelled"
         },
         {
           "s_no": 20260455,
@@ -561,7 +561,7 @@
       },
       "home_sp_name": "원태인",
       "away_sp_name": "나균안",
-      "game_status": "in_progress",
+      "game_status": "cancelled",
       "submitted_at": "2026-07-17T17:30:24.902531+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
