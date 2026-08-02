@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-08-02T08:31:02.854928+00:00",
+  "generated_at": "2026-08-02T09:00:47.578160+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -63,7 +63,7 @@
           "name": "LG",
           "logo_key": "lg"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260523,
@@ -75,7 +75,7 @@
           "name": "한화",
           "logo_key": "hanwha"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260524,
@@ -87,7 +87,7 @@
           "name": "삼성",
           "logo_key": "samsung"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260525,
@@ -133,7 +133,7 @@
             "name": "LG",
             "logo_key": "lg"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260523,
@@ -145,7 +145,7 @@
             "name": "한화",
             "logo_key": "hanwha"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260524,
@@ -157,7 +157,7 @@
             "name": "삼성",
             "logo_key": "samsung"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260525,
@@ -561,7 +561,7 @@
       },
       "home_sp_name": "비슬리",
       "away_sp_name": "보스",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-08-02T17:30:57.764400+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -588,7 +588,7 @@
       },
       "home_sp_name": "고영표",
       "away_sp_name": "화이트",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-08-02T17:30:52.767754+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -615,7 +615,7 @@
       },
       "home_sp_name": "벤자민",
       "away_sp_name": "톨허스트",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-08-02T17:30:47.763042+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
