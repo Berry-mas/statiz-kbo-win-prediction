@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-08-02T04:30:39.467358+00:00",
+  "generated_at": "2026-08-02T05:00:32.775579+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "SSG",
           "logo_key": "ssg"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -73,7 +73,7 @@
             "name": "SSG",
             "logo_key": "ssg"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -438,7 +438,7 @@
       },
       "home_sp_name": "전준표",
       "away_sp_name": "아빌라",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-08-02T13:30:39.372796+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
