@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-08-02T09:00:47.578160+00:00",
+  "generated_at": "2026-08-02T09:36:45.225083+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -15,14 +15,14 @@
   },
   "model_version": "lgbm_v008",
   "summary": {
-    "published_results": 171,
+    "published_results": 172,
     "recent_submissions": 6,
     "recent_games": 195,
     "latest_submission_at": "2026-08-02T17:31:02.765070+09:00",
     "metrics_window": {
       "type": "all_finalized_submitted_games",
       "requested": null,
-      "sample_size": 171
+      "sample_size": 172
     }
   },
   "manual_workflow": {
@@ -51,7 +51,7 @@
           "name": "SSG",
           "logo_key": "ssg"
         },
-        "game_status": "in_progress"
+        "game_status": "final"
       },
       {
         "s_no": 20260521,
@@ -121,7 +121,7 @@
             "name": "SSG",
             "logo_key": "ssg"
           },
-          "game_status": "in_progress"
+          "game_status": "final"
         },
         {
           "s_no": 20260521,
@@ -642,18 +642,18 @@
       },
       "home_sp_name": "전준표",
       "away_sp_name": "아빌라",
-      "game_status": "in_progress",
+      "game_status": "final",
       "submitted_at": "2026-08-02T13:30:39.372796+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 45.52,
-      "predicted_winner": null,
+      "predicted_winner": "away",
       "scheduler": null,
-      "home_score": null,
-      "away_score": null,
-      "actual_winner": null,
-      "correct": null
+      "home_score": 5,
+      "away_score": 3,
+      "actual_winner": "home",
+      "correct": false
     },
     {
       "s_no": 20260520,
@@ -5790,13 +5790,35 @@
     "window": {
       "type": "all_finalized_submitted_games",
       "requested": null,
-      "sample_size": 171
+      "sample_size": 172
     },
-    "accuracy": 0.5965,
-    "log_loss": 0.6844,
-    "brier": 0.2457
+    "accuracy": 0.593,
+    "log_loss": 0.685,
+    "brier": 0.2459
   },
   "results": [
+    {
+      "s_no": 20260522,
+      "game_date": "2026-08-02",
+      "game_time": "14:00:00",
+      "home_team": {
+        "name": "키움",
+        "logo_key": "kiwoom"
+      },
+      "away_team": {
+        "name": "SSG",
+        "logo_key": "ssg"
+      },
+      "home_score": 5,
+      "away_score": 3,
+      "home_win_probability": 45.52,
+      "predicted_winner": "away",
+      "actual_winner": "home",
+      "correct": false,
+      "model_version": "lgbm_v008",
+      "submitted_at": "2026-08-02T13:30:39.372796+09:00",
+      "submission_source": "auto"
+    },
     {
       "s_no": 20260518,
       "game_date": "2026-08-01",
