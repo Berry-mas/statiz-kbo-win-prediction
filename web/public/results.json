@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-08-16T09:31:07.944619+00:00",
+  "generated_at": "2026-08-16T09:36:22.774997+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -75,7 +75,7 @@
           "name": "한화",
           "logo_key": "hanwha"
         },
-        "game_status": "scheduled"
+        "game_status": "cancelled"
       },
       {
         "s_no": 20260584,
@@ -145,7 +145,7 @@
             "name": "한화",
             "logo_key": "hanwha"
           },
-          "game_status": "scheduled"
+          "game_status": "cancelled"
         },
         {
           "s_no": 20260584,
@@ -588,7 +588,7 @@
       },
       "home_sp_name": "페덱",
       "away_sp_name": "왕옌청",
-      "game_status": "scheduled",
+      "game_status": "cancelled",
       "submitted_at": "2026-08-16T18:30:57.834327+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
