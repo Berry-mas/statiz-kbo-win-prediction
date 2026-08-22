@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-08-22T08:30:29.790667+00:00",
+  "generated_at": "2026-08-22T09:00:22.794094+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "KIA",
           "logo_key": "kia"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -73,7 +73,7 @@
             "name": "KIA",
             "logo_key": "kia"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -438,7 +438,7 @@
       },
       "home_sp_name": "안우진",
       "away_sp_name": "올러",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-08-22T17:30:29.611489+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
