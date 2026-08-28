@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-08-28T09:30:30.018359+00:00",
+  "generated_at": "2026-08-28T09:36:52.870536+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "키움",
           "logo_key": "kiwoom"
         },
-        "game_status": "in_progress"
+        "game_status": "cancelled"
       },
       {
         "s_no": 20260632,
@@ -121,7 +121,7 @@
             "name": "키움",
             "logo_key": "kiwoom"
           },
-          "game_status": "in_progress"
+          "game_status": "cancelled"
         },
         {
           "s_no": 20260632,
@@ -642,7 +642,7 @@
       },
       "home_sp_name": "박신지",
       "away_sp_name": "안우진",
-      "game_status": "in_progress",
+      "game_status": "cancelled",
       "submitted_at": "2026-08-28T18:00:47.069560+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
