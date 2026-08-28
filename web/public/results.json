@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-08-27T14:31:02.189004+00:00",
+  "generated_at": "2026-08-28T09:01:07.168988+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -17,8 +17,8 @@
   "summary": {
     "published_results": 245,
     "recent_submissions": 6,
-    "recent_games": 300,
-    "latest_submission_at": "2026-08-27T18:00:49.705706+09:00",
+    "recent_games": 305,
+    "latest_submission_at": "2026-08-28T18:01:07.045946+09:00",
     "metrics_window": {
       "type": "all_finalized_submitted_games",
       "requested": null,
@@ -35,75 +35,144 @@
     "note": "GitHub workflow run metadata is not published; this summarizes manual-source submission log rows only."
   },
   "latest_submission": {
-    "game_date": "2026-08-27",
+    "game_date": "2026-08-28",
     "source": "auto",
-    "submitted_at": "2026-08-27T18:00:49.705706+09:00",
+    "submitted_at": "2026-08-28T18:01:07.045946+09:00",
     "submitted_games": 5,
     "model_version": "lgbm_v008",
     "games": [
       {
-        "s_no": 20260626,
+        "s_no": 20260631,
         "home_team": {
-          "name": "LG",
-          "logo_key": "lg"
+          "name": "두산",
+          "logo_key": "doosan"
+        },
+        "away_team": {
+          "name": "키움",
+          "logo_key": "kiwoom"
+        },
+        "game_status": "scheduled"
+      },
+      {
+        "s_no": 20260632,
+        "home_team": {
+          "name": "한화",
+          "logo_key": "hanwha"
         },
         "away_team": {
           "name": "NC",
           "logo_key": "nc"
         },
-        "game_status": "final"
+        "game_status": "cancelled"
       },
       {
-        "s_no": 20260627,
+        "s_no": 20260633,
         "home_team": {
-          "name": "키움",
-          "logo_key": "kiwoom"
-        },
-        "away_team": {
           "name": "삼성",
           "logo_key": "samsung"
         },
-        "game_status": "final"
-      },
-      {
-        "s_no": 20260628,
-        "home_team": {
-          "name": "SSG",
-          "logo_key": "ssg"
-        },
         "away_team": {
-          "name": "한화",
-          "logo_key": "hanwha"
-        },
-        "game_status": "final"
-      },
-      {
-        "s_no": 20260629,
-        "home_team": {
           "name": "KT",
           "logo_key": "kt"
         },
-        "away_team": {
-          "name": "두산",
-          "logo_key": "doosan"
-        },
-        "game_status": "final"
+        "game_status": "cancelled"
       },
       {
-        "s_no": 20260630,
+        "s_no": 20260634,
         "home_team": {
           "name": "KIA",
           "logo_key": "kia"
         },
         "away_team": {
+          "name": "SSG",
+          "logo_key": "ssg"
+        },
+        "game_status": "cancelled"
+      },
+      {
+        "s_no": 20260635,
+        "home_team": {
           "name": "롯데",
           "logo_key": "lotte"
+        },
+        "away_team": {
+          "name": "LG",
+          "logo_key": "lg"
         },
         "game_status": "cancelled"
       }
     ]
   },
   "recent_submissions": [
+    {
+      "game_date": "2026-08-28",
+      "source": "auto",
+      "submitted_at": "2026-08-28T18:01:07.045946+09:00",
+      "submitted_games": 5,
+      "model_version": "lgbm_v008",
+      "games": [
+        {
+          "s_no": 20260631,
+          "home_team": {
+            "name": "두산",
+            "logo_key": "doosan"
+          },
+          "away_team": {
+            "name": "키움",
+            "logo_key": "kiwoom"
+          },
+          "game_status": "scheduled"
+        },
+        {
+          "s_no": 20260632,
+          "home_team": {
+            "name": "한화",
+            "logo_key": "hanwha"
+          },
+          "away_team": {
+            "name": "NC",
+            "logo_key": "nc"
+          },
+          "game_status": "cancelled"
+        },
+        {
+          "s_no": 20260633,
+          "home_team": {
+            "name": "삼성",
+            "logo_key": "samsung"
+          },
+          "away_team": {
+            "name": "KT",
+            "logo_key": "kt"
+          },
+          "game_status": "cancelled"
+        },
+        {
+          "s_no": 20260634,
+          "home_team": {
+            "name": "KIA",
+            "logo_key": "kia"
+          },
+          "away_team": {
+            "name": "SSG",
+            "logo_key": "ssg"
+          },
+          "game_status": "cancelled"
+        },
+        {
+          "s_no": 20260635,
+          "home_team": {
+            "name": "롯데",
+            "logo_key": "lotte"
+          },
+          "away_team": {
+            "name": "LG",
+            "logo_key": "lg"
+          },
+          "game_status": "cancelled"
+        }
+      ]
+    },
     {
       "game_date": "2026-08-27",
       "source": "auto",
@@ -448,78 +517,144 @@
           "game_status": "final"
         }
       ]
-    },
-    {
-      "game_date": "2026-08-21",
-      "source": "auto",
-      "submitted_at": "2026-08-21T18:31:08.552398+09:00",
-      "submitted_games": 5,
-      "model_version": "lgbm_v008",
-      "games": [
-        {
-          "s_no": 20260601,
-          "home_team": {
-            "name": "두산",
-            "logo_key": "doosan"
-          },
-          "away_team": {
-            "name": "롯데",
-            "logo_key": "lotte"
-          },
-          "game_status": "final"
-        },
-        {
-          "s_no": 20260602,
-          "home_team": {
-            "name": "키움",
-            "logo_key": "kiwoom"
-          },
-          "away_team": {
-            "name": "KIA",
-            "logo_key": "kia"
-          },
-          "game_status": "final"
-        },
-        {
-          "s_no": 20260603,
-          "home_team": {
-            "name": "SSG",
-            "logo_key": "ssg"
-          },
-          "away_team": {
-            "name": "KT",
-            "logo_key": "kt"
-          },
-          "game_status": "final"
-        },
-        {
-          "s_no": 20260604,
-          "home_team": {
-            "name": "한화",
-            "logo_key": "hanwha"
-          },
-          "away_team": {
-            "name": "LG",
-            "logo_key": "lg"
-          },
-          "game_status": "final"
-        },
-        {
-          "s_no": 20260605,
-          "home_team": {
-            "name": "NC",
-            "logo_key": "nc"
-          },
-          "away_team": {
-            "name": "삼성",
-            "logo_key": "samsung"
-          },
-          "game_status": "final"
-        }
-      ]
     }
   ],
   "recent_games": [
+    {
+      "s_no": 20260635,
+      "game_date": "2026-08-28",
+      "game_time": "18:30:00",
+      "home_team": {
+        "name": "롯데",
+        "logo_key": "lotte"
+      },
+      "away_team": {
+        "name": "LG",
+        "logo_key": "lg"
+      },
+      "home_sp_name": "나균안",
+      "away_sp_name": "김윤식",
+      "game_status": "cancelled",
+      "submitted_at": "2026-08-28T18:01:07.045946+09:00",
+      "submission_source": "auto",
+      "model_version": "lgbm_v008",
+      "probability_published": true,
+      "home_win_probability": 54.14,
+      "predicted_winner": null,
+      "scheduler": null,
+      "home_score": null,
+      "away_score": null,
+      "actual_winner": null,
+      "correct": null
+    },
+    {
+      "s_no": 20260634,
+      "game_date": "2026-08-28",
+      "game_time": "18:30:00",
+      "home_team": {
+        "name": "KIA",
+        "logo_key": "kia"
+      },
+      "away_team": {
+        "name": "SSG",
+        "logo_key": "ssg"
+      },
+      "home_sp_name": "올러",
+      "away_sp_name": "이준기",
+      "game_status": "cancelled",
+      "submitted_at": "2026-08-28T18:01:02.211059+09:00",
+      "submission_source": "auto",
+      "model_version": "lgbm_v008",
+      "probability_published": true,
+      "home_win_probability": 53.92,
+      "predicted_winner": null,
+      "scheduler": null,
+      "home_score": null,
+      "away_score": null,
+      "actual_winner": null,
+      "correct": null
+    },
+    {
+      "s_no": 20260633,
+      "game_date": "2026-08-28",
+      "game_time": "18:30:00",
+      "home_team": {
+        "name": "삼성",
+        "logo_key": "samsung"
+      },
+      "away_team": {
+        "name": "KT",
+        "logo_key": "kt"
+      },
+      "home_sp_name": "김백산",
+      "away_sp_name": "오원석",
+      "game_status": "cancelled",
+      "submitted_at": "2026-08-28T18:00:57.044196+09:00",
+      "submission_source": "auto",
+      "model_version": "lgbm_v008",
+      "probability_published": true,
+      "home_win_probability": 51.23,
+      "predicted_winner": null,
+      "scheduler": null,
+      "home_score": null,
+      "away_score": null,
+      "actual_winner": null,
+      "correct": null
+    },
+    {
+      "s_no": 20260632,
+      "game_date": "2026-08-28",
+      "game_time": "18:30:00",
+      "home_team": {
+        "name": "한화",
+        "logo_key": "hanwha"
+      },
+      "away_team": {
+        "name": "NC",
+        "logo_key": "nc"
+      },
+      "home_sp_name": "박준영",
+      "away_sp_name": "이재학",
+      "game_status": "cancelled",
+      "submitted_at": "2026-08-28T18:00:52.047997+09:00",
+      "submission_source": "auto",
+      "model_version": "lgbm_v008",
+      "probability_published": true,
+      "home_win_probability": 48.75,
+      "predicted_winner": null,
+      "scheduler": null,
+      "home_score": null,
+      "away_score": null,
+      "actual_winner": null,
+      "correct": null
+    },
+    {
+      "s_no": 20260631,
+      "game_date": "2026-08-28",
+      "game_time": "18:30:00",
+      "home_team": {
+        "name": "두산",
+        "logo_key": "doosan"
+      },
+      "away_team": {
+        "name": "키움",
+        "logo_key": "kiwoom"
+      },
+      "home_sp_name": "박신지",
+      "away_sp_name": "안우진",
+      "game_status": "scheduled",
+      "submitted_at": "2026-08-28T18:00:47.069560+09:00",
+      "submission_source": "auto",
+      "model_version": "lgbm_v008",
+      "probability_published": true,
+      "home_win_probability": 51.03,
+      "predicted_winner": null,
+      "scheduler": null,
+      "home_score": null,
+      "away_score": null,
+      "actual_winner": null,
+      "correct": null
+    },
     {
       "s_no": 20260630,
       "game_date": "2026-08-27",
