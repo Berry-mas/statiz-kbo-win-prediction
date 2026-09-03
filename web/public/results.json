@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-03T09:30:28.067363+00:00",
+  "generated_at": "2026-09-03T14:32:24.060489+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -15,14 +15,14 @@
   },
   "model_version": "lgbm_v008",
   "summary": {
-    "published_results": 262,
+    "published_results": 266,
     "recent_submissions": 6,
     "recent_games": 330,
     "latest_submission_at": "2026-09-03T18:01:18.417378+09:00",
     "metrics_window": {
       "type": "all_finalized_submitted_games",
       "requested": null,
-      "sample_size": 262
+      "sample_size": 266
     }
   },
   "manual_workflow": {
@@ -51,7 +51,7 @@
           "name": "LG",
           "logo_key": "lg"
         },
-        "game_status": "in_progress"
+        "game_status": "final"
       },
       {
         "s_no": 20260657,
@@ -63,7 +63,7 @@
           "name": "SSG",
           "logo_key": "ssg"
         },
-        "game_status": "in_progress"
+        "game_status": "final"
       },
       {
         "s_no": 20260658,
@@ -75,7 +75,7 @@
           "name": "한화",
           "logo_key": "hanwha"
         },
-        "game_status": "in_progress"
+        "game_status": "final"
       },
       {
         "s_no": 20260659,
@@ -87,7 +87,7 @@
           "name": "롯데",
           "logo_key": "lotte"
         },
-        "game_status": "in_progress"
+        "game_status": "final"
       },
       {
         "s_no": 20260660,
@@ -121,7 +121,7 @@
             "name": "LG",
             "logo_key": "lg"
           },
-          "game_status": "in_progress"
+          "game_status": "final"
         },
         {
           "s_no": 20260657,
@@ -133,7 +133,7 @@
             "name": "SSG",
             "logo_key": "ssg"
           },
-          "game_status": "in_progress"
+          "game_status": "final"
         },
         {
           "s_no": 20260658,
@@ -145,7 +145,7 @@
             "name": "한화",
             "logo_key": "hanwha"
           },
-          "game_status": "in_progress"
+          "game_status": "final"
         },
         {
           "s_no": 20260659,
@@ -157,7 +157,7 @@
             "name": "롯데",
             "logo_key": "lotte"
           },
-          "game_status": "in_progress"
+          "game_status": "final"
         },
         {
           "s_no": 20260660,
@@ -561,18 +561,18 @@
       },
       "home_sp_name": "원태인",
       "away_sp_name": "비슬리",
-      "game_status": "in_progress",
+      "game_status": "final",
       "submitted_at": "2026-09-03T18:01:13.419711+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 50.8,
-      "predicted_winner": null,
+      "predicted_winner": "home",
       "scheduler": null,
-      "home_score": null,
-      "away_score": null,
-      "actual_winner": null,
-      "correct": null
+      "home_score": 2,
+      "away_score": 3,
+      "actual_winner": "away",
+      "correct": false
     },
     {
       "s_no": 20260658,
@@ -588,18 +588,18 @@
       },
       "home_sp_name": "고영표",
       "away_sp_name": "왕옌청",
-      "game_status": "in_progress",
+      "game_status": "final",
       "submitted_at": "2026-09-03T18:01:08.418544+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 53.07,
-      "predicted_winner": null,
+      "predicted_winner": "home",
       "scheduler": null,
-      "home_score": null,
-      "away_score": null,
-      "actual_winner": null,
-      "correct": null
+      "home_score": 13,
+      "away_score": 11,
+      "actual_winner": "home",
+      "correct": true
     },
     {
       "s_no": 20260657,
@@ -615,18 +615,18 @@
       },
       "home_sp_name": "박준현",
       "away_sp_name": "이로운",
-      "game_status": "in_progress",
+      "game_status": "final",
       "submitted_at": "2026-09-03T18:01:03.418326+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 52.13,
-      "predicted_winner": null,
+      "predicted_winner": "home",
       "scheduler": null,
-      "home_score": null,
-      "away_score": null,
-      "actual_winner": null,
-      "correct": null
+      "home_score": 3,
+      "away_score": 2,
+      "actual_winner": "home",
+      "correct": true
     },
     {
       "s_no": 20260656,
@@ -642,18 +642,18 @@
       },
       "home_sp_name": "곽빈",
       "away_sp_name": "박시원",
-      "game_status": "in_progress",
+      "game_status": "final",
       "submitted_at": "2026-09-03T18:00:58.424960+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 54.49,
-      "predicted_winner": null,
+      "predicted_winner": "home",
       "scheduler": null,
-      "home_score": null,
-      "away_score": null,
-      "actual_winner": null,
-      "correct": null
+      "home_score": 0,
+      "away_score": 1,
+      "actual_winner": "away",
+      "correct": false
     },
     {
       "s_no": 20260655,
@@ -9435,13 +9435,101 @@
     "window": {
       "type": "all_finalized_submitted_games",
       "requested": null,
-      "sample_size": 262
+      "sample_size": 266
     },
-    "accuracy": 0.5687,
-    "log_loss": 0.6861,
-    "brier": 0.2465
+    "accuracy": 0.5677,
+    "log_loss": 0.6863,
+    "brier": 0.2466
   },
   "results": [
+    {
+      "s_no": 20260659,
+      "game_date": "2026-09-03",
+      "game_time": "18:30:00",
+      "home_team": {
+        "name": "삼성",
+        "logo_key": "samsung"
+      },
+      "away_team": {
+        "name": "롯데",
+        "logo_key": "lotte"
+      },
+      "home_score": 2,
+      "away_score": 3,
+      "home_win_probability": 50.8,
+      "predicted_winner": "home",
+      "actual_winner": "away",
+      "correct": false,
+      "model_version": "lgbm_v008",
+      "submitted_at": "2026-09-03T18:01:13.419711+09:00",
+      "submission_source": "auto"
+    },
+    {
+      "s_no": 20260658,
+      "game_date": "2026-09-03",
+      "game_time": "18:30:00",
+      "home_team": {
+        "name": "KT",
+        "logo_key": "kt"
+      },
+      "away_team": {
+        "name": "한화",
+        "logo_key": "hanwha"
+      },
+      "home_score": 13,
+      "away_score": 11,
+      "home_win_probability": 53.07,
+      "predicted_winner": "home",
+      "actual_winner": "home",
+      "correct": true,
+      "model_version": "lgbm_v008",
+      "submitted_at": "2026-09-03T18:01:08.418544+09:00",
+      "submission_source": "auto"
+    },
+    {
+      "s_no": 20260657,
+      "game_date": "2026-09-03",
+      "game_time": "18:30:00",
+      "home_team": {
+        "name": "키움",
+        "logo_key": "kiwoom"
+      },
+      "away_team": {
+        "name": "SSG",
+        "logo_key": "ssg"
+      },
+      "home_score": 3,
+      "away_score": 2,
+      "home_win_probability": 52.13,
+      "predicted_winner": "home",
+      "actual_winner": "home",
+      "correct": true,
+      "model_version": "lgbm_v008",
+      "submitted_at": "2026-09-03T18:01:03.418326+09:00",
+      "submission_source": "auto"
+    },
+    {
+      "s_no": 20260656,
+      "game_date": "2026-09-03",
+      "game_time": "18:30:00",
+      "home_team": {
+        "name": "두산",
+        "logo_key": "doosan"
+      },
+      "away_team": {
+        "name": "LG",
+        "logo_key": "lg"
+      },
+      "home_score": 0,
+      "away_score": 1,
+      "home_win_probability": 54.49,
+      "predicted_winner": "home",
+      "actual_winner": "away",
+      "correct": false,
+      "model_version": "lgbm_v008",
+      "submitted_at": "2026-09-03T18:00:58.424960+09:00",
+      "submission_source": "auto"
+    },
     {
       "s_no": 20260655,
       "game_date": "2026-09-02",
