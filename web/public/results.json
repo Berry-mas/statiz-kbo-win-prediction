@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-04T09:00:50.441111+00:00",
+  "generated_at": "2026-09-04T09:30:13.161545+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "삼성",
           "logo_key": "samsung"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260662,
@@ -63,7 +63,7 @@
           "name": "NC",
           "logo_key": "nc"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260663,
@@ -75,7 +75,7 @@
           "name": "두산",
           "logo_key": "doosan"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260664,
@@ -87,7 +87,7 @@
           "name": "KT",
           "logo_key": "kt"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260665,
@@ -99,7 +99,7 @@
           "name": "한화",
           "logo_key": "hanwha"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -121,7 +121,7 @@
             "name": "삼성",
             "logo_key": "samsung"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260662,
@@ -133,7 +133,7 @@
             "name": "NC",
             "logo_key": "nc"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260663,
@@ -145,7 +145,7 @@
             "name": "두산",
             "logo_key": "doosan"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260664,
@@ -157,7 +157,7 @@
             "name": "KT",
             "logo_key": "kt"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260665,
@@ -169,7 +169,7 @@
             "name": "한화",
             "logo_key": "hanwha"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -534,7 +534,7 @@
       },
       "home_sp_name": "김진욱",
       "away_sp_name": "박준영",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-04T18:00:50.305289+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -561,7 +561,7 @@
       },
       "home_sp_name": "올러",
       "away_sp_name": "배제성",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-04T18:00:45.301879+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -588,7 +588,7 @@
       },
       "home_sp_name": "아빌라",
       "away_sp_name": "박신지",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-04T18:00:40.307372+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -615,7 +615,7 @@
       },
       "home_sp_name": "안우진",
       "away_sp_name": "라일리",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-04T18:00:35.306707+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -642,7 +642,7 @@
       },
       "home_sp_name": "카라스코",
       "away_sp_name": "페덱",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-04T18:00:30.318364+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
