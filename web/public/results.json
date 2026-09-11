@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-11T09:01:03.053131+00:00",
+  "generated_at": "2026-09-11T09:30:21.799965+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "NC",
           "logo_key": "nc"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260928,
@@ -63,7 +63,7 @@
           "name": "키움",
           "logo_key": "kiwoom"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260929,
@@ -75,7 +75,7 @@
           "name": "KT",
           "logo_key": "kt"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20261020,
@@ -87,7 +87,7 @@
           "name": "SSG",
           "logo_key": "ssg"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -109,7 +109,7 @@
             "name": "NC",
             "logo_key": "nc"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260928,
@@ -121,7 +121,7 @@
             "name": "키움",
             "logo_key": "kiwoom"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260929,
@@ -133,7 +133,7 @@
             "name": "KT",
             "logo_key": "kt"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20261020,
@@ -145,7 +145,7 @@
             "name": "SSG",
             "logo_key": "ssg"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -486,7 +486,7 @@
       },
       "home_sp_name": "양현종",
       "away_sp_name": "이준기",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-11T18:01:02.787643+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -513,7 +513,7 @@
       },
       "home_sp_name": "김진욱",
       "away_sp_name": "로건",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-11T18:00:57.743129+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -540,7 +540,7 @@
       },
       "home_sp_name": "페덱",
       "away_sp_name": "전준표",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-11T18:00:52.742745+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -567,7 +567,7 @@
       },
       "home_sp_name": "황준서",
       "away_sp_name": "이재학",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-11T18:00:47.767568+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
