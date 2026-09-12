@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-12T07:31:02.688640+00:00",
+  "generated_at": "2026-09-12T08:00:48.120092+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "NC",
           "logo_key": "nc"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260931,
@@ -63,7 +63,7 @@
           "name": "롯데",
           "logo_key": "lotte"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260932,
@@ -75,7 +75,7 @@
           "name": "KIA",
           "logo_key": "kia"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260933,
@@ -87,7 +87,7 @@
           "name": "LG",
           "logo_key": "lg"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -109,7 +109,7 @@
             "name": "NC",
             "logo_key": "nc"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260931,
@@ -121,7 +121,7 @@
             "name": "롯데",
             "logo_key": "lotte"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260932,
@@ -133,7 +133,7 @@
             "name": "KIA",
             "logo_key": "kia"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260933,
@@ -145,7 +145,7 @@
             "name": "LG",
             "logo_key": "lg"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -474,7 +474,7 @@
       },
       "home_sp_name": "후라도",
       "away_sp_name": "톨허스트",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-12T16:31:02.437737+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -501,7 +501,7 @@
       },
       "home_sp_name": "대니엘",
       "away_sp_name": "네일",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-12T16:30:57.410302+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -528,7 +528,7 @@
       },
       "home_sp_name": "알칸타라",
       "away_sp_name": "로드리게스",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-12T16:30:52.411740+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -555,7 +555,7 @@
       },
       "home_sp_name": "잭로그",
       "away_sp_name": "구창모",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-12T16:30:47.421754+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
