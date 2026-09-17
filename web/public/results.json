@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-17T09:00:30.219164+00:00",
+  "generated_at": "2026-09-17T09:30:48.244013+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "키움",
           "logo_key": "kiwoom"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260947,
@@ -63,7 +63,7 @@
           "name": "SSG",
           "logo_key": "ssg"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -85,7 +85,7 @@
             "name": "키움",
             "logo_key": "kiwoom"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260947,
@@ -97,7 +97,7 @@
             "name": "SSG",
             "logo_key": "ssg"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -402,7 +402,7 @@
       },
       "home_sp_name": "라일리",
       "away_sp_name": "이로운",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-17T18:00:30.003030+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -429,7 +429,7 @@
       },
       "home_sp_name": "올러",
       "away_sp_name": "안우진",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-17T18:00:25.014110+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
