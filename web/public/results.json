@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-23T09:00:48.977303+00:00",
+  "generated_at": "2026-09-23T09:30:48.647225+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "KIA",
           "logo_key": "kia"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260966,
@@ -63,7 +63,7 @@
           "name": "NC",
           "logo_key": "nc"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260967,
@@ -75,7 +75,7 @@
           "name": "롯데",
           "logo_key": "lotte"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -97,7 +97,7 @@
             "name": "KIA",
             "logo_key": "kia"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260966,
@@ -109,7 +109,7 @@
             "name": "NC",
             "logo_key": "nc"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260967,
@@ -121,7 +121,7 @@
             "name": "롯데",
             "logo_key": "lotte"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -414,7 +414,7 @@
       },
       "home_sp_name": "박준영",
       "away_sp_name": "박세웅",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-23T18:00:48.818018+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -441,7 +441,7 @@
       },
       "home_sp_name": "로건",
       "away_sp_name": "라일리",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-23T18:00:43.822119+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -468,7 +468,7 @@
       },
       "home_sp_name": "잭로그",
       "away_sp_name": "올러",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-23T18:00:38.832707+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
