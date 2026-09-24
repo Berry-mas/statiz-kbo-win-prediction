@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-24T07:30:58.887202+00:00",
+  "generated_at": "2026-09-24T08:00:31.423729+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "롯데",
           "logo_key": "lotte"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260969,
@@ -63,7 +63,7 @@
           "name": "삼성",
           "logo_key": "samsung"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260970,
@@ -75,7 +75,7 @@
           "name": "NC",
           "logo_key": "nc"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -97,7 +97,7 @@
             "name": "롯데",
             "logo_key": "lotte"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260969,
@@ -109,7 +109,7 @@
             "name": "삼성",
             "logo_key": "samsung"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260970,
@@ -121,7 +121,7 @@
             "name": "NC",
             "logo_key": "nc"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -426,7 +426,7 @@
       },
       "home_sp_name": "대니엘",
       "away_sp_name": "송명기",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-24T16:30:58.729246+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -453,7 +453,7 @@
       },
       "home_sp_name": "김민준",
       "away_sp_name": "후라도",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-24T16:30:53.734945+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -480,7 +480,7 @@
       },
       "home_sp_name": "톨허스트",
       "away_sp_name": "로드리게스",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-24T16:30:48.755912+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
