@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-25T07:30:46.751206+00:00",
+  "generated_at": "2026-09-25T08:00:36.659714+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "롯데",
           "logo_key": "lotte"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260972,
@@ -63,7 +63,7 @@
           "name": "삼성",
           "logo_key": "samsung"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20260973,
@@ -75,7 +75,7 @@
           "name": "한화",
           "logo_key": "hanwha"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -97,7 +97,7 @@
             "name": "롯데",
             "logo_key": "lotte"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260972,
@@ -109,7 +109,7 @@
             "name": "삼성",
             "logo_key": "samsung"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20260973,
@@ -121,7 +121,7 @@
             "name": "한화",
             "logo_key": "hanwha"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -414,7 +414,7 @@
       },
       "home_sp_name": "구창모",
       "away_sp_name": "화이트",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-25T16:30:46.593643+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -441,7 +441,7 @@
       },
       "home_sp_name": "이로운",
       "away_sp_name": "김백산",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-25T16:30:41.588482+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -468,7 +468,7 @@
       },
       "home_sp_name": "최승용",
       "away_sp_name": "나균안",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-09-25T16:30:36.589682+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
