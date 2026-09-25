@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-09-25T08:06:53.830547+00:00",
+  "generated_at": "2026-09-25T14:32:03.430530+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -15,14 +15,14 @@
   },
   "model_version": "lgbm_v008",
   "summary": {
-    "published_results": 337,
+    "published_results": 338,
     "recent_submissions": 6,
     "recent_games": 406,
     "latest_submission_at": "2026-09-25T16:30:46.593643+09:00",
     "metrics_window": {
       "type": "all_finalized_submitted_games",
       "requested": null,
-      "sample_size": 337
+      "sample_size": 338
     }
   },
   "manual_workflow": {
@@ -75,7 +75,7 @@
           "name": "한화",
           "logo_key": "hanwha"
         },
-        "game_status": "in_progress"
+        "game_status": "final"
       }
     ]
   },
@@ -121,7 +121,7 @@
             "name": "한화",
             "logo_key": "hanwha"
           },
-          "game_status": "in_progress"
+          "game_status": "final"
         }
       ]
     },
@@ -414,18 +414,18 @@
       },
       "home_sp_name": "구창모",
       "away_sp_name": "화이트",
-      "game_status": "in_progress",
+      "game_status": "final",
       "submitted_at": "2026-09-25T16:30:46.593643+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 51.74,
-      "predicted_winner": null,
+      "predicted_winner": "home",
       "scheduler": null,
-      "home_score": null,
-      "away_score": null,
-      "actual_winner": null,
-      "correct": null
+      "home_score": 8,
+      "away_score": 7,
+      "actual_winner": "home",
+      "correct": true
     },
     {
       "s_no": 20260972,
@@ -11367,13 +11367,35 @@
     "window": {
       "type": "all_finalized_submitted_games",
       "requested": null,
-      "sample_size": 337
+      "sample_size": 338
     },
-    "accuracy": 0.5994,
+    "accuracy": 0.6006,
     "log_loss": 0.6834,
-    "brier": 0.2452
+    "brier": 0.2451
   },
   "results": [
+    {
+      "s_no": 20260973,
+      "game_date": "2026-09-25",
+      "game_time": "17:00:00",
+      "home_team": {
+        "name": "NC",
+        "logo_key": "nc"
+      },
+      "away_team": {
+        "name": "한화",
+        "logo_key": "hanwha"
+      },
+      "home_score": 8,
+      "away_score": 7,
+      "home_win_probability": 51.74,
+      "predicted_winner": "home",
+      "actual_winner": "home",
+      "correct": true,
+      "model_version": "lgbm_v008",
+      "submitted_at": "2026-09-25T16:30:46.593643+09:00",
+      "submission_source": "auto"
+    },
     {
       "s_no": 20260970,
       "game_date": "2026-09-24",
