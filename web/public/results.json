@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-10-04T09:37:34.018560+00:00",
+  "generated_at": "2026-10-04T14:31:34.109434+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -99,7 +99,7 @@
           "name": "롯데",
           "logo_key": "lotte"
         },
-        "game_status": "in_progress"
+        "game_status": "final"
       }
     ]
   },
@@ -169,7 +169,7 @@
             "name": "롯데",
             "logo_key": "lotte"
           },
-          "game_status": "in_progress"
+          "game_status": "final"
         }
       ]
     },
@@ -510,16 +510,16 @@
       },
       "home_sp_name": "배제성",
       "away_sp_name": "나균안",
-      "game_status": "in_progress",
+      "game_status": "final",
       "submitted_at": "2026-10-04T16:30:54.729518+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
       "probability_published": true,
       "home_win_probability": 51.46,
-      "predicted_winner": null,
+      "predicted_winner": "home",
       "scheduler": null,
-      "home_score": null,
-      "away_score": null,
+      "home_score": 2,
+      "away_score": 2,
       "actual_winner": null,
       "correct": null
     },
