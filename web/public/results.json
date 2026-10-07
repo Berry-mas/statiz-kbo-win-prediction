@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-10-07T09:01:12.463731+00:00",
+  "generated_at": "2026-10-07T09:30:28.530326+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "두산",
           "logo_key": "doosan"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20261016,
@@ -63,7 +63,7 @@
           "name": "한화",
           "logo_key": "hanwha"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20261017,
@@ -75,7 +75,7 @@
           "name": "NC",
           "logo_key": "nc"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20261018,
@@ -87,7 +87,7 @@
           "name": "삼성",
           "logo_key": "samsung"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20261019,
@@ -99,7 +99,7 @@
           "name": "KIA",
           "logo_key": "kia"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -121,7 +121,7 @@
             "name": "두산",
             "logo_key": "doosan"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20261016,
@@ -133,7 +133,7 @@
             "name": "한화",
             "logo_key": "hanwha"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20261017,
@@ -145,7 +145,7 @@
             "name": "NC",
             "logo_key": "nc"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20261018,
@@ -157,7 +157,7 @@
             "name": "삼성",
             "logo_key": "samsung"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20261019,
@@ -169,7 +169,7 @@
             "name": "KIA",
             "logo_key": "kia"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -522,7 +522,7 @@
       },
       "home_sp_name": "김태균",
       "away_sp_name": "양현종",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-10-07T18:01:12.219944+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -549,7 +549,7 @@
       },
       "home_sp_name": "소형준",
       "away_sp_name": "원태인",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-10-07T18:01:07.225177+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -576,7 +576,7 @@
       },
       "home_sp_name": "김민준",
       "away_sp_name": "송명기",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-10-07T18:01:02.263094+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -603,7 +603,7 @@
       },
       "home_sp_name": "김성진",
       "away_sp_name": "정우주",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-10-07T18:00:57.206717+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -630,7 +630,7 @@
       },
       "home_sp_name": "임찬규",
       "away_sp_name": "최민석",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-10-07T18:00:52.217017+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
