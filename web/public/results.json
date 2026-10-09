@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-10-09T04:31:11.694890+00:00",
+  "generated_at": "2026-10-09T05:00:43.315530+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -51,7 +51,7 @@
           "name": "삼성",
           "logo_key": "samsung"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20261053,
@@ -63,7 +63,7 @@
           "name": "LG",
           "logo_key": "lg"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20261054,
@@ -75,7 +75,7 @@
           "name": "KIA",
           "logo_key": "kia"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -97,7 +97,7 @@
             "name": "삼성",
             "logo_key": "samsung"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20261053,
@@ -109,7 +109,7 @@
             "name": "LG",
             "logo_key": "lg"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20261054,
@@ -121,7 +121,7 @@
             "name": "KIA",
             "logo_key": "kia"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -486,7 +486,7 @@
       },
       "home_sp_name": "구창모",
       "away_sp_name": "네일",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-10-09T13:31:11.522351+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -513,7 +513,7 @@
       },
       "home_sp_name": "김한결",
       "away_sp_name": "카라스코",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-10-09T13:31:06.522451+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -540,7 +540,7 @@
       },
       "home_sp_name": "이로운",
       "away_sp_name": "사토시",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-10-09T13:31:01.559112+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
