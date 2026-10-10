@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "generated_at": "2026-10-10T07:30:45.472316+00:00",
+  "generated_at": "2026-10-10T08:00:38.432916+00:00",
   "publication_policy": {
     "scope": "Public dashboard data only",
     "probability_visibility": "Submitted probabilities are published for submitted games; outcomes are published for finalized games only.",
@@ -63,7 +63,7 @@
           "name": "NC",
           "logo_key": "nc"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       },
       {
         "s_no": 20261056,
@@ -75,7 +75,7 @@
           "name": "SSG",
           "logo_key": "ssg"
         },
-        "game_status": "scheduled"
+        "game_status": "in_progress"
       }
     ]
   },
@@ -109,7 +109,7 @@
             "name": "NC",
             "logo_key": "nc"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         },
         {
           "s_no": 20261056,
@@ -121,7 +121,7 @@
             "name": "SSG",
             "logo_key": "ssg"
           },
-          "game_status": "scheduled"
+          "game_status": "in_progress"
         }
       ]
     },
@@ -462,7 +462,7 @@
       },
       "home_sp_name": "시라카와",
       "away_sp_name": "최민준",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-10-10T16:30:45.291966+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
@@ -489,7 +489,7 @@
       },
       "home_sp_name": "황준서",
       "away_sp_name": "클레빈저",
-      "game_status": "scheduled",
+      "game_status": "in_progress",
       "submitted_at": "2026-10-10T16:30:40.298653+09:00",
       "submission_source": "auto",
       "model_version": "lgbm_v008",
